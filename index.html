@@ -5,15 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Barcode Label PRN Generator</title>
 <style>
-:root {
-  --bg:#f5f4f1; --surface:#fff; --surface2:#f0efe9; --surface3:#e8e6df;
-  --border:#e2e0d8; --border2:#ccc9be;
-  --text:#1a1a18; --text2:#6b6a64; --text3:#9a9990;
-  --accent:#1a1a18; --accent-fg:#fff;
-  --info-bg:#eef4ff; --info-text:#2255bb;
-  --success-bg:#edfaf3; --success-text:#1a6640;
+:root{
+  --bg:#f5f4f1;--surface:#fff;--surface2:#f0efe9;--surface3:#e8e6df;
+  --border:#e2e0d8;--border2:#ccc9be;
+  --text:#1a1a18;--text2:#6b6a64;--text3:#9a9990;
+  --accent:#1a1a18;--accent-fg:#fff;
+  --info-bg:#eef4ff;--info-text:#2255bb;--info-border:#aac4ff;
+  --success-bg:#edfaf3;--success-text:#1a6640;
+  --warn-bg:#fff8e6;--warn-border:#f5c842;
   --danger:#cc3333;
-  --radius:10px; --radius-sm:6px;
+  --hard-bg:#fff8f0;--hard-border:#f5c88a;--hard-text:#7a4400;
+  --radius:10px;--radius-sm:6px;
   --mono:'Courier New',Courier,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -24,7 +26,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
 .logo-sub{font-weight:400;color:var(--text2);font-size:13px;margin-left:2px}
 
-main{max-width:840px;margin:0 auto;padding:2rem 1.5rem 5rem}
+main{max-width:860px;margin:0 auto;padding:2rem 1.5rem 5rem}
 
 .step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
 .step-head{display:flex;align-items:center;gap:10px;margin-bottom:1.1rem}
@@ -44,49 +46,80 @@ textarea{resize:vertical}
 .tab:hover{background:var(--surface2)}
 .tab.on{background:var(--surface2);color:var(--text);font-weight:600;border-color:var(--border2)}
 
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:1.5rem;text-align:center;cursor:pointer;color:var(--text2);font-size:13px;transition:background .15s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:1.4rem;text-align:center;cursor:pointer;color:var(--text2);font-size:13px;transition:background .15s;display:flex;flex-direction:column;align-items:center;gap:6px}
 .upload-zone:hover,.upload-zone.drag{background:var(--surface2)}
 .upload-zone svg{opacity:.4}
 .upload-zone.has-file{border-color:var(--success-text);background:var(--success-bg);color:var(--success-text)}
-.img-preview{max-width:100%;border-radius:var(--radius-sm);margin-top:10px;border:1px solid var(--border);max-height:220px;object-fit:contain}
+.img-preview{max-width:100%;border-radius:var(--radius-sm);margin-top:10px;border:1px solid var(--border);max-height:200px;object-fit:contain}
 
-/* ── Field rows ── */
-.frow{display:flex;align-items:center;gap:7px;padding:7px 10px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:5px;border:1.5px solid transparent;transition:border-color .15s,opacity .2s,box-shadow .15s}
-.frow:hover{border-color:var(--border)}
-.frow.dragging{opacity:.35;border-color:var(--border2)}
-.frow.drag-over{border-color:var(--info-text);box-shadow:0 0 0 3px var(--info-bg);background:var(--info-bg)}
-.drag-handle{cursor:grab;color:var(--text3);font-size:17px;flex-shrink:0;line-height:1;padding:0 2px}
-.drag-handle:active{cursor:grabbing}
-.fname{font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.frow select{width:148px;flex-shrink:0;font-size:12px;padding:5px 7px}
-.frow input[type=text]{width:85px;flex-shrink:0;font-size:12px;padding:5px 6px}
-.frow input[type=number]{width:46px;flex-shrink:0;font-size:12px;padding:5px 6px}
-.frow .rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;flex-shrink:0;transition:color .15s;font-family:inherit}
-.frow .rm:hover{color:var(--danger)}
-.col-hdr{display:flex;align-items:center;gap:7px;padding:0 10px;margin-bottom:4px}
-.col-hdr span{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
-
-/* ── Barcode picker box ── */
-.bc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem}
+/* ── bc box ── */
+.bc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.2rem}
 .bc-note{font-size:11px;color:var(--text3);margin-top:8px;font-style:italic}
 
-/* Hardcode rows */
-.hrow{display:flex;gap:8px;padding:10px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:6px;border:1px solid var(--border)}
-.hrow textarea{flex:1;min-height:60px;font-family:var(--mono);font-size:12px}
-.hcontrols{display:flex;flex-direction:column;gap:5px;flex-shrink:0;width:126px}
-.hcontrols label{font-size:11px;color:var(--text2);font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:4px}
-.hcontrols input,.hcontrols select{width:60px;font-size:12px;padding:4px 5px}
-.hrow .rm{align-self:flex-start;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;font-family:inherit}
-.hrow .rm:hover{color:var(--danger)}
+/* ══════════════════════════════════
+   UNIFIED SEQUENCE ROWS
+   Two flavours: .seq-dyn (blue tint) and .seq-hard (amber tint)
+══════════════════════════════════ */
+.seq-list{margin-bottom:4px}
 
+/* drop zone indicator shown between rows */
+.drop-indicator{height:3px;border-radius:2px;background:var(--info-text);margin:2px 0;display:none;transition:opacity .1s}
+.drop-indicator.active{display:block}
+
+.seq-row{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:8px 10px;border-radius:var(--radius-sm);
+  margin-bottom:4px;border:1.5px solid transparent;
+  transition:border-color .12s,opacity .18s,box-shadow .12s;
+  cursor:default;
+}
+.seq-row:hover{border-color:var(--border)}
+.seq-row.dragging{opacity:.3;border-color:var(--border2)}
+.seq-row.drag-over{border-color:var(--info-text);box-shadow:0 0 0 3px var(--info-bg)}
+
+/* dynamic field row */
+.seq-dyn{background:var(--surface2)}
+/* hardcoded block row */
+.seq-hard{background:var(--hard-bg);border-color:var(--hard-border)!important}
+.seq-hard:hover{border-color:#e0a050!important}
+
+.drag-handle{cursor:grab;color:var(--text3);font-size:17px;flex-shrink:0;line-height:1;padding:2px 2px 0;margin-top:1px}
+.drag-handle:active{cursor:grabbing}
+
+/* dyn row inner layout */
+.seq-dyn-inner{flex:1;display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
+.fname{font-size:13px;font-weight:600;min-width:90px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.seq-dyn-inner select{width:148px;flex-shrink:0;font-size:12px;padding:5px 7px}
+.seq-dyn-inner input[type=text]{width:82px;flex-shrink:0;font-size:12px;padding:5px 6px}
+.seq-dyn-inner input[type=number]{width:46px;flex-shrink:0;font-size:12px;padding:5px 6px}
+
+/* hard row inner layout */
+.seq-hard-inner{flex:1;min-width:0;display:flex;gap:8px;align-items:flex-start}
+.hard-tag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--hard-text);background:#fde8c0;border-radius:3px;padding:2px 6px;white-space:nowrap;flex-shrink:0;margin-top:3px}
+.hard-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.hard-body textarea{font-family:var(--mono);font-size:12px;min-height:52px;padding:6px 8px}
+.hard-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hard-meta label{font-size:11px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.hard-meta input[type=number]{width:50px;font-size:12px;padding:4px 5px}
+.hard-meta select{width:62px;font-size:12px;padding:4px 5px}
+.hard-meta input[type=checkbox]{width:auto}
+
+.seq-row .rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;flex-shrink:0;font-family:inherit;transition:color .12s;align-self:flex-start;margin-top:2px}
+.seq-row .rm:hover{color:var(--danger)}
+
+/* add buttons row */
+.add-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.add-btns input{flex:1;min-width:160px;font-size:13px}
+
+/* ── buttons ── */
 .btn-primary{width:100%;padding:11px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:.6rem;font-family:inherit;letter-spacing:.01em;transition:opacity .15s}
 .btn-primary:hover{opacity:.85}
-.btn-secondary{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s}
+.btn-secondary{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
 .btn-secondary:hover{background:var(--surface2)}
+.btn-hard{padding:6px 12px;border:1px solid var(--hard-border);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--hard-bg);color:var(--hard-text);font-family:inherit;font-weight:600;transition:background .15s;white-space:nowrap}
+.btn-hard:hover{background:#fde8c0}
 
-.add-row{display:flex;gap:7px;margin-top:10px}
-.add-row input{flex:1}
-
+/* ── PRN output ── */
 .prn-box{background:#1a1a18;color:#e8e6df;border-radius:var(--radius-sm);padding:1.1rem 1.2rem;font-family:var(--mono);font-size:11.5px;line-height:1.9;white-space:pre-wrap;word-break:break-all;min-height:80px;max-height:520px;overflow-y:auto}
 .prn-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
 
@@ -94,32 +127,39 @@ textarea{resize:vertical}
 .preview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
 .preview-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
 .preview-scroll{overflow-x:auto;padding-bottom:6px}
-.lbl-canvas{background:#fff;border:1.5px solid var(--border2);border-radius:5px;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.08);display:inline-block;min-width:160px;min-height:80px}
+.lbl-canvas{background:#fff;border:1.5px solid var(--border2);border-radius:5px;position:relative;box-shadow:0 2px 14px rgba(0,0,0,.09);display:inline-block;min-width:160px;min-height:80px}
 /* label element types */
-.le-text{position:absolute;font-family:var(--mono);white-space:nowrap;color:#111;line-height:1.15;pointer-events:none}
+.le{position:absolute;pointer-events:none}
+.le-text{font-family:var(--mono);white-space:nowrap;color:#111;line-height:1.2}
 .le-text.mrp{font-weight:700}
-.le-text.wrap2{color:#999;font-style:italic}
-.le-text.hard{color:#555}
-.le-bc-wrap{position:absolute;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none}
-.le-bc-bars{display:flex;align-items:flex-end;gap:0}
+.le-text.sub{color:#aaa;font-style:italic}
+.le-hard-line{font-family:var(--mono);white-space:nowrap;color:#555}
+.le-bc-wrap{display:flex;flex-direction:column;align-items:flex-start}
+.le-bc-bars{display:flex;align-items:flex-end}
 .le-bc-bar{background:#111;display:inline-block}
-.le-bc-label{font-family:var(--mono);color:#333;margin-top:2px}
-.le-rule{position:absolute;left:4px;right:4px;border-top:1px dashed #ddd;pointer-events:none}
+.le-bc-num{font-family:var(--mono);color:#333;margin-top:2px}
+.le-rule{left:4px;right:4px;border-top:1px dashed #e0ddd5}
+
 .preview-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
 
+/* misc */
 .hint{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5}
 .divider{height:1px;background:var(--border);margin:1rem 0}
 .sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
 .tpl-tag{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
 .mirror-note{font-size:12px;color:var(--info-text);background:var(--info-bg);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:10px;border-left:3px solid var(--info-text);line-height:1.5}
-.empty-note{font-size:13px;color:var(--text3);padding:6px 2px}
+.empty-note{font-size:13px;color:var(--text3);padding:8px 2px}
+.legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
 
-@media(max-width:600px){
+@media(max-width:620px){
   main{padding:1rem 1rem 3rem}
   .grid2{grid-template-columns:1fr}
-  .frow{flex-wrap:wrap}
-  .frow select{width:100%}
+  .seq-dyn-inner{flex-wrap:wrap}
+  .seq-dyn-inner select{width:100%}
   header{padding:0 1rem}
+  .hard-meta{gap:4px}
 }
 </style>
 </head>
@@ -180,16 +220,16 @@ textarea{resize:vertical}
       ondragover="event.preventDefault();this.classList.add('drag')"
       ondragleave="this.classList.remove('drag')"
       ondrop="onDrop(event)">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <span>Drop barcode label image here, or click to browse</span>
       <span style="font-size:11px;color:var(--text3)">PNG, JPG, WEBP</span>
     </div>
     <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
     <img id="ip" class="img-preview" style="display:none">
-    <p class="hint" style="margin-top:8px">Add each <strong>dynamic field</strong> from the label below. Fixed text (address, "Made in India") goes in step 3 as hardcoded blocks.</p>
-    <div class="add-row">
-      <input type="text" id="qa" placeholder="Field name, e.g. Category, MRP, EAN…" onkeydown="if(event.key==='Enter')addQ()">
-      <button class="btn-secondary" onclick="addQ()">+ Add field</button>
+    <p class="hint" style="margin-top:8px">Add each dynamic field from the label below. Hardcoded text blocks (address, "Made in India", etc.) are added in step 3 and can be freely mixed and reordered with dynamic fields.</p>
+    <div style="display:flex;gap:7px;margin-top:10px">
+      <input type="text" id="qa" placeholder="Dynamic field name, e.g. Category, MRP…" onkeydown="if(event.key==='Enter')addDyn()">
+      <button class="btn-secondary" onclick="addDyn()">+ Add field</button>
     </div>
   </div>
   <div id="p-txt" style="display:none">
@@ -197,7 +237,7 @@ textarea{resize:vertical}
       <label>Field names — one per line or comma-separated</label>
       <textarea id="ftext" rows="7" placeholder="Category&#10;MRP&#10;Name&#10;Fit&#10;Color&#10;Size&#10;Store Reference&#10;EAN" oninput="onTxtF()"></textarea>
     </div>
-    <p class="hint">Each line becomes one dynamic field on the label.</p>
+    <p class="hint">Each line becomes one dynamic field.</p>
   </div>
 </div>
 
@@ -205,13 +245,13 @@ textarea{resize:vertical}
 <div class="step" id="s3" style="display:none">
   <div class="step-head">
     <span class="step-num">3</span>
-    <span class="step-title">Variable Mapping</span>
+    <span class="step-title">Sequence & Variable Mapping</span>
     <span class="step-badge" id="s3b"></span>
   </div>
 
-  <!-- Barcode variable picker -->
+  <!-- Barcode picker -->
   <div class="bc-box">
-    <div class="sec-label" style="margin-bottom:8px">Barcode variable(s) — select up to 2</div>
+    <div class="sec-label" style="margin-bottom:8px">Barcode variable(s) — up to 2</div>
     <div class="grid2" style="gap:.75rem">
       <div class="field">
         <label>Barcode 1</label>
@@ -222,34 +262,28 @@ textarea{resize:vertical}
         <select id="bc2var" onchange="onBcChange()"><option value="">— none —</option></select>
       </div>
     </div>
-    <p class="bc-note">Selected variables print as B (barcode) commands. All other fields print as A (text) commands.</p>
+    <p class="bc-note">Barcode fields always print after all text rows, using B commands. Barcodes cannot be interleaved with text rows in the PRN format.</p>
   </div>
 
-  <!-- Dynamic fields with drag-to-reorder -->
-  <div class="sec-label">Dynamic fields — drag ≡ to reorder</div>
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--surface2);border:1px solid var(--border)"></div>Dynamic field (variable)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--hard-bg);border:1px solid var(--hard-border)"></div>Hardcoded text block</div>
+  </div>
+
+  <!-- Unified sequence -->
   <div id="dblNote" class="mirror-note" style="display:none">
-    <strong>Double layer:</strong> Fields are mirrored — left copy V00–V(n-1), right copy V(n)–V(2n-1). The FR loop feeds one set of values per row.
+    <strong>Double layer:</strong> The sequence below is mirrored to both left and right label copies automatically.
   </div>
-  <div class="col-hdr">
-    <span style="width:22px"></span>
-    <span style="flex:1">Field name</span>
-    <span style="width:148px">Variable</span>
-    <span style="width:85px">Prefix</span>
-    <span style="width:46px;text-align:center">Wrap</span>
-    <span style="width:22px"></span>
-  </div>
-  <div id="frows"><p class="empty-note">No fields added yet.</p></div>
-  <p class="hint" style="margin-top:5px">Drag to reorder → order here = variable sequence in PRN output.</p>
+  <p class="hint" style="margin-bottom:8px">Drag the <strong>≡</strong> handle to reorder items. Dynamic fields and hardcoded blocks can be freely mixed — the Y position in the PRN is calculated from their order here.</p>
+  <div class="seq-list" id="seqList"><p class="empty-note">No items yet — add dynamic fields above or hardcoded blocks below.</p></div>
 
-  <div class="divider"></div>
-
-  <!-- Hardcoded blocks -->
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-    <div class="sec-label" style="margin-bottom:0">Hardcoded text blocks</div>
-    <button class="btn-secondary" onclick="addHard()">+ Add block</button>
+  <!-- Add buttons -->
+  <div class="add-btns">
+    <input type="text" id="dynAdd" placeholder="Add dynamic field…" onkeydown="if(event.key==='Enter')addDyn()">
+    <button class="btn-secondary" onclick="addDyn()">+ Dynamic field</button>
+    <button class="btn-hard" onclick="addHard()">+ Hardcoded block</button>
   </div>
-  <p class="hint" style="margin-bottom:10px">Fixed text on every label — address, "Made in India", legal text. Becomes literal <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:11px">A</code> commands in the PRN header.</p>
-  <div id="hrows"><p class="empty-note">No hardcoded blocks yet.</p></div>
 </div>
 
 <!-- Preview -->
@@ -267,7 +301,7 @@ textarea{resize:vertical}
   <div class="preview-scroll">
     <div class="lbl-canvas" id="lc"></div>
   </div>
-  <p class="preview-caption">Proportional preview — actual dimensions depend on printer DPI &amp; label size.</p>
+  <p class="preview-caption">Proportional preview — actual dimensions depend on printer DPI &amp; label size settings.</p>
 </div>
 
 <!-- Step 4 -->
@@ -284,24 +318,33 @@ textarea{resize:vertical}
 </div>
 
 </main>
+
 <script>
-/* ══════════ VARS ══════════ */
+/* ══════════ CONSTANTS ══════════ */
 const ITYPE_VARS=["Name","ProductCode","MRP","ScanIdentifier","Ean","Upc","Isbn","Color","Size","Category","Brand","Type","Weight","Tags","Style","TaxType"];
 const ITEM_VARS=["ItemName","ItemCode","ItemSku","ItemMrp","ItemEAN","ItemSize","ItemStyle","ItemColor","ItemBrand","ItemCategory","VendorSkuCode","ItemCategoryCode","ItemCreated"];
 const DL={lx:25,rx:430,blx:70,brx:483,by:240,ty0:30,tys:30};
+const SC=0.54; // preview scale: PRN units → px
 
-/* ══════════ STATE ══════════ */
-let S={trace:'',roll:'',tab:'img',fields:[],hards:[],bc1:'',bc2:'',pl:1};
+/* ══════════ STATE ══════════
+   S.seq: ordered array of items, each either:
+     {kind:'dyn',  name, variable, prefix, wrap}
+     {kind:'hard', text, x, y, step, rot, size, mirror}
+   Barcodes are separate (always at end of A section).
+══════════════════════════════ */
+let S={trace:'',roll:'',seq:[],bc1:'',bc2:'',pl:1};
 let dragSrc=null;
 
 /* ══════════ HELPERS ══════════ */
 const isItem=()=>S.trace==='item';
 const isDbl=()=>S.roll==='double';
-const vars=()=>isItem()?ITEM_VARS:ITYPE_VARS;
+const varList=()=>isItem()?ITEM_VARS:ITYPE_VARS;
 const vn=i=>'V'+String(i).padStart(2,'0');
 const cex=f=>isItem()?`$item.${f.variable}`:`$row.getColumnValue('${f.variable}')`;
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-const tpl=()=>(isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN')+' · '+(isDbl()?'Double layer':'Single layer');
+const tplName=()=>(isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN')+' · '+(isDbl()?'Double layer':'Single layer');
+const dyns=()=>S.seq.filter(s=>s.kind==='dyn');
+const hards=()=>S.seq.filter(s=>s.kind==='hard');
 
 /* ══════════ STEP 1 ══════════ */
 function onCfg(){
@@ -310,13 +353,12 @@ function onCfg(){
   const ok=S.trace&&S.roll;
   document.getElementById('s2').style.display=ok?'':'none';
   document.getElementById('tplTag').style.display=ok?'':'none';
-  if(ok)document.getElementById('tplName').textContent=tpl();
+  if(ok)document.getElementById('tplName').textContent=tplName();
   renderAll();showBelow();
 }
 
 /* ══════════ STEP 2 ══════════ */
 function swTab(t){
-  S.tab=t;
   ['img','txt'].forEach(x=>{
     document.getElementById('t-'+x).className='tab'+(t===x?' on':'');
     document.getElementById('p-'+x).style.display=t===x?'':'none';
@@ -326,40 +368,56 @@ function onDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');c
 function onFile(e){const f=e.target.files[0];if(f)loadImg(f);}
 function loadImg(f){
   const r=new FileReader();
-  r.onload=ev=>{const el=document.getElementById('ip');el.src=ev.target.result;el.style.display='';
+  r.onload=ev=>{
+    const el=document.getElementById('ip');el.src=ev.target.result;el.style.display='';
     const dz=document.getElementById('dz');dz.classList.add('has-file');
-    dz.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>${f.name}</span>`;};
+    dz.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>${esc(f.name)}</span>`;
+  };
   r.readAsDataURL(f);
 }
-function addQ(){
-  const el=document.getElementById('qa');const v=el.value.trim();if(!v)return;
-  if(!S.fields.find(f=>f.name===v))S.fields.push({name:v,variable:'',prefix:'',wrap:0});
+
+/* ══════════ ADD ITEMS ══════════ */
+function addDyn(){
+  const el=document.getElementById('dynAdd')||document.getElementById('qa');
+  const v=el.value.trim();if(!v)return;
+  if(!S.seq.find(s=>s.kind==='dyn'&&s.name===v))
+    S.seq.push({kind:'dyn',name:v,variable:'',prefix:'',wrap:0});
   el.value='';renderAll();showBelow();
 }
+
 function onTxtF(){
   const names=document.getElementById('ftext').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
-  S.fields=names.map(n=>S.fields.find(f=>f.name===n)||{name:n,variable:'',prefix:'',wrap:0});
+  // keep existing dyn items if name matches, add new ones, remove old ones not in list
+  const existing=S.seq.filter(s=>s.kind==='dyn');
+  const hardItems=S.seq.filter(s=>s.kind==='hard');
+  const newDyns=names.map(n=>existing.find(s=>s.name===n)||{kind:'dyn',name:n,variable:'',prefix:'',wrap:0});
+  // rebuild seq: preserve relative order of hards, insert dyns in order
+  S.seq=[...newDyns,...hardItems];
   renderAll();showBelow();
 }
 
-/* ══════════ STEP 3 ══════════ */
-function showBelow(){
-  const hasF=S.fields.length>0;
-  const hasM=S.fields.some(f=>f.variable)||S.bc1;
-  document.getElementById('s3').style.display=(hasF||S.hards.length)?'':'none';
-  document.getElementById('s4').style.display=hasM?'':'none';
-  document.getElementById('previewCard').style.display=hasM?'':'none';
-  if(hasM)drawPreview();
+function addHard(){
+  S.seq.push({kind:'hard',text:'',x:15,y:0,step:20,rot:0,size:1,mirror:isDbl()});
+  renderAll();showBelow();
 }
 
-function renderAll(){renderBcPickers();renderRows();renderHards();}
+/* ══════════ RENDER ══════════ */
+function showBelow(){
+  const hasItems=S.seq.length>0;
+  const hasMapped=S.seq.some(s=>s.kind==='dyn'&&s.variable)||S.bc1;
+  document.getElementById('s3').style.display=hasItems?'':'none';
+  document.getElementById('s4').style.display=hasMapped?'':'none';
+  document.getElementById('previewCard').style.display=hasMapped?'':'none';
+  if(hasMapped)drawPreview();
+}
 
-/* barcode pickers */
+function renderAll(){renderBcPickers();renderSeq();}
+
 function renderBcPickers(){
-  const vs=vars();
+  const vs=varList();
   [['bc1var',S.bc1],['bc2var',S.bc2]].forEach(([id,cur])=>{
     const sel=document.getElementById(id);
-    sel.innerHTML=`<option value="">— none —</option>`+vs.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+    sel.innerHTML='<option value="">— none —</option>'+vs.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
   });
 }
 function onBcChange(){
@@ -368,69 +426,98 @@ function onBcChange(){
   showBelow();
 }
 
-/* field rows with drag */
-function renderRows(){
-  const vs=vars();
+/* ── Unified sequence renderer ── */
+function renderSeq(){
   document.getElementById('s3b').textContent=isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN';
   document.getElementById('dblNote').style.display=isDbl()?'':'none';
-  const c=document.getElementById('frows');
-  if(!S.fields.length){c.innerHTML='<p class="empty-note">No fields added yet.</p>';return;}
+  const c=document.getElementById('seqList');
+  if(!S.seq.length){c.innerHTML='<p class="empty-note">No items yet.</p>';return;}
   c.innerHTML='';
-  S.fields.forEach((f,i)=>{
+  const vs=varList();
+
+  S.seq.forEach((item,i)=>{
     const row=document.createElement('div');
-    row.className='frow';row.draggable=true;row.dataset.idx=i;
-    row.addEventListener('dragstart',e=>{dragSrc=i;setTimeout(()=>row.classList.add('dragging'),0);e.dataTransfer.effectAllowed='move';});
-    row.addEventListener('dragend',()=>{row.classList.remove('dragging');document.querySelectorAll('.frow').forEach(r=>r.classList.remove('drag-over'));});
-    row.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.frow').forEach(r=>r.classList.remove('drag-over'));row.classList.add('drag-over');});
-    row.addEventListener('drop',e=>{
-      e.preventDefault();row.classList.remove('drag-over');
-      if(dragSrc===null||dragSrc===i)return;
-      const moved=S.fields.splice(dragSrc,1)[0];S.fields.splice(i,0,moved);
-      dragSrc=null;renderAll();showBelow();
+    row.className='seq-row '+(item.kind==='hard'?'seq-hard':'seq-dyn');
+    row.draggable=true;
+    row.dataset.idx=i;
+
+    /* drag events */
+    row.addEventListener('dragstart',e=>{
+      dragSrc=i;
+      setTimeout(()=>row.classList.add('dragging'),0);
+      e.dataTransfer.effectAllowed='move';
     });
-    const opts=vs.map(v=>`<option value="${v}"${v===f.variable?' selected':''}>${v}</option>`).join('');
-    row.innerHTML=`
-      <span class="drag-handle" title="Drag to reorder">≡</span>
-      <span class="fname" title="${esc(f.name)}">${esc(f.name)}</span>
-      <select onchange="S.fields[${i}].variable=this.value;showBelow()"><option value="">— variable —</option>${opts}</select>
-      <input type="text" value="${esc(f.prefix)}" placeholder='"MRP: Rs."' title="Inline prefix" onchange="S.fields[${i}].prefix=this.value;drawPreview()">
-      <input type="number" min="0" max="80" value="${f.wrap||''}" placeholder="0" title="Wrap at N chars" onchange="S.fields[${i}].wrap=+this.value">
-      <button class="rm" onclick="S.fields.splice(${i},1);renderAll();showBelow()">×</button>`;
+    row.addEventListener('dragend',()=>{
+      row.classList.remove('dragging');
+      document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover',e=>{
+      e.preventDefault();e.dataTransfer.dropEffect='move';
+      document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('drag-over'));
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('drop',e=>{
+      e.preventDefault();
+      document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('drag-over'));
+      if(dragSrc===null||dragSrc===i)return;
+      const moved=S.seq.splice(dragSrc,1)[0];
+      const targetIdx=dragSrc<i?i-1:i; // adjust for splice
+      S.seq.splice(dragSrc<i?i:i,0,moved);
+      dragSrc=null;
+      renderAll();showBelow();
+    });
+
+    /* handle */
+    const handle=document.createElement('span');
+    handle.className='drag-handle';handle.title='Drag to reorder';handle.textContent='≡';
+    row.appendChild(handle);
+
+    if(item.kind==='dyn'){
+      /* ── dynamic field ── */
+      const inner=document.createElement('div');inner.className='seq-dyn-inner';
+      const opts=vs.map(v=>`<option value="${v}"${v===item.variable?' selected':''}>${v}</option>`).join('');
+      inner.innerHTML=`
+        <span class="fname" title="${esc(item.name)}">${esc(item.name)}</span>
+        <select onchange="S.seq[${i}].variable=this.value;showBelow()"><option value="">— variable —</option>${opts}</select>
+        <input type="text" value="${esc(item.prefix)}" placeholder='"MRP: Rs."' title="Inline prefix" onchange="S.seq[${i}].prefix=this.value;drawPreview()">
+        <input type="number" min="0" max="80" value="${item.wrap||''}" placeholder="wrap" title="Wrap at N chars (0=off)" onchange="S.seq[${i}].wrap=+this.value">`;
+      row.appendChild(inner);
+    } else {
+      /* ── hardcoded block ── */
+      const inner=document.createElement('div');inner.className='seq-hard-inner';
+      const tag=document.createElement('span');tag.className='hard-tag';tag.textContent='FIXED';
+      const body=document.createElement('div');body.className='hard-body';
+      const mirrorCheck=isDbl()?`<label><input type="checkbox" ${item.mirror?'checked':''} onchange="S.seq[${i}].mirror=this.checked;drawPreview()"> Both sides</label>`:'';
+      body.innerHTML=`
+        <textarea placeholder="One text line per line, e.g.&#10;Imported/Manufactured &amp; Marketed By:&#10;ACME Pvt. Ltd., Mumbai&#10;+91 98765 43210" onchange="S.seq[${i}].text=this.value;drawPreview()">${esc(item.text||'')}</textarea>
+        <div class="hard-meta">
+          <label>X <input type="number" value="${item.x}" onchange="S.seq[${i}].x=+this.value;drawPreview()"></label>
+          <label>Y offset <input type="number" value="${item.y}" title="Extra Y offset from calculated position (0 = auto from sequence)" onchange="S.seq[${i}].y=+this.value;drawPreview()"></label>
+          <label>Y step <input type="number" value="${item.step}" onchange="S.seq[${i}].step=+this.value;drawPreview()"></label>
+          <label>Rotation <select onchange="S.seq[${i}].rot=+this.value;drawPreview()">
+            <option value="0"${item.rot===0?' selected':''}>0°</option>
+            <option value="1"${item.rot===1?' selected':''}>90°</option>
+            <option value="2"${item.rot===2?' selected':''}>180°</option>
+            <option value="3"${item.rot===3?' selected':''}>270°</option>
+          </select></label>
+          <label>Font <input type="number" value="${item.size}" min="1" max="4" onchange="S.seq[${i}].size=+this.value;drawPreview()"></label>
+          ${mirrorCheck}
+        </div>`;
+      inner.appendChild(tag);inner.appendChild(body);
+      row.appendChild(inner);
+    }
+
+    /* remove button */
+    const rm=document.createElement('button');
+    rm.className='rm';rm.textContent='×';rm.title='Remove';
+    rm.onclick=()=>{S.seq.splice(i,1);renderAll();showBelow();};
+    row.appendChild(rm);
+
     c.appendChild(row);
   });
 }
 
-/* hardcoded blocks */
-function addHard(){S.hards.push({text:'',x:15,y:185,step:20,rot:0,size:1,mirror:isDbl()});renderHards();showBelow();}
-function renderHards(){
-  const c=document.getElementById('hrows');
-  if(!S.hards.length){c.innerHTML='<p class="empty-note">No hardcoded blocks yet.</p>';return;}
-  c.innerHTML='';
-  S.hards.forEach((h,i)=>{
-    const div=document.createElement('div');div.className='hrow';
-    div.innerHTML=`
-      <textarea placeholder="One line per line e.g.&#10;Imported/Manufactured &amp; Marketed By:&#10;ACME Pvt. Ltd., Mumbai&#10;+91 98765 43210" onchange="S.hards[${i}].text=this.value;drawPreview()">${esc(h.text||'')}</textarea>
-      <div class="hcontrols">
-        <label>X <input type="number" value="${h.x}" onchange="S.hards[${i}].x=+this.value;drawPreview()"></label>
-        <label>Y start <input type="number" value="${h.y}" onchange="S.hards[${i}].y=+this.value;drawPreview()"></label>
-        <label>Y step <input type="number" value="${h.step}" onchange="S.hards[${i}].step=+this.value;drawPreview()"></label>
-        <label>Rotation <select style="width:60px" onchange="S.hards[${i}].rot=+this.value;drawPreview()">
-          <option value="0"${h.rot===0?' selected':''}>0°</option>
-          <option value="1"${h.rot===1?' selected':''}>90°</option>
-          <option value="2"${h.rot===2?' selected':''}>180°</option>
-          <option value="3"${h.rot===3?' selected':''}>270°</option>
-        </select></label>
-        <label>Font sz <input type="number" value="${h.size}" min="1" max="4" onchange="S.hards[${i}].size=+this.value;drawPreview()"></label>
-        ${isDbl()?`<label style="font-size:10px">Both sides <input type="checkbox" ${h.mirror?'checked':''} onchange="S.hards[${i}].mirror=this.checked;drawPreview()" style="width:auto"></label>`:''}
-      </div>
-      <button class="rm" onclick="S.hards.splice(${i},1);renderHards();showBelow()">×</button>`;
-    c.appendChild(div);
-  });
-}
-
 /* ══════════ PREVIEW ══════════ */
-const SC=0.54; // scale: PRN units → px
-
 function setPL(n){
   S.pl=n;
   document.getElementById('pl1').className='tab'+(n===1?' on':'');
@@ -443,144 +530,153 @@ function drawPreview(){
   const layerTabs=document.getElementById('layerTabs');
   lc.innerHTML='';
 
-  const textF=S.fields.filter(f=>f.variable);
   const bcs=[S.bc1,S.bc2].filter(Boolean);
-
-  if(!textF.length&&!bcs.length&&!S.hards.length){
-    lc.innerHTML='<p class="empty-note" style="padding:1.5rem 2rem;text-align:center;font-size:12px">Map fields above to see preview</p>';
-    lc.style.width=''; lc.style.height='';
-    return;
+  const hasContent=S.seq.some(s=>s.kind==='hard'&&(s.text||'').trim())||
+                   S.seq.some(s=>s.kind==='dyn'&&s.variable)||bcs.length;
+  if(!hasContent){
+    lc.innerHTML='<p class="empty-note" style="padding:1.5rem 2rem;text-align:center;font-size:12px">Map fields to see preview</p>';
+    lc.style.width='';lc.style.height='';return;
   }
 
   layerTabs.style.display=isDbl()?'flex':'none';
+  const xBase=isDbl()?(S.pl===1?DL.lx:DL.rx):15;
+  const bcX=isDbl()?(S.pl===1?DL.blx:DL.brx):15;
 
-  // Work out which X offset and barcode X to use
-  const xOff = isDbl() ? (S.pl===1 ? DL.lx : DL.rx) : 15;
-  const bcXoff = isDbl() ? (S.pl===1 ? DL.blx : DL.brx) : 15;
-
-  // Compute needed height
-  let curY=10;
-  textF.forEach(f=>{
-    const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
-    curY += f.wrap>0 ? 40 : isMRP ? 25 : 20;
-  });
-  bcs.forEach(()=>curY+=85);
-  let maxHard=curY;
-  S.hards.forEach(h=>{
-    const lines=(h.text||'').split('\n').filter(l=>l.trim());
-    const ey=h.y+lines.length*h.step;
-    if(ey>maxHard)maxHard=ey;
-  });
-  const totalH=Math.max(curY+20, maxHard+20);
-  const labelW = isDbl() ? 400 : 420;
+  /* Compute layout — walk sequence, assign Y to each item */
+  const layout=computeLayout();
+  const totalH=layout.totalH;
+  const labelW=isDbl()?400:430;
   lc.style.width=Math.round(labelW*SC)+'px';
   lc.style.height=Math.round(totalH*SC)+'px';
 
-  function el(tag,cls,txt){const e=document.createElement(tag);e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
+  function mk(cls,txt){const e=document.createElement('div');e.className='le '+cls;if(txt!==undefined)e.textContent=txt;return e;}
   function place(e,x,y){e.style.left=Math.round(x*SC)+'px';e.style.top=Math.round(y*SC)+'px';lc.appendChild(e);}
 
-  // Text fields
-  let y=10;
-  textF.forEach(f=>{
-    const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
-    const pfxText=f.prefix?f.prefix.replace(/^"|"$/g,''):'';
-    const displayName=pfxText+(f.variable||f.name);
-
-    const e=el('div','le-text'+(isMRP?' mrp':''),displayName);
-    e.style.fontSize=(isMRP?11:8)+'px';
-    place(e, xOff, y);
-
-    if(f.wrap>0){
-      const e2=el('div','le-text wrap2','↳ line 2 (wrap)');
-      e2.style.fontSize='7px';
-      place(e2, xOff, y+14);
-      y+=40;
+  layout.items.forEach(li=>{
+    const item=li.item;
+    if(item.kind==='dyn'){
+      const isMRP=item.variable==='MRP'||item.variable==='ItemMrp';
+      const pfx=item.prefix?item.prefix.replace(/^"|"$/g,''):'';
+      const txt=(pfx||'')+(item.variable||item.name);
+      const e=mk('le-text'+(isMRP?' mrp':''),txt);
+      e.style.fontSize=(isMRP?11:8)+'px';
+      place(e,xBase,li.y);
+      if(item.wrap>0){
+        const e2=mk('le-text sub','↳ wrap line 2');
+        e2.style.fontSize='7px';
+        place(e2,xBase,li.y+14);
+      }
     } else {
-      y+=isMRP?25:20;
+      // hardcoded block
+      const lines=(item.text||'').split('\n');
+      let hy=li.y+item.y;
+      lines.forEach(ln=>{
+        if(!ln.trim()){hy+=item.step;return;}
+        const e=mk('le-hard-line',ln);
+        e.style.fontSize=(6+item.size)+'px';
+        if(item.rot===1||item.rot===3){e.style.transform=`rotate(${item.rot===1?90:-90}deg)`;e.style.transformOrigin='top left';}
+        place(e,item.x,hy);hy+=item.step;
+      });
     }
   });
 
-  // Barcodes
+  // barcodes at end
+  let by=layout.afterTextY;
   bcs.forEach(bcVar=>{
-    const wrap=el('div','le-bc-wrap');
-    const bars=el('div','le-bc-bars');
-    const pat=[3,1,2,1,2,3,1,2,1,3,2,1,3,1,2,2,1,3,1,2,3,1,1,2,3];
-    pat.forEach((w,pi)=>{
-      const b=el('div','le-bc-bar');
-      b.style.width=(w*1.2)+'px';
-      b.style.height=Math.round(38*SC)+'px';
+    const wrap=mk('le-bc-wrap');
+    const bars=mk('le-bc-bars');
+    [3,1,2,1,3,2,1,2,3,1,2,1,1,3,2,1,3,1,2,3,1,1,2,3].forEach((w,pi,arr)=>{
+      const b=mk('le-bc-bar');b.style.width=(w*1.3)+'px';b.style.height=Math.round(40*SC)+'px';
       bars.appendChild(b);
-      if(pi<pat.length-1){const g=document.createElement('div');g.style.cssText='width:1.5px;display:inline-block;background:#fff';bars.appendChild(g);}
+      if(pi<arr.length-1){const g=document.createElement('div');g.style.cssText='width:1.5px;display:inline-block;background:#fff';bars.appendChild(g);}
     });
-    const lbl=el('div','le-bc-label',bcVar);
-    lbl.style.fontSize='7px';
-    wrap.appendChild(bars);wrap.appendChild(lbl);
-    place(wrap, bcXoff, y);
-    y+=85;
+    const num=mk('le-bc-num',bcVar);num.style.fontSize='7px';
+    wrap.appendChild(bars);wrap.appendChild(num);
+    place(wrap,bcX,by);by+=85;
   });
+}
 
-  // Separator before hard blocks
-  if(S.hards.some(h=>(h.text||'').trim())){
-    const rule=el('div','le-rule');
-    rule.style.top=Math.round((y+4)*SC)+'px';
-    lc.appendChild(rule);
-  }
-
-  // Hardcoded blocks
-  S.hards.forEach(h=>{
-    const lines=(h.text||'').split('\n');
-    let hy=h.y;
-    lines.forEach(ln=>{
-      if(!ln.trim()){hy+=h.step;return;}
-      const e=el('div','le-text hard',ln);
-      e.style.fontSize=(6+h.size)+'px';
-      if(h.rot===1||h.rot===3){
-        e.style.transform=`rotate(${h.rot===1?90:-90}deg)`;
-        e.style.transformOrigin='top left';
-      }
-      place(e, h.x, hy);
-      hy+=h.step;
-    });
+/* compute Y positions for each seq item */
+function computeLayout(){
+  let y=10;
+  const items=[];
+  S.seq.forEach(item=>{
+    if(item.kind==='dyn'){
+      const isMRP=item.variable==='MRP'||item.variable==='ItemMrp';
+      const h=item.wrap>0?40:isMRP?25:20;
+      items.push({item,y});
+      y+=h;
+    } else {
+      // hard block: measure lines
+      const lines=(item.text||'').split('\n').filter(l=>l.trim());
+      const blockH=Math.max(lines.length,1)*item.step+6;
+      items.push({item,y});
+      y+=blockH;
+    }
   });
+  return {items,afterTextY:y,totalH:Math.max(y+80,200)};
 }
 
 /* ══════════ PRN BUILDER ══════════ */
 function buildPRN(){
-  const textF=S.fields.filter(f=>f.variable);
+  const dynItems=S.seq.filter(s=>s.kind==='dyn'&&s.variable);
   const bcs=[S.bc1,S.bc2].filter(Boolean);
-  if(!textF.length&&!bcs.length) return '; No fields mapped — complete step 3 first.';
+  if(!dynItems.length&&!bcs.length) return '; No fields mapped — complete step 3 first.';
 
   const out=[];
 
-  // Count vars per copy
-  // single: wrap fields get 2 slots; double: 1 slot each
-  const wrapBonus=isDbl()?0:textF.filter(f=>f.wrap>0).length;
-  const vpc=textF.length+wrapBonus+bcs.length;
+  /* count variable slots per copy */
+  const wrapExtra=isDbl()?0:dynItems.filter(f=>f.wrap>0).length;
+  const vpc=dynItems.length+wrapExtra+bcs.length;
 
-  /* compute single-layer Y positions */
-  let slY=[],slBcY=10;
-  if(!isDbl()){
-    let y=10;
-    textF.forEach((f,i)=>{
-      slY[i]=y;
-      const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
-      y+=f.wrap>0?40:isMRP?25:20;
+  /* compute Y positions for PRN output — same logic as preview */
+  function computePRNLayout(){
+    let y=isDbl()?DL.ty0:10;
+    let dynTextIdx=0; // for DL: which text row slot
+    const dynY=[];
+    const hardEntries=[]; // {item, y}
+
+    S.seq.forEach(item=>{
+      if(item.kind==='dyn'&&item.variable){
+        if(isDbl()){
+          dynY.push(DL.ty0+dynTextIdx*DL.tys);
+          dynTextIdx++;
+        } else {
+          const isMRP=item.variable==='MRP'||item.variable==='ItemMrp';
+          dynY.push(y);
+          y+=item.wrap>0?40:isMRP?25:20;
+        }
+      } else if(item.kind==='hard'){
+        const lines=(item.text||'').split('\n').filter(l=>l.trim());
+        if(!isDbl()){
+          hardEntries.push({item,y:y+item.y});
+          y+=Math.max(lines.length,1)*item.step+6;
+        } else {
+          // for double layer, hard blocks use their own y
+          hardEntries.push({item,y:item.y||y});
+          y+=Math.max(lines.length,1)*item.step+6;
+        }
+      }
     });
-    slBcY=y;
+    return {dynY,hardEntries,bcStartY:y};
   }
 
-  /* build A/B lines for one copy */
-  function copyLines(xBase,vOff,bcXLeft){
-    const lines=[]; let ti=0,vi=vOff;
-    textF.forEach((f,i)=>{
+  /* build A/B command lines for one copy */
+  function copyLines(xBase,vOff,bcXPos){
+    const layout=computePRNLayout();
+    const lines=[];
+    let vi=vOff;
+    let dynIdx=0;
+
+    dynItems.forEach((f,fi)=>{
       const pfx=f.prefix?`"${f.prefix.replace(/^"|"$/g,'')}"`:'' ;
       const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
+      const y=layout.dynY[dynIdx]||10;
+
       if(isDbl()){
-        const y=DL.ty0+ti*DL.tys;
         lines.push(`A${xBase},${y},0,2,1,1,N,${pfx}${vn(vi)}`);
-        ti++;vi++;
+        vi++;dynIdx++;
       } else {
-        const y=slY[i];
         if(f.wrap>0){
           lines.push(`A15,${y},0,1,1,1,N,${pfx}${vn(vi)}`);
           lines.push(`A15,${y+15},0,1,1,1,N,${vn(vi+1)}`);
@@ -590,36 +686,55 @@ function buildPRN(){
         } else {
           lines.push(`A15,${y},0,1,1,1,N,${pfx}${vn(vi)}`);vi++;
         }
+        dynIdx++;
       }
     });
+
+    // hardcoded A lines (interleaved based on sequence position)
+    layout.hardEntries.forEach(({item,y})=>{
+      const txtLines=(item.text||'').split('\n').filter(l=>l.trim());
+      let hy=y;
+      const mirrorOffset=isDbl()&&item.mirror?405:null;
+      txtLines.forEach(ln=>{
+        lines.push(`A${item.x+(xBase===DL.rx?405:0)},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
+        hy+=item.step;
+      });
+    });
+
     // barcodes
     bcs.forEach((bcVar,bi)=>{
       if(isDbl()){
-        lines.push(`B${bcXLeft},${DL.by},0,1,2,6,60,B,${vn(vi)}`);
+        lines.push(`B${bcXPos},${DL.by},0,1,2,6,60,B,${vn(vi)}`);
       } else {
-        lines.push(`B15,${slBcY+bi*95},0,1,2,1,40,B,${vn(vi)}`);
+        lines.push(`B15,${layout.bcStartY+bi*95},0,1,2,1,40,B,${vn(vi)}`);
       }
       vi++;
     });
+
     return lines;
   }
 
-  /* hardcoded A lines */
-  function hardA(xExtra=0,mirror=false){
-    S.hards.forEach(h=>{
-      const lines=(h.text||'').split('\n').filter(l=>l.trim());
-      let hy=h.y;
-      lines.forEach(ln=>{
-        out.push(`A${h.x+xExtra},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`);
-        if(mirror)out.push(`A${h.x+xExtra+405},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`);
-        hy+=h.step;
+  /* hardcoded A lines for FK blocks — using their own x, computed y */
+  function hardALines(forRightSide=false){
+    const layout=computePRNLayout();
+    layout.hardEntries.forEach(({item,y})=>{
+      const txtLines=(item.text||'').split('\n').filter(l=>l.trim());
+      let hy=y;
+      txtLines.forEach(ln=>{
+        if(isDbl()){
+          if(!forRightSide) out.push(`A${item.x},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
+          if(isDbl()&&item.mirror) out.push(`A${item.x+405},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
+        } else {
+          out.push(`A${item.x},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
+        }
+        hy+=item.step;
       });
     });
   }
 
   /* foreach value lines */
   function foreachVals(){
-    textF.forEach(f=>{
+    dynItems.forEach(f=>{
       if(!isDbl()&&f.wrap>0){
         out.push(`#set($shortName = ${cex(f)})`);
         out.push(`#if($shortName.length() > ${f.wrap})`);
@@ -636,19 +751,15 @@ function buildPRN(){
   }
 
   if(isDbl()){
-    // FK"1" — left + right
     out.push('FK"1"');out.push('FS"1"');
     for(let i=0;i<vpc*2;i++)out.push(`${vn(i)},30,N,""`);
     copyLines(DL.lx,0,DL.blx).forEach(l=>out.push(l));
     copyLines(DL.rx,vpc,DL.brx).forEach(l=>out.push(l));
-    hardA(0,true);
     out.push('PA1,1');out.push('FE');
 
-    // FK"2" — single
     out.push('FK"2"');out.push('FS"2"');
     for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
     copyLines(DL.lx,0,DL.blx).forEach(l=>out.push(l));
-    hardA(0,false);
     out.push('PA1,1');out.push('FE');
 
     out.push(`#foreach($row in $rows)#if($foreach.index % 2 == 0)FR"#if($rows.size() % 2 == 1 && $rows.size() == $foreach.count)2#{else}1#{end}"`);
@@ -657,11 +768,9 @@ function buildPRN(){
     out.push('#{end}');
 
   } else {
-    // Single layer
     out.push('FK"1"');out.push('FS"1"');
-    for(let i=0;i<vpc;i++) out.push(`${vn(i)},30,N,""`);
+    for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
     copyLines(15,0,15).forEach(l=>out.push(l));
-    hardA(0,false);
     out.push('PA1,1');out.push('FE');
 
     out.push(isItem()?'#foreach($item in $items)FR"1"':'#foreach($row in $rows)FR"1"');
