@@ -5,311 +5,122 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Barcode Label PRN Generator</title>
 <style>
-  :root {
-    --bg: #f5f4f1;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: #e2e0d8;
-    --border2: #ccc9be;
-    --text: #1a1a18;
-    --text2: #6b6a64;
-    --text3: #9a9990;
-    --accent: #1a1a18;
-    --accent-fg: #ffffff;
-    --info-bg: #eef4ff;
-    --info-text: #2255bb;
-    --warn-bg: #fff8e6;
-    --warn-text: #995500;
-    --success-bg: #edfaf3;
-    --success-text: #1a6640;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --mono: 'Courier New', Courier, monospace;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-  }
+:root {
+  --bg:#f5f4f1; --surface:#fff; --surface2:#f0efe9; --surface3:#e8e6df;
+  --border:#e2e0d8; --border2:#ccc9be;
+  --text:#1a1a18; --text2:#6b6a64; --text3:#9a9990;
+  --accent:#1a1a18; --accent-fg:#fff;
+  --info-bg:#eef4ff; --info-text:#2255bb;
+  --success-bg:#edfaf3; --success-text:#1a6640;
+  --danger:#cc3333;
+  --radius:10px; --radius-sm:6px;
+  --mono:'Courier New',Courier,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
 
-  /* ── Header ── */
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: -0.01em;
-    color: var(--text);
-  }
-  .logo-icon {
-    width: 28px; height: 28px;
-    background: var(--accent);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .logo-icon svg { width: 16px; height: 16px; }
-  .logo-sub { font-weight: 400; color: var(--text2); font-size: 13px; margin-left: 2px; }
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;position:sticky;top:0;z-index:200}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-sub{font-weight:400;color:var(--text2);font-size:13px;margin-left:2px}
 
-  /* ── Layout ── */
-  main {
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-  }
+main{max-width:840px;margin:0 auto;padding:2rem 1.5rem 5rem}
 
-  /* ── Steps ── */
-  .step {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  .step-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1.1rem;
-  }
-  .step-num {
-    width: 22px; height: 22px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text2);
-    flex-shrink: 0;
-  }
-  .step-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--text2);
-  }
-  .step-badge {
-    margin-left: auto;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 9px;
-    border-radius: 20px;
-    background: var(--info-bg);
-    color: var(--info-text);
-  }
+.step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.step-head{display:flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.step-num{width:22px;height:22px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0}
+.step-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
+.step-badge{margin-left:auto;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--info-bg);color:var(--info-text)}
 
-  /* ── Form elements ── */
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 13px; color: var(--text2); font-weight: 500; }
-  select, input, textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-family: inherit;
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-    transition: border-color .15s;
-  }
-  select:focus, input:focus, textarea:focus { border-color: var(--border2); }
-  textarea { resize: vertical; }
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:13px;color:var(--text2);font-weight:500}
+select,input,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+select:focus,input:focus,textarea:focus{border-color:var(--border2)}
+textarea{resize:vertical}
 
-  /* ── Tabs ── */
-  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; }
-  .tab {
-    padding: 6px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    cursor: pointer;
-    background: transparent;
-    color: var(--text2);
-    font-family: inherit;
-    transition: all .15s;
-  }
-  .tab:hover { background: var(--surface2); }
-  .tab.on {
-    background: var(--surface2);
-    color: var(--text);
-    font-weight: 600;
-    border-color: var(--border2);
-  }
+.tabs{display:flex;gap:6px;margin-bottom:1rem}
+.tab{padding:6px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all .15s}
+.tab:hover{background:var(--surface2)}
+.tab.on{background:var(--surface2);color:var(--text);font-weight:600;border-color:var(--border2)}
 
-  /* ── Upload zone ── */
-  .upload-zone {
-    border: 1.5px dashed var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    color: var(--text2);
-    font-size: 13px;
-    transition: background .15s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-  .upload-zone:hover, .upload-zone.drag { background: var(--surface2); }
-  .upload-zone svg { opacity: .4; }
-  .upload-zone.has-file { border-color: var(--success-text); background: var(--success-bg); color: var(--success-text); }
-  .img-preview { max-width: 100%; border-radius: var(--radius-sm); margin-top: 10px; border: 1px solid var(--border); max-height: 220px; object-fit: contain; }
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:1.5rem;text-align:center;cursor:pointer;color:var(--text2);font-size:13px;transition:background .15s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.upload-zone:hover,.upload-zone.drag{background:var(--surface2)}
+.upload-zone svg{opacity:.4}
+.upload-zone.has-file{border-color:var(--success-text);background:var(--success-bg);color:var(--success-text)}
+.img-preview{max-width:100%;border-radius:var(--radius-sm);margin-top:10px;border:1px solid var(--border);max-height:220px;object-fit:contain}
 
-  /* ── Field rows ── */
-  .frow {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 10px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    margin-bottom: 5px;
-    border: 1px solid transparent;
-    transition: border-color .15s;
-  }
-  .frow:hover { border-color: var(--border); }
-  .frow .fname { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .frow select { width: 160px; flex-shrink: 0; font-size: 12px; padding: 6px 8px; }
-  .frow input[type=text] { width: 95px; flex-shrink: 0; font-size: 12px; padding: 6px 7px; }
-  .frow input[type=number] { width: 50px; flex-shrink: 0; font-size: 12px; padding: 6px 7px; }
-  .frow .cb { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text2); white-space: nowrap; flex-shrink: 0; }
-  .frow .cb input { width: auto; }
-  .frow .rm {
-    border: none; background: transparent; cursor: pointer;
-    color: var(--text3); font-size: 18px; line-height: 1; padding: 0 2px;
-    flex-shrink: 0; transition: color .15s;
-  }
-  .frow .rm:hover { color: #cc3333; }
-  .col-hdr {
-    display: flex; align-items: center; gap: 7px;
-    padding: 0 10px; margin-bottom: 5px;
-  }
-  .col-hdr span { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); }
+/* ── Field rows ── */
+.frow{display:flex;align-items:center;gap:7px;padding:7px 10px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:5px;border:1.5px solid transparent;transition:border-color .15s,opacity .2s,box-shadow .15s}
+.frow:hover{border-color:var(--border)}
+.frow.dragging{opacity:.35;border-color:var(--border2)}
+.frow.drag-over{border-color:var(--info-text);box-shadow:0 0 0 3px var(--info-bg);background:var(--info-bg)}
+.drag-handle{cursor:grab;color:var(--text3);font-size:17px;flex-shrink:0;line-height:1;padding:0 2px}
+.drag-handle:active{cursor:grabbing}
+.fname{font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frow select{width:148px;flex-shrink:0;font-size:12px;padding:5px 7px}
+.frow input[type=text]{width:85px;flex-shrink:0;font-size:12px;padding:5px 6px}
+.frow input[type=number]{width:46px;flex-shrink:0;font-size:12px;padding:5px 6px}
+.frow .rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;flex-shrink:0;transition:color .15s;font-family:inherit}
+.frow .rm:hover{color:var(--danger)}
+.col-hdr{display:flex;align-items:center;gap:7px;padding:0 10px;margin-bottom:4px}
+.col-hdr span{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
 
-  /* ── Hardcode rows ── */
-  .hrow {
-    display: flex;
-    gap: 8px;
-    padding: 10px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    margin-bottom: 6px;
-    border: 1px solid var(--border);
-  }
-  .hrow textarea { flex: 1; min-height: 60px; font-family: var(--mono); font-size: 12px; }
-  .hcontrols { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; width: 130px; }
-  .hcontrols label { font-size: 11px; color: var(--text2); font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 4px; }
-  .hcontrols input, .hcontrols select { width: 65px; font-size: 12px; padding: 4px 6px; }
-  .hrow .rm { align-self: flex-start; border: none; background: transparent; cursor: pointer; color: var(--text3); font-size: 18px; line-height: 1; padding: 0 2px; }
-  .hrow .rm:hover { color: #cc3333; }
+/* ── Barcode picker box ── */
+.bc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem}
+.bc-note{font-size:11px;color:var(--text3);margin-top:8px;font-style:italic}
 
-  /* ── Buttons ── */
-  .btn-primary {
-    width: 100%;
-    padding: 11px;
-    background: var(--accent);
-    color: var(--accent-fg);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: .6rem;
-    font-family: inherit;
-    letter-spacing: .01em;
-    transition: opacity .15s;
-  }
-  .btn-primary:hover { opacity: .85; }
-  .btn-secondary {
-    padding: 6px 12px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text);
-    font-family: inherit;
-    font-weight: 500;
-    transition: background .15s;
-  }
-  .btn-secondary:hover { background: var(--surface2); }
+/* Hardcode rows */
+.hrow{display:flex;gap:8px;padding:10px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:6px;border:1px solid var(--border)}
+.hrow textarea{flex:1;min-height:60px;font-family:var(--mono);font-size:12px}
+.hcontrols{display:flex;flex-direction:column;gap:5px;flex-shrink:0;width:126px}
+.hcontrols label{font-size:11px;color:var(--text2);font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:4px}
+.hcontrols input,.hcontrols select{width:60px;font-size:12px;padding:4px 5px}
+.hrow .rm{align-self:flex-start;border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;font-family:inherit}
+.hrow .rm:hover{color:var(--danger)}
 
-  /* ── Add field row ── */
-  .add-row { display: flex; gap: 7px; margin-top: 10px; }
-  .add-row input { flex: 1; }
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:.6rem;font-family:inherit;letter-spacing:.01em;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s}
+.btn-secondary:hover{background:var(--surface2)}
 
-  /* ── PRN output ── */
-  .prn-box {
-    background: #1a1a18;
-    color: #e8e6df;
-    border-radius: var(--radius-sm);
-    padding: 1.1rem 1.2rem;
-    font-family: var(--mono);
-    font-size: 11.5px;
-    line-height: 1.9;
-    white-space: pre-wrap;
-    word-break: break-all;
-    min-height: 80px;
-    max-height: 520px;
-    overflow-y: auto;
-  }
-  .prn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+.add-row{display:flex;gap:7px;margin-top:10px}
+.add-row input{flex:1}
 
-  /* ── Misc ── */
-  .hint { font-size: 12px; color: var(--text3); margin-top: 4px; line-height: 1.5; }
-  .divider { height: 1px; background: var(--border); margin: 1rem 0; }
-  .sec-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 7px; }
-  .tpl-tag {
-    display: inline-block;
-    margin-top: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 3px 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text2);
-  }
-  .mirror-note {
-    font-size: 12px;
-    color: var(--info-text);
-    background: var(--info-bg);
-    border-radius: var(--radius-sm);
-    padding: 7px 10px;
-    margin-bottom: 10px;
-    border-left: 3px solid var(--info-text);
-    line-height: 1.5;
-  }
-  .empty-note { font-size: 13px; color: var(--text3); padding: 6px 2px; }
+.prn-box{background:#1a1a18;color:#e8e6df;border-radius:var(--radius-sm);padding:1.1rem 1.2rem;font-family:var(--mono);font-size:11.5px;line-height:1.9;white-space:pre-wrap;word-break:break-all;min-height:80px;max-height:520px;overflow-y:auto}
+.prn-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
 
-  /* ── Responsive ── */
-  @media (max-width: 600px) {
-    main { padding: 1rem 1rem 3rem; }
-    .grid2 { grid-template-columns: 1fr; }
-    .frow { flex-wrap: wrap; }
-    .frow select { width: 100%; }
-    header { padding: 0 1rem; }
-  }
+/* ── Preview ── */
+.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.preview-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.preview-scroll{overflow-x:auto;padding-bottom:6px}
+.lbl-canvas{background:#fff;border:1.5px solid var(--border2);border-radius:5px;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.08);display:inline-block;min-width:160px;min-height:80px}
+/* label element types */
+.le-text{position:absolute;font-family:var(--mono);white-space:nowrap;color:#111;line-height:1.15;pointer-events:none}
+.le-text.mrp{font-weight:700}
+.le-text.wrap2{color:#999;font-style:italic}
+.le-text.hard{color:#555}
+.le-bc-wrap{position:absolute;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none}
+.le-bc-bars{display:flex;align-items:flex-end;gap:0}
+.le-bc-bar{background:#111;display:inline-block}
+.le-bc-label{font-family:var(--mono);color:#333;margin-top:2px}
+.le-rule{position:absolute;left:4px;right:4px;border-top:1px dashed #ddd;pointer-events:none}
+.preview-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
+
+.hint{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5}
+.divider{height:1px;background:var(--border);margin:1rem 0}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.tpl-tag{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
+.mirror-note{font-size:12px;color:var(--info-text);background:var(--info-bg);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:10px;border-left:3px solid var(--info-text);line-height:1.5}
+.empty-note{font-size:13px;color:var(--text3);padding:6px 2px}
+
+@media(max-width:600px){
+  main{padding:1rem 1rem 3rem}
+  .grid2{grid-template-columns:1fr}
+  .frow{flex-wrap:wrap}
+  .frow select{width:100%}
+  header{padding:0 1rem}
+}
 </style>
 </head>
 <body>
@@ -317,7 +128,7 @@
 <header>
   <div class="logo">
     <div class="logo-icon">
-      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 16 16" fill="none" width="16" height="16">
         <rect x="1" y="3" width="2" height="10" fill="white"/>
         <rect x="4" y="3" width="1" height="10" fill="white"/>
         <rect x="6" y="3" width="2" height="10" fill="white"/>
@@ -331,476 +142,547 @@
 
 <main>
 
-  <!-- Step 1 -->
-  <div class="step">
-    <div class="step-head">
-      <span class="step-num">1</span>
-      <span class="step-title">Label Configuration</span>
+<!-- Step 1 -->
+<div class="step">
+  <div class="step-head"><span class="step-num">1</span><span class="step-title">Label Configuration</span></div>
+  <div class="grid2">
+    <div class="field">
+      <label>Traceability type</label>
+      <select id="trace" onchange="onCfg()">
+        <option value="">— select —</option>
+        <option value="none">None</option>
+        <option value="sku">SKU</option>
+        <option value="item">Item</option>
+      </select>
     </div>
-    <div class="grid2">
+    <div class="field">
+      <label>Roll type</label>
+      <select id="roll" onchange="onCfg()">
+        <option value="">— select —</option>
+        <option value="single">Single layer</option>
+        <option value="double">Double layer</option>
+      </select>
+    </div>
+  </div>
+  <div id="tplTag" style="display:none"><span class="tpl-tag" id="tplName"></span></div>
+</div>
+
+<!-- Step 2 -->
+<div class="step" id="s2" style="display:none">
+  <div class="step-head"><span class="step-num">2</span><span class="step-title">Label Fields</span></div>
+  <div class="tabs">
+    <button class="tab on" onclick="swTab('img')" id="t-img">Upload image</button>
+    <button class="tab" onclick="swTab('txt')" id="t-txt">Enter field names</button>
+  </div>
+  <div id="p-img">
+    <div class="upload-zone" id="dz"
+      onclick="document.getElementById('fi').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="onDrop(event)">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Drop barcode label image here, or click to browse</span>
+      <span style="font-size:11px;color:var(--text3)">PNG, JPG, WEBP</span>
+    </div>
+    <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
+    <img id="ip" class="img-preview" style="display:none">
+    <p class="hint" style="margin-top:8px">Add each <strong>dynamic field</strong> from the label below. Fixed text (address, "Made in India") goes in step 3 as hardcoded blocks.</p>
+    <div class="add-row">
+      <input type="text" id="qa" placeholder="Field name, e.g. Category, MRP, EAN…" onkeydown="if(event.key==='Enter')addQ()">
+      <button class="btn-secondary" onclick="addQ()">+ Add field</button>
+    </div>
+  </div>
+  <div id="p-txt" style="display:none">
+    <div class="field">
+      <label>Field names — one per line or comma-separated</label>
+      <textarea id="ftext" rows="7" placeholder="Category&#10;MRP&#10;Name&#10;Fit&#10;Color&#10;Size&#10;Store Reference&#10;EAN" oninput="onTxtF()"></textarea>
+    </div>
+    <p class="hint">Each line becomes one dynamic field on the label.</p>
+  </div>
+</div>
+
+<!-- Step 3 -->
+<div class="step" id="s3" style="display:none">
+  <div class="step-head">
+    <span class="step-num">3</span>
+    <span class="step-title">Variable Mapping</span>
+    <span class="step-badge" id="s3b"></span>
+  </div>
+
+  <!-- Barcode variable picker -->
+  <div class="bc-box">
+    <div class="sec-label" style="margin-bottom:8px">Barcode variable(s) — select up to 2</div>
+    <div class="grid2" style="gap:.75rem">
       <div class="field">
-        <label>Traceability type</label>
-        <select id="trace" onchange="onCfg()">
-          <option value="">— select —</option>
-          <option value="none">None</option>
-          <option value="sku">SKU</option>
-          <option value="item">Item</option>
-        </select>
+        <label>Barcode 1</label>
+        <select id="bc1var" onchange="onBcChange()"><option value="">— none —</option></select>
       </div>
       <div class="field">
-        <label>Roll type</label>
-        <select id="roll" onchange="onCfg()">
-          <option value="">— select —</option>
-          <option value="single">Single layer</option>
-          <option value="double">Double layer</option>
-        </select>
+        <label>Barcode 2 <span style="font-size:11px;color:var(--text3)">(optional)</span></label>
+        <select id="bc2var" onchange="onBcChange()"><option value="">— none —</option></select>
       </div>
     </div>
-    <div id="tplTag" style="display:none"><span class="tpl-tag" id="tplName"></span></div>
+    <p class="bc-note">Selected variables print as B (barcode) commands. All other fields print as A (text) commands.</p>
   </div>
 
-  <!-- Step 2 -->
-  <div class="step" id="s2" style="display:none">
-    <div class="step-head">
-      <span class="step-num">2</span>
-      <span class="step-title">Label Fields</span>
-    </div>
-    <div class="tabs">
-      <button class="tab on" onclick="swTab('img')" id="t-img">Upload image</button>
-      <button class="tab" onclick="swTab('txt')" id="t-txt">Enter field names</button>
-    </div>
+  <!-- Dynamic fields with drag-to-reorder -->
+  <div class="sec-label">Dynamic fields — drag ≡ to reorder</div>
+  <div id="dblNote" class="mirror-note" style="display:none">
+    <strong>Double layer:</strong> Fields are mirrored — left copy V00–V(n-1), right copy V(n)–V(2n-1). The FR loop feeds one set of values per row.
+  </div>
+  <div class="col-hdr">
+    <span style="width:22px"></span>
+    <span style="flex:1">Field name</span>
+    <span style="width:148px">Variable</span>
+    <span style="width:85px">Prefix</span>
+    <span style="width:46px;text-align:center">Wrap</span>
+    <span style="width:22px"></span>
+  </div>
+  <div id="frows"><p class="empty-note">No fields added yet.</p></div>
+  <p class="hint" style="margin-top:5px">Drag to reorder → order here = variable sequence in PRN output.</p>
 
-    <div id="p-img">
-      <div class="upload-zone" id="dz"
-        onclick="document.getElementById('fi').click()"
-        ondragover="event.preventDefault();this.classList.add('drag')"
-        ondragleave="this.classList.remove('drag')"
-        ondrop="onDrop(event)">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/>
-          <line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        <span>Drop barcode label image here, or click to browse</span>
-        <span style="font-size:11px;color:var(--text3)">PNG, JPG, WEBP supported</span>
-      </div>
-      <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
-      <img id="ip" class="img-preview" style="display:none">
-      <p class="hint" style="margin-top:8px">Add each <strong>dynamic field</strong> from the label below. Fixed text (address, "Made in India") goes in step 3 as hardcoded blocks.</p>
-      <div class="add-row">
-        <input type="text" id="qa" placeholder="Field name, e.g. Category, MRP, EAN…" onkeydown="if(event.key==='Enter')addQ()">
-        <button class="btn-secondary" onclick="addQ()">+ Add field</button>
-      </div>
-    </div>
+  <div class="divider"></div>
 
-    <div id="p-txt" style="display:none">
-      <div class="field">
-        <label>Field names — one per line or comma-separated</label>
-        <textarea id="ftext" rows="7" placeholder="Category&#10;MRP&#10;Name&#10;Fit&#10;Color&#10;Size&#10;Store Reference&#10;EAN" oninput="onTxtF()"></textarea>
-      </div>
-      <p class="hint">Each line becomes one dynamic field on the label.</p>
+  <!-- Hardcoded blocks -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <div class="sec-label" style="margin-bottom:0">Hardcoded text blocks</div>
+    <button class="btn-secondary" onclick="addHard()">+ Add block</button>
+  </div>
+  <p class="hint" style="margin-bottom:10px">Fixed text on every label — address, "Made in India", legal text. Becomes literal <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:11px">A</code> commands in the PRN header.</p>
+  <div id="hrows"><p class="empty-note">No hardcoded blocks yet.</p></div>
+</div>
+
+<!-- Preview -->
+<div class="preview-card" id="previewCard" style="display:none">
+  <div class="preview-top">
+    <div class="step-head" style="margin-bottom:0">
+      <span class="step-num" style="font-size:13px;background:var(--surface3)">◎</span>
+      <span class="step-title">Label Preview</span>
+    </div>
+    <div class="tabs" id="layerTabs" style="display:none;margin-bottom:0">
+      <button class="tab on" onclick="setPL(1)" id="pl1">Left copy</button>
+      <button class="tab" onclick="setPL(2)" id="pl2">Right copy</button>
     </div>
   </div>
-
-  <!-- Step 3 -->
-  <div class="step" id="s3" style="display:none">
-    <div class="step-head">
-      <span class="step-num">3</span>
-      <span class="step-title">Variable Mapping</span>
-      <span class="step-badge" id="s3b"></span>
-    </div>
-
-    <!-- Dynamic fields -->
-    <div class="sec-label">Dynamic fields</div>
-    <div id="dblNote" class="mirror-note" style="display:none">
-      <strong>Double layer:</strong> Variables are mirrored — left copy uses V00–V(n-1), right copy uses V(n)–V(2n-1). The FR loop feeds one set of values; the system fills both sides automatically.
-    </div>
-    <div class="col-hdr">
-      <span style="flex:1">Field name</span>
-      <span style="width:160px">Variable</span>
-      <span style="width:95px">Prefix label</span>
-      <span style="width:60px;text-align:center">Barcode</span>
-      <span style="width:50px;text-align:center">Wrap</span>
-      <span style="width:24px"></span>
-    </div>
-    <div id="frows"><p class="empty-note">No fields added yet.</p></div>
-
-    <div class="divider"></div>
-
-    <!-- Hardcoded blocks -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <div class="sec-label" style="margin-bottom:0">Hardcoded text blocks</div>
-      <button class="btn-secondary" onclick="addHard()">+ Add block</button>
-    </div>
-    <p class="hint" style="margin-bottom:10px">Fixed text printed on every label — addresses, "Made in India", legal text, etc. Each block becomes literal <code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-size:11px">A</code> commands in the PRN header.</p>
-    <div id="hrows"><p class="empty-note">No hardcoded blocks yet.</p></div>
+  <div class="preview-scroll">
+    <div class="lbl-canvas" id="lc"></div>
   </div>
+  <p class="preview-caption">Proportional preview — actual dimensions depend on printer DPI &amp; label size.</p>
+</div>
 
-  <!-- Step 4 -->
-  <div class="step" id="s4" style="display:none">
-    <div class="prn-header">
-      <div class="step-head" style="margin-bottom:0">
-        <span class="step-num">4</span>
-        <span class="step-title">PRN Output</span>
-      </div>
-      <button class="btn-secondary" id="cpBtn" onclick="copyPRN()">Copy to clipboard</button>
+<!-- Step 4 -->
+<div class="step" id="s4" style="display:none">
+  <div class="prn-header">
+    <div class="step-head" style="margin-bottom:0">
+      <span class="step-num">4</span>
+      <span class="step-title">PRN Output</span>
     </div>
-    <div class="prn-box" id="pout">Click "Generate PRN" to build the code.</div>
-    <button class="btn-primary" onclick="genPRN()">⟳ Generate PRN</button>
+    <button class="btn-secondary" id="cpBtn" onclick="copyPRN()">Copy to clipboard</button>
   </div>
+  <div class="prn-box" id="pout">Click "Generate PRN" to build the code.</div>
+  <button class="btn-primary" onclick="genPRN()">⟳ Generate PRN</button>
+</div>
 
 </main>
-
 <script>
-/* ── Variable lists ── */
-const ITYPE_VARS = [
-  "Name","ProductCode","MRP","ScanIdentifier","Ean","Upc","Isbn",
-  "Color","Size","Category","Brand","Type","Weight","Tags","Style","TaxType"
-];
-const ITEM_VARS = [
-  "ItemName","ItemCode","ItemSku","ItemMrp","ItemEAN","ItemSize",
-  "ItemStyle","ItemColor","ItemBrand","ItemCategory",
-  "VendorSkuCode","ItemCategoryCode","ItemCreated"
-];
+/* ══════════ VARS ══════════ */
+const ITYPE_VARS=["Name","ProductCode","MRP","ScanIdentifier","Ean","Upc","Isbn","Color","Size","Category","Brand","Type","Weight","Tags","Style","TaxType"];
+const ITEM_VARS=["ItemName","ItemCode","ItemSku","ItemMrp","ItemEAN","ItemSize","ItemStyle","ItemColor","ItemBrand","ItemCategory","VendorSkuCode","ItemCategoryCode","ItemCreated"];
+const DL={lx:25,rx:430,blx:70,brx:483,by:240,ty0:30,tys:30};
 
-/* ── Double layer exact coordinates (from real PRN) ── */
-const DL = {
-  leftX:   25,
-  rightX:  430,
-  barcodeLeftX:  70,
-  barcodeRightX: 483,
-  barcodeY: 240,
-  textYStart: 30,
-  textYStep:  30,
-};
+/* ══════════ STATE ══════════ */
+let S={trace:'',roll:'',tab:'img',fields:[],hards:[],bc1:'',bc2:'',pl:1};
+let dragSrc=null;
 
-/* ── State ── */
-let S = { trace:'', roll:'', tab:'img', fields:[], hards:[] };
+/* ══════════ HELPERS ══════════ */
+const isItem=()=>S.trace==='item';
+const isDbl=()=>S.roll==='double';
+const vars=()=>isItem()?ITEM_VARS:ITYPE_VARS;
+const vn=i=>'V'+String(i).padStart(2,'0');
+const cex=f=>isItem()?`$item.${f.variable}`:`$row.getColumnValue('${f.variable}')`;
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const tpl=()=>(isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN')+' · '+(isDbl()?'Double layer':'Single layer');
 
-/* ── Helpers ── */
-const isItem   = () => S.trace === 'item';
-const isDouble = () => S.roll  === 'double';
-const varList  = () => isItem() ? ITEM_VARS : ITYPE_VARS;
-const vn       = i  => 'V' + String(i).padStart(2,'0');
-const colExpr  = f  => isItem()
-  ? `$item.${f.variable}`
-  : `$row.getColumnValue('${f.variable}')`;
-
-function tplLabel() {
-  const file = isItem() ? 'ITEM_LABEL_PRN' : 'ITEM_TYPE_LABEL_PRN';
-  const layer = isDouble() ? 'Double layer' : 'Single layer';
-  return file + ' · ' + layer;
+/* ══════════ STEP 1 ══════════ */
+function onCfg(){
+  S.trace=document.getElementById('trace').value;
+  S.roll=document.getElementById('roll').value;
+  const ok=S.trace&&S.roll;
+  document.getElementById('s2').style.display=ok?'':'none';
+  document.getElementById('tplTag').style.display=ok?'':'none';
+  if(ok)document.getElementById('tplName').textContent=tpl();
+  renderAll();showBelow();
 }
 
-/* ── Step 1 ── */
-function onCfg() {
-  S.trace = document.getElementById('trace').value;
-  S.roll  = document.getElementById('roll').value;
-  const ok = S.trace && S.roll;
-  document.getElementById('s2').style.display = ok ? '' : 'none';
-  document.getElementById('s3').style.display = ok && (S.fields.length || S.hards.length) ? '' : 'none';
-  document.getElementById('s4').style.display = ok && S.fields.filter(f=>f.variable).length ? '' : 'none';
-  document.getElementById('tplTag').style.display = ok ? '' : 'none';
-  if (ok) document.getElementById('tplName').textContent = tplLabel();
-  renderRows();
-}
-
-/* ── Step 2 ── */
-function swTab(t) {
-  S.tab = t;
-  ['img','txt'].forEach(x => {
-    document.getElementById('t-'+x).className = 'tab' + (t===x ? ' on' : '');
-    document.getElementById('p-'+x).style.display = t===x ? '' : 'none';
+/* ══════════ STEP 2 ══════════ */
+function swTab(t){
+  S.tab=t;
+  ['img','txt'].forEach(x=>{
+    document.getElementById('t-'+x).className='tab'+(t===x?' on':'');
+    document.getElementById('p-'+x).style.display=t===x?'':'none';
   });
 }
-
-function onDrop(e) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drag');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) loadImg(f);
-}
-function onFile(e) { const f = e.target.files[0]; if (f) loadImg(f); }
-function loadImg(f) {
-  const r = new FileReader();
-  r.onload = ev => {
-    const el = document.getElementById('ip');
-    el.src = ev.target.result; el.style.display = '';
-    const dz = document.getElementById('dz');
-    dz.classList.add('has-file');
-    dz.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>${f.name}</span>`;
-  };
+function onDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);}
+function onFile(e){const f=e.target.files[0];if(f)loadImg(f);}
+function loadImg(f){
+  const r=new FileReader();
+  r.onload=ev=>{const el=document.getElementById('ip');el.src=ev.target.result;el.style.display='';
+    const dz=document.getElementById('dz');dz.classList.add('has-file');
+    dz.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>${f.name}</span>`;};
   r.readAsDataURL(f);
 }
-
-function addQ() {
-  const el = document.getElementById('qa');
-  const v = el.value.trim(); if (!v) return;
-  if (!S.fields.find(f => f.name === v))
-    S.fields.push({name:v, variable:'', prefix:'', barcode:false, wrap:0});
-  el.value = '';
-  renderAll(); showBelow();
+function addQ(){
+  const el=document.getElementById('qa');const v=el.value.trim();if(!v)return;
+  if(!S.fields.find(f=>f.name===v))S.fields.push({name:v,variable:'',prefix:'',wrap:0});
+  el.value='';renderAll();showBelow();
+}
+function onTxtF(){
+  const names=document.getElementById('ftext').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+  S.fields=names.map(n=>S.fields.find(f=>f.name===n)||{name:n,variable:'',prefix:'',wrap:0});
+  renderAll();showBelow();
 }
 
-function onTxtF() {
-  const names = document.getElementById('ftext').value
-    .split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
-  S.fields = names.map(n => S.fields.find(f=>f.name===n) || {name:n,variable:'',prefix:'',barcode:false,wrap:0});
-  renderAll(); showBelow();
+/* ══════════ STEP 3 ══════════ */
+function showBelow(){
+  const hasF=S.fields.length>0;
+  const hasM=S.fields.some(f=>f.variable)||S.bc1;
+  document.getElementById('s3').style.display=(hasF||S.hards.length)?'':'none';
+  document.getElementById('s4').style.display=hasM?'':'none';
+  document.getElementById('previewCard').style.display=hasM?'':'none';
+  if(hasM)drawPreview();
 }
 
-/* ── Step 3 ── */
-function showBelow() {
-  const hasFields = S.fields.length > 0;
-  const hasMapped = S.fields.some(f=>f.variable);
-  document.getElementById('s3').style.display = (hasFields || S.hards.length) ? '' : 'none';
-  document.getElementById('s4').style.display = hasMapped ? '' : 'none';
+function renderAll(){renderBcPickers();renderRows();renderHards();}
+
+/* barcode pickers */
+function renderBcPickers(){
+  const vs=vars();
+  [['bc1var',S.bc1],['bc2var',S.bc2]].forEach(([id,cur])=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML=`<option value="">— none —</option>`+vs.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+  });
+}
+function onBcChange(){
+  S.bc1=document.getElementById('bc1var').value;
+  S.bc2=document.getElementById('bc2var').value;
+  showBelow();
 }
 
-function renderAll() { renderRows(); renderHards(); }
-
-function renderRows() {
-  const vars = varList();
-  document.getElementById('s3b').textContent = isItem() ? 'ITEM_LABEL_PRN' : 'ITEM_TYPE_LABEL_PRN';
-  document.getElementById('dblNote').style.display = isDouble() ? '' : 'none';
-  const c = document.getElementById('frows');
-  if (!S.fields.length) { c.innerHTML = '<p class="empty-note">No fields added yet.</p>'; return; }
-  c.innerHTML = '';
-  S.fields.forEach((f, i) => {
-    const row = document.createElement('div'); row.className = 'frow';
-    const opts = vars.map(v => `<option value="${v}"${v===f.variable?' selected':''}>${v}</option>`).join('');
-    row.innerHTML = `
-      <span class="fname" title="${f.name}">${f.name}</span>
-      <select onchange="S.fields[${i}].variable=this.value;showBelow()">
-        <option value="">— variable —</option>${opts}
-      </select>
-      <input type="text" value="${escH(f.prefix)}" placeholder='"MRP: Rs."' title="Inline prefix in A command" onchange="S.fields[${i}].prefix=this.value">
-      <label class="cb"><input type="checkbox" ${f.barcode?'checked':''} onchange="S.fields[${i}].barcode=this.checked"> BC</label>
-      <input type="number" min="0" max="80" value="${f.wrap||''}" placeholder="0" title="Wrap at N chars (0=off)" onchange="S.fields[${i}].wrap=+this.value">
-      <button class="rm" title="Remove" onclick="S.fields.splice(${i},1);renderAll();showBelow()">×</button>`;
+/* field rows with drag */
+function renderRows(){
+  const vs=vars();
+  document.getElementById('s3b').textContent=isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN';
+  document.getElementById('dblNote').style.display=isDbl()?'':'none';
+  const c=document.getElementById('frows');
+  if(!S.fields.length){c.innerHTML='<p class="empty-note">No fields added yet.</p>';return;}
+  c.innerHTML='';
+  S.fields.forEach((f,i)=>{
+    const row=document.createElement('div');
+    row.className='frow';row.draggable=true;row.dataset.idx=i;
+    row.addEventListener('dragstart',e=>{dragSrc=i;setTimeout(()=>row.classList.add('dragging'),0);e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',()=>{row.classList.remove('dragging');document.querySelectorAll('.frow').forEach(r=>r.classList.remove('drag-over'));});
+    row.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.frow').forEach(r=>r.classList.remove('drag-over'));row.classList.add('drag-over');});
+    row.addEventListener('drop',e=>{
+      e.preventDefault();row.classList.remove('drag-over');
+      if(dragSrc===null||dragSrc===i)return;
+      const moved=S.fields.splice(dragSrc,1)[0];S.fields.splice(i,0,moved);
+      dragSrc=null;renderAll();showBelow();
+    });
+    const opts=vs.map(v=>`<option value="${v}"${v===f.variable?' selected':''}>${v}</option>`).join('');
+    row.innerHTML=`
+      <span class="drag-handle" title="Drag to reorder">≡</span>
+      <span class="fname" title="${esc(f.name)}">${esc(f.name)}</span>
+      <select onchange="S.fields[${i}].variable=this.value;showBelow()"><option value="">— variable —</option>${opts}</select>
+      <input type="text" value="${esc(f.prefix)}" placeholder='"MRP: Rs."' title="Inline prefix" onchange="S.fields[${i}].prefix=this.value;drawPreview()">
+      <input type="number" min="0" max="80" value="${f.wrap||''}" placeholder="0" title="Wrap at N chars" onchange="S.fields[${i}].wrap=+this.value">
+      <button class="rm" onclick="S.fields.splice(${i},1);renderAll();showBelow()">×</button>`;
     c.appendChild(row);
   });
 }
 
-function addHard() {
-  S.hards.push({text:'', x:15, y:185, step:20, rot:0, size:1, mirror:isDouble()});
-  renderHards(); showBelow();
-}
-
-function renderHards() {
-  const c = document.getElementById('hrows');
-  if (!S.hards.length) { c.innerHTML = '<p class="empty-note">No hardcoded blocks yet.</p>'; return; }
-  c.innerHTML = '';
-  S.hards.forEach((h, i) => {
-    const div = document.createElement('div'); div.className = 'hrow';
-    div.innerHTML = `
-      <textarea placeholder="One text line per line e.g.&#10;Imported/Manufactured &amp; Marketed By:&#10;ACME Pvt. Ltd., Mumbai&#10;+91 98765 43210" onchange="S.hards[${i}].text=this.value">${escH(h.text||'')}</textarea>
+/* hardcoded blocks */
+function addHard(){S.hards.push({text:'',x:15,y:185,step:20,rot:0,size:1,mirror:isDbl()});renderHards();showBelow();}
+function renderHards(){
+  const c=document.getElementById('hrows');
+  if(!S.hards.length){c.innerHTML='<p class="empty-note">No hardcoded blocks yet.</p>';return;}
+  c.innerHTML='';
+  S.hards.forEach((h,i)=>{
+    const div=document.createElement('div');div.className='hrow';
+    div.innerHTML=`
+      <textarea placeholder="One line per line e.g.&#10;Imported/Manufactured &amp; Marketed By:&#10;ACME Pvt. Ltd., Mumbai&#10;+91 98765 43210" onchange="S.hards[${i}].text=this.value;drawPreview()">${esc(h.text||'')}</textarea>
       <div class="hcontrols">
-        <label>X pos <input type="number" value="${h.x}" onchange="S.hards[${i}].x=+this.value"></label>
-        <label>Y start <input type="number" value="${h.y}" onchange="S.hards[${i}].y=+this.value"></label>
-        <label>Y step <input type="number" value="${h.step}" onchange="S.hards[${i}].step=+this.value"></label>
-        <label>Rotation
-          <select style="width:65px" onchange="S.hards[${i}].rot=+this.value">
-            <option value="0" ${h.rot===0?'selected':''}>0°</option>
-            <option value="1" ${h.rot===1?'selected':''}>90°</option>
-            <option value="2" ${h.rot===2?'selected':''}>180°</option>
-            <option value="3" ${h.rot===3?'selected':''}>270°</option>
-          </select>
-        </label>
-        <label>Font sz <input type="number" value="${h.size}" min="1" max="4" onchange="S.hards[${i}].size=+this.value"></label>
-        ${isDouble() ? `<label style="font-size:10px">Both sides <input type="checkbox" ${h.mirror?'checked':''} onchange="S.hards[${i}].mirror=this.checked" style="width:auto"></label>` : ''}
+        <label>X <input type="number" value="${h.x}" onchange="S.hards[${i}].x=+this.value;drawPreview()"></label>
+        <label>Y start <input type="number" value="${h.y}" onchange="S.hards[${i}].y=+this.value;drawPreview()"></label>
+        <label>Y step <input type="number" value="${h.step}" onchange="S.hards[${i}].step=+this.value;drawPreview()"></label>
+        <label>Rotation <select style="width:60px" onchange="S.hards[${i}].rot=+this.value;drawPreview()">
+          <option value="0"${h.rot===0?' selected':''}>0°</option>
+          <option value="1"${h.rot===1?' selected':''}>90°</option>
+          <option value="2"${h.rot===2?' selected':''}>180°</option>
+          <option value="3"${h.rot===3?' selected':''}>270°</option>
+        </select></label>
+        <label>Font sz <input type="number" value="${h.size}" min="1" max="4" onchange="S.hards[${i}].size=+this.value;drawPreview()"></label>
+        ${isDbl()?`<label style="font-size:10px">Both sides <input type="checkbox" ${h.mirror?'checked':''} onchange="S.hards[${i}].mirror=this.checked;drawPreview()" style="width:auto"></label>`:''}
       </div>
       <button class="rm" onclick="S.hards.splice(${i},1);renderHards();showBelow()">×</button>`;
     c.appendChild(div);
   });
 }
 
-function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+/* ══════════ PREVIEW ══════════ */
+const SC=0.54; // scale: PRN units → px
 
-/* ── PRN Builder ── */
-function buildPRN() {
-  const mapped = S.fields.filter(f => f.variable);
-  if (!mapped.length) return '; No fields mapped — complete step 3 first.';
+function setPL(n){
+  S.pl=n;
+  document.getElementById('pl1').className='tab'+(n===1?' on':'');
+  document.getElementById('pl2').className='tab'+(n===2?' on':'');
+  drawPreview();
+}
 
-  const out = [];
+function drawPreview(){
+  const lc=document.getElementById('lc');
+  const layerTabs=document.getElementById('layerTabs');
+  lc.innerHTML='';
 
-  /* ════════════════════════════════════════════
-     DOUBLE LAYER
-     FK"1" → left (V00–Vn-1) + right (Vn–V2n-1)
-     FK"2" → single copy for odd last row
-     FR loop → feeds n values per row
-  ════════════════════════════════════════════ */
-  if (isDouble()) {
-    const n = mapped.length;
+  const textF=S.fields.filter(f=>f.variable);
+  const bcs=[S.bc1,S.bc2].filter(Boolean);
 
-    // ── FK"1" ──
-    out.push('FK"1"');
-    out.push('FS"1"');
-    for (let i = 0; i < n * 2; i++) out.push(`${vn(i)},30,N,""`);
+  if(!textF.length&&!bcs.length&&!S.hards.length){
+    lc.innerHTML='<p class="empty-note" style="padding:1.5rem 2rem;text-align:center;font-size:12px">Map fields above to see preview</p>';
+    lc.style.width=''; lc.style.height='';
+    return;
+  }
 
-    let tIdx = 0;
-    mapped.forEach((f, i) => {
-      const vL = vn(i), vR = vn(i + n);
-      const pfx = f.prefix ? `"${f.prefix}"` : '';
-      if (f.barcode) {
-        out.push(`B${DL.barcodeLeftX},${DL.barcodeY},0,1,2,6,60,B,${vL}`);
-        out.push(`B${DL.barcodeRightX},${DL.barcodeY},0,1,2,6,60,B,${vR}`);
+  layerTabs.style.display=isDbl()?'flex':'none';
+
+  // Work out which X offset and barcode X to use
+  const xOff = isDbl() ? (S.pl===1 ? DL.lx : DL.rx) : 15;
+  const bcXoff = isDbl() ? (S.pl===1 ? DL.blx : DL.brx) : 15;
+
+  // Compute needed height
+  let curY=10;
+  textF.forEach(f=>{
+    const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
+    curY += f.wrap>0 ? 40 : isMRP ? 25 : 20;
+  });
+  bcs.forEach(()=>curY+=85);
+  let maxHard=curY;
+  S.hards.forEach(h=>{
+    const lines=(h.text||'').split('\n').filter(l=>l.trim());
+    const ey=h.y+lines.length*h.step;
+    if(ey>maxHard)maxHard=ey;
+  });
+  const totalH=Math.max(curY+20, maxHard+20);
+  const labelW = isDbl() ? 400 : 420;
+  lc.style.width=Math.round(labelW*SC)+'px';
+  lc.style.height=Math.round(totalH*SC)+'px';
+
+  function el(tag,cls,txt){const e=document.createElement(tag);e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
+  function place(e,x,y){e.style.left=Math.round(x*SC)+'px';e.style.top=Math.round(y*SC)+'px';lc.appendChild(e);}
+
+  // Text fields
+  let y=10;
+  textF.forEach(f=>{
+    const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
+    const pfxText=f.prefix?f.prefix.replace(/^"|"$/g,''):'';
+    const displayName=pfxText+(f.variable||f.name);
+
+    const e=el('div','le-text'+(isMRP?' mrp':''),displayName);
+    e.style.fontSize=(isMRP?11:8)+'px';
+    place(e, xOff, y);
+
+    if(f.wrap>0){
+      const e2=el('div','le-text wrap2','↳ line 2 (wrap)');
+      e2.style.fontSize='7px';
+      place(e2, xOff, y+14);
+      y+=40;
+    } else {
+      y+=isMRP?25:20;
+    }
+  });
+
+  // Barcodes
+  bcs.forEach(bcVar=>{
+    const wrap=el('div','le-bc-wrap');
+    const bars=el('div','le-bc-bars');
+    const pat=[3,1,2,1,2,3,1,2,1,3,2,1,3,1,2,2,1,3,1,2,3,1,1,2,3];
+    pat.forEach((w,pi)=>{
+      const b=el('div','le-bc-bar');
+      b.style.width=(w*1.2)+'px';
+      b.style.height=Math.round(38*SC)+'px';
+      bars.appendChild(b);
+      if(pi<pat.length-1){const g=document.createElement('div');g.style.cssText='width:1.5px;display:inline-block;background:#fff';bars.appendChild(g);}
+    });
+    const lbl=el('div','le-bc-label',bcVar);
+    lbl.style.fontSize='7px';
+    wrap.appendChild(bars);wrap.appendChild(lbl);
+    place(wrap, bcXoff, y);
+    y+=85;
+  });
+
+  // Separator before hard blocks
+  if(S.hards.some(h=>(h.text||'').trim())){
+    const rule=el('div','le-rule');
+    rule.style.top=Math.round((y+4)*SC)+'px';
+    lc.appendChild(rule);
+  }
+
+  // Hardcoded blocks
+  S.hards.forEach(h=>{
+    const lines=(h.text||'').split('\n');
+    let hy=h.y;
+    lines.forEach(ln=>{
+      if(!ln.trim()){hy+=h.step;return;}
+      const e=el('div','le-text hard',ln);
+      e.style.fontSize=(6+h.size)+'px';
+      if(h.rot===1||h.rot===3){
+        e.style.transform=`rotate(${h.rot===1?90:-90}deg)`;
+        e.style.transformOrigin='top left';
+      }
+      place(e, h.x, hy);
+      hy+=h.step;
+    });
+  });
+}
+
+/* ══════════ PRN BUILDER ══════════ */
+function buildPRN(){
+  const textF=S.fields.filter(f=>f.variable);
+  const bcs=[S.bc1,S.bc2].filter(Boolean);
+  if(!textF.length&&!bcs.length) return '; No fields mapped — complete step 3 first.';
+
+  const out=[];
+
+  // Count vars per copy
+  // single: wrap fields get 2 slots; double: 1 slot each
+  const wrapBonus=isDbl()?0:textF.filter(f=>f.wrap>0).length;
+  const vpc=textF.length+wrapBonus+bcs.length;
+
+  /* compute single-layer Y positions */
+  let slY=[],slBcY=10;
+  if(!isDbl()){
+    let y=10;
+    textF.forEach((f,i)=>{
+      slY[i]=y;
+      const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
+      y+=f.wrap>0?40:isMRP?25:20;
+    });
+    slBcY=y;
+  }
+
+  /* build A/B lines for one copy */
+  function copyLines(xBase,vOff,bcXLeft){
+    const lines=[]; let ti=0,vi=vOff;
+    textF.forEach((f,i)=>{
+      const pfx=f.prefix?`"${f.prefix.replace(/^"|"$/g,'')}"`:'' ;
+      const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
+      if(isDbl()){
+        const y=DL.ty0+ti*DL.tys;
+        lines.push(`A${xBase},${y},0,2,1,1,N,${pfx}${vn(vi)}`);
+        ti++;vi++;
       } else {
-        const y = DL.textYStart + tIdx * DL.textYStep;
-        out.push(`A${DL.leftX},${y},0,2,1,1,N,${pfx}${vL}`);
-        out.push(`A${DL.rightX},${y},0,2,1,1,N,${pfx}${vR}`);
-        tIdx++;
+        const y=slY[i];
+        if(f.wrap>0){
+          lines.push(`A15,${y},0,1,1,1,N,${pfx}${vn(vi)}`);
+          lines.push(`A15,${y+15},0,1,1,1,N,${vn(vi+1)}`);
+          vi+=2;
+        } else if(isMRP){
+          lines.push(`A15,${y},0,1,1,2,N,${pfx}${vn(vi)}`);vi++;
+        } else {
+          lines.push(`A15,${y},0,1,1,1,N,${pfx}${vn(vi)}`);vi++;
+        }
       }
     });
+    // barcodes
+    bcs.forEach((bcVar,bi)=>{
+      if(isDbl()){
+        lines.push(`B${bcXLeft},${DL.by},0,1,2,6,60,B,${vn(vi)}`);
+      } else {
+        lines.push(`B15,${slBcY+bi*95},0,1,2,1,40,B,${vn(vi)}`);
+      }
+      vi++;
+    });
+    return lines;
+  }
 
-    // Hardcoded lines on FK"1"
-    S.hards.forEach(h => {
-      const lines = (h.text||'').split('\n').filter(l=>l.trim());
-      let hy = h.y;
-      lines.forEach(ln => {
-        out.push(`A${h.x},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`);
-        if (h.mirror) out.push(`A${h.x + 405},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`);
-        hy += h.step;
+  /* hardcoded A lines */
+  function hardA(xExtra=0,mirror=false){
+    S.hards.forEach(h=>{
+      const lines=(h.text||'').split('\n').filter(l=>l.trim());
+      let hy=h.y;
+      lines.forEach(ln=>{
+        out.push(`A${h.x+xExtra},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`);
+        if(mirror)out.push(`A${h.x+xExtra+405},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`);
+        hy+=h.step;
       });
     });
-    out.push('PA1,1');
-    out.push('FE');
+  }
 
-    // ── FK"2" ── (single copy, odd last row)
-    out.push('FK"2"');
-    out.push('FS"2"');
-    for (let i = 0; i < n; i++) out.push(`${vn(i)},30,N,""`);
-
-    let tIdx2 = 0;
-    mapped.forEach((f, i) => {
-      const v = vn(i);
-      const pfx = f.prefix ? `"${f.prefix}"` : '';
-      if (f.barcode) {
-        out.push(`B${DL.barcodeLeftX},${DL.barcodeY},0,1,2,6,60,B,${v}`);
-      } else {
-        const y = DL.textYStart + tIdx2 * DL.textYStep;
-        out.push(`A${DL.leftX},${y},0,2,1,1,N,${pfx}${v}`);
-        tIdx2++;
-      }
-    });
-    S.hards.forEach(h => {
-      const lines = (h.text||'').split('\n').filter(l=>l.trim());
-      let hy = h.y;
-      lines.forEach(ln => { out.push(`A${h.x},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`); hy += h.step; });
-    });
-    out.push('PA1,1');
-    out.push('FE');
-
-    // ── Foreach loop (exact match to real double-layer PRN) ──
-    out.push(`#foreach($row in $rows)#if($foreach.index % 2 == 0)FR"#if($rows.size() % 2 == 1 && $rows.size() == $foreach.count)2#{else}1#{end}"`);
-    out.push('?');
-    out.push('#end');
-    mapped.forEach(f => pushColValue(out, f));
-    out.push('#{end}');
-
-  /* ════════════════════════════════════════════
-     SINGLE LAYER
-     Wrap fields → 2 variable slots (V0x + V0x+1)
-     Exact positions from THOT real PRN sample
-  ════════════════════════════════════════════ */
-  } else {
-    // Build slot map — wrap fields get 2 var slots
-    const slotMap = [];
-    let vi = 0;
-    mapped.forEach(f => {
-      if (f.wrap > 0) {
-        slotMap.push({f, v0:vi, v1:vi+1, isWrap:true});
-        vi += 2;
-      } else {
-        slotMap.push({f, v0:vi, isWrap:false});
-        vi++;
-      }
-    });
-
-    out.push('FK"1"');
-    out.push('FS"1"');
-    // Variable declarations (shorter width for non-wrap fields)
-    for (let i = 0; i < vi; i++) {
-      const w = (i < 5 && !slotMap.find(s=>s.v0===i&&s.isWrap)) ? 20 : 30;
-      out.push(`${vn(i)},${w},N,""`);
-    }
-
-    // A/B print commands
-    let y = 10;
-    slotMap.forEach(({f, v0, v1, isWrap}) => {
-      const pfx = f.prefix ? `"${f.prefix}"` : '';
-      const isMRP = f.variable === 'MRP' || f.variable === 'ItemMrp';
-      if (f.barcode) {
-        out.push(`B15,${y},0,1,2,1,40,B,${vn(v0)}`);
-        y += 95;
-      } else if (isWrap) {
-        out.push(`A15,${y},0,1,1,1,N,${pfx}${vn(v0)}`);
-        y += 15;
-        out.push(`A15,${y},0,1,1,1,N,${vn(v1)}`);
-        y += 25;
-      } else if (isMRP) {
-        out.push(`A15,${y},0,1,1,2,N,${pfx}${vn(v0)}`);
-        y += 25;
-      } else {
-        out.push(`A15,${y},0,1,1,1,N,${pfx}${vn(v0)}`);
-        y += 20;
-      }
-    });
-
-    // Hardcoded blocks
-    S.hards.forEach(h => {
-      const lines = (h.text||'').split('\n').filter(l=>l.trim());
-      let hy = h.y;
-      lines.forEach(ln => { out.push(`A${h.x},${hy},${h.rot},1,${h.size},1,N,"${ln.trim()}"`); hy += h.step; });
-    });
-
-    out.push('PA1,1');
-    out.push('FE');
-
-    // Foreach loop
-    const loopOpen = isItem()
-      ? '#foreach($item in $items)FR"1"'
-      : '#foreach($row in $rows)FR"1"';
-    out.push(loopOpen);
-    out.push('?');
-    slotMap.forEach(({f, isWrap}) => {
-      if (isWrap) {
-        out.push(`#set($shortName = ${colExpr(f)})`);
+  /* foreach value lines */
+  function foreachVals(){
+    textF.forEach(f=>{
+      if(!isDbl()&&f.wrap>0){
+        out.push(`#set($shortName = ${cex(f)})`);
         out.push(`#if($shortName.length() > ${f.wrap})`);
         out.push(`$shortName.substring(0,${f.wrap})`);
         out.push(`$shortName.substring(${f.wrap})`);
-        out.push('#else');
-        out.push('$shortName');
-        out.push('-');
-        out.push('#end');
+        out.push('#else');out.push('$shortName');out.push('-');out.push('#end');
       } else {
-        pushColValue(out, f);
+        out.push(cex(f));
       }
     });
+    bcs.forEach(bcVar=>{
+      out.push(isItem()?`$item.${bcVar}`:`$row.getColumnValue('${bcVar}')`);
+    });
+  }
+
+  if(isDbl()){
+    // FK"1" — left + right
+    out.push('FK"1"');out.push('FS"1"');
+    for(let i=0;i<vpc*2;i++)out.push(`${vn(i)},30,N,""`);
+    copyLines(DL.lx,0,DL.blx).forEach(l=>out.push(l));
+    copyLines(DL.rx,vpc,DL.brx).forEach(l=>out.push(l));
+    hardA(0,true);
+    out.push('PA1,1');out.push('FE');
+
+    // FK"2" — single
+    out.push('FK"2"');out.push('FS"2"');
+    for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
+    copyLines(DL.lx,0,DL.blx).forEach(l=>out.push(l));
+    hardA(0,false);
+    out.push('PA1,1');out.push('FE');
+
+    out.push(`#foreach($row in $rows)#if($foreach.index % 2 == 0)FR"#if($rows.size() % 2 == 1 && $rows.size() == $foreach.count)2#{else}1#{end}"`);
+    out.push('?');out.push('#end');
+    foreachVals();
+    out.push('#{end}');
+
+  } else {
+    // Single layer
+    out.push('FK"1"');out.push('FS"1"');
+    for(let i=0;i<vpc;i++) out.push(`${vn(i)},30,N,""`);
+    copyLines(15,0,15).forEach(l=>out.push(l));
+    hardA(0,false);
+    out.push('PA1,1');out.push('FE');
+
+    out.push(isItem()?'#foreach($item in $items)FR"1"':'#foreach($row in $rows)FR"1"');
+    out.push('?');
+    foreachVals();
     out.push('#{end}');
   }
 
   return out.join('\n');
 }
 
-function pushColValue(out, f) {
-  out.push(colExpr(f));
+/* ══════════ OUTPUT ══════════ */
+function genPRN(){
+  document.getElementById('pout').textContent=buildPRN();
+  document.getElementById('s4').style.display='';
+  document.getElementById('s4').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-
-/* ── Generate + Copy ── */
-function genPRN() {
-  const prn = buildPRN();
-  document.getElementById('pout').textContent = prn;
-  document.getElementById('s4').style.display = '';
-  document.getElementById('s4').scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-
-function copyPRN() {
-  const text = document.getElementById('pout').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const b = document.getElementById('cpBtn');
-    b.textContent = '✓ Copied!';
-    setTimeout(() => b.textContent = 'Copy to clipboard', 1600);
+function copyPRN(){
+  navigator.clipboard.writeText(document.getElementById('pout').textContent).then(()=>{
+    const b=document.getElementById('cpBtn');b.textContent='✓ Copied!';
+    setTimeout(()=>b.textContent='Copy to clipboard',1600);
   });
 }
 </script>
