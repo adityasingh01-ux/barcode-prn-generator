@@ -12,159 +12,162 @@
   --accent:#1a1a18;--accent-fg:#fff;
   --info-bg:#eef4ff;--info-text:#2255bb;--info-border:#aac4ff;
   --success-bg:#edfaf3;--success-text:#1a6640;
-  --warn-bg:#fff8e6;--warn-border:#f5c842;
-  --danger:#cc3333;
   --hard-bg:#fff8f0;--hard-border:#f5c88a;--hard-text:#7a4400;
+  --danger:#cc3333;
   --radius:10px;--radius-sm:6px;
   --mono:'Courier New',Courier,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
-
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;position:sticky;top:0;z-index:200}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;position:sticky;top:0;z-index:300}
 .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.01em}
 .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
 .logo-sub{font-weight:400;color:var(--text2);font-size:13px;margin-left:2px}
-
-main{max-width:860px;margin:0 auto;padding:2rem 1.5rem 5rem}
-
-.step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
-.step-head{display:flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+main{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:1.1rem}
 .step-num{width:22px;height:22px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0}
-.step-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
-.step-badge{margin-left:auto;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--info-bg);color:var(--info-text)}
-
+.card-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
+.card-badge{margin-left:auto;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--info-bg);color:var(--info-text)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:13px;color:var(--text2);font-weight:500}
 select,input,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
 select:focus,input:focus,textarea:focus{border-color:var(--border2)}
 textarea{resize:vertical}
+.tpl-tag{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.hint{font-size:12px;color:var(--text3);line-height:1.5}
+.divider{height:1px;background:var(--border);margin:1rem 0}
+.mirror-note{font-size:12px;color:var(--info-text);background:var(--info-bg);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:10px;border-left:3px solid var(--info-text);line-height:1.5}
 
-.tabs{display:flex;gap:6px;margin-bottom:1rem}
-.tab{padding:6px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all .15s}
-.tab:hover{background:var(--surface2)}
-.tab.on{background:var(--surface2);color:var(--text);font-weight:600;border-color:var(--border2)}
+/* Variable chips */
+.var-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.var-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;background:var(--surface);color:var(--text2);transition:all .15s;user-select:none}
+.var-chip:hover{border-color:var(--border2);background:var(--surface2)}
+.var-chip.on{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text);font-weight:600}
+.var-chip input{display:none}
 
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:1.4rem;text-align:center;cursor:pointer;color:var(--text2);font-size:13px;transition:background .15s;display:flex;flex-direction:column;align-items:center;gap:6px}
-.upload-zone:hover,.upload-zone.drag{background:var(--surface2)}
-.upload-zone svg{opacity:.4}
-.upload-zone.has-file{border-color:var(--success-text);background:var(--success-bg);color:var(--success-text)}
-.img-preview{max-width:100%;border-radius:var(--radius-sm);margin-top:10px;border:1px solid var(--border);max-height:200px;object-fit:contain}
-
-/* ── bc box ── */
-.bc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.2rem}
+/* BC box */
+.bc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0}
 .bc-note{font-size:11px;color:var(--text3);margin-top:8px;font-style:italic}
 
-/* ══════════════════════════════════
-   UNIFIED SEQUENCE ROWS
-   Two flavours: .seq-dyn (blue tint) and .seq-hard (amber tint)
-══════════════════════════════════ */
-.seq-list{margin-bottom:4px}
-
-/* drop zone indicator shown between rows */
-.drop-indicator{height:3px;border-radius:2px;background:var(--info-text);margin:2px 0;display:none;transition:opacity .1s}
-.drop-indicator.active{display:block}
-
-.seq-row{
+/* ═══════════════════════════════
+   LINE-BASED SEQUENCE
+   Each .line-row = one printed row
+   Up to 3 cell chips per line
+═══════════════════════════════ */
+.seq-wrap{display:flex;flex-direction:column;gap:4px}
+.line-row{
   display:flex;align-items:flex-start;gap:8px;
   padding:8px 10px;border-radius:var(--radius-sm);
-  margin-bottom:4px;border:1.5px solid transparent;
+  border:1.5px solid transparent;background:var(--surface2);
   transition:border-color .12s,opacity .18s,box-shadow .12s;
-  cursor:default;
+  min-height:48px;
 }
-.seq-row:hover{border-color:var(--border)}
-.seq-row.dragging{opacity:.3;border-color:var(--border2)}
-.seq-row.drag-over{border-color:var(--info-text);box-shadow:0 0 0 3px var(--info-bg)}
-
-/* dynamic field row */
-.seq-dyn{background:var(--surface2)}
-/* hardcoded block row */
-.seq-hard{background:var(--hard-bg);border-color:var(--hard-border)!important}
-.seq-hard:hover{border-color:#e0a050!important}
-
-.drag-handle{cursor:grab;color:var(--text3);font-size:17px;flex-shrink:0;line-height:1;padding:2px 2px 0;margin-top:1px}
+.line-row:hover{border-color:var(--border)}
+.line-row.line-dragging{opacity:.28;border-color:var(--border2)}
+.line-row.line-over{border-color:var(--info-text);box-shadow:0 0 0 3px var(--info-bg);background:var(--info-bg)}
+.line-row.hard-row{background:var(--hard-bg);border-color:var(--hard-border)!important}
+.line-row.hard-row:hover{border-color:#e0a050!important}
+.drag-handle{cursor:grab;color:var(--text3);font-size:17px;flex-shrink:0;padding:2px 0;margin-top:2px;line-height:1}
 .drag-handle:active{cursor:grabbing}
+.x-label{font-size:10px;color:var(--text3);flex-shrink:0;white-space:nowrap;margin-top:6px}
+.x-inp{width:46px!important;font-size:12px!important;padding:4px 5px!important;text-align:center;flex-shrink:0}
 
-/* dyn row inner layout */
-.seq-dyn-inner{flex:1;display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
-.fname{font-size:13px;font-weight:600;min-width:90px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
-.seq-dyn-inner select{width:148px;flex-shrink:0;font-size:12px;padding:5px 7px}
-.seq-dyn-inner input[type=text]{width:82px;flex-shrink:0;font-size:12px;padding:5px 6px}
-.seq-dyn-inner input[type=number]{width:46px;flex-shrink:0;font-size:12px;padding:5px 6px}
+/* Cells area */
+.cells-area{flex:1;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;min-width:0;padding-top:2px}
+.cell-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 9px;border-radius:var(--radius-sm);
+  font-size:12px;font-weight:600;
+  border:1px solid var(--info-border);
+  background:var(--info-bg);color:var(--info-text);
+  cursor:grab;user-select:none;flex-shrink:0;
+  transition:opacity .15s,box-shadow .12s,border-color .12s;
+  max-width:190px;
+}
+.cell-chip:active{cursor:grabbing}
+.cell-chip.chip-drag{opacity:.25}
+.cell-chip.chip-over{box-shadow:0 0 0 2px var(--info-text);border-color:var(--info-text)}
+.chip-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text;max-width:130px}
+.chip-rm{border:none;background:transparent;cursor:pointer;color:var(--info-text);font-size:14px;padding:0;line-height:1;font-family:inherit;opacity:.6;flex-shrink:0}
+.chip-rm:hover{opacity:1;color:var(--danger)}
+/* drop slot between chips */
+.chip-slot{
+  width:20px;height:32px;border-radius:4px;
+  border:1.5px dashed transparent;flex-shrink:0;
+  transition:all .1s;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:transparent;
+}
+.chip-slot.slot-active{border-color:var(--info-text);background:var(--info-bg);color:var(--info-text)}
+.add-chip-btn{
+  width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--border2);
+  background:transparent;cursor:pointer;color:var(--text3);font-size:16px;
+  line-height:1;font-family:inherit;transition:all .15s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.add-chip-btn:hover{border-color:var(--info-text);color:var(--info-text);background:var(--info-bg)}
 
-/* hard row inner layout */
-.seq-hard-inner{flex:1;min-width:0;display:flex;gap:8px;align-items:flex-start}
-.hard-tag{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--hard-text);background:#fde8c0;border-radius:3px;padding:2px 6px;white-space:nowrap;flex-shrink:0;margin-top:3px}
-.hard-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
-.hard-body textarea{font-family:var(--mono);font-size:12px;min-height:52px;padding:6px 8px}
+/* Hard line content */
+.hard-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.hard-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--hard-text);background:#fde8c0;border-radius:3px;padding:2px 6px;align-self:flex-start}
+.hard-content textarea{font-family:var(--mono);font-size:12px;min-height:44px;padding:5px 8px}
 .hard-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .hard-meta label{font-size:11px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .hard-meta input[type=number]{width:50px;font-size:12px;padding:4px 5px}
 .hard-meta select{width:62px;font-size:12px;padding:4px 5px}
 .hard-meta input[type=checkbox]{width:auto}
 
-.seq-row .rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;flex-shrink:0;font-family:inherit;transition:color .12s;align-self:flex-start;margin-top:2px}
-.seq-row .rm:hover{color:var(--danger)}
+/* line remove */
+.line-rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;font-family:inherit;transition:color .12s;flex-shrink:0;margin-top:2px}
+.line-rm:hover{color:var(--danger)}
 
-/* add buttons row */
-.add-btns{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.add-btns input{flex:1;min-width:160px;font-size:13px}
-
-/* ── buttons ── */
-.btn-primary{width:100%;padding:11px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:.6rem;font-family:inherit;letter-spacing:.01em;transition:opacity .15s}
-.btn-primary:hover{opacity:.85}
-.btn-secondary{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
-.btn-secondary:hover{background:var(--surface2)}
+/* add bar */
+.add-bar{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.btn-sec{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
+.btn-sec:hover{background:var(--surface2)}
 .btn-hard{padding:6px 12px;border:1px solid var(--hard-border);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--hard-bg);color:var(--hard-text);font-family:inherit;font-weight:600;transition:background .15s;white-space:nowrap}
 .btn-hard:hover{background:#fde8c0}
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:.6rem;font-family:inherit;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
 
-/* ── PRN output ── */
+/* Picker modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.picker{background:var(--surface);border-radius:var(--radius);padding:1.5rem;width:400px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.picker h3{font-size:14px;font-weight:700;margin-bottom:.8rem}
+.picker-list{display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto}
+.picker-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;border:1px solid transparent;transition:background .12s;user-select:none}
+.picker-opt:hover:not(.p-used){background:var(--surface2);border-color:var(--border)}
+.picker-opt.p-sel{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
+.picker-opt.p-used{color:var(--text3);cursor:default}
+.picker-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem}
+.btn-ok{padding:7px 18px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-cancel{padding:7px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:transparent;font-family:inherit;color:var(--text2)}
+
+/* PRN */
 .prn-box{background:#1a1a18;color:#e8e6df;border-radius:var(--radius-sm);padding:1.1rem 1.2rem;font-family:var(--mono);font-size:11.5px;line-height:1.9;white-space:pre-wrap;word-break:break-all;min-height:80px;max-height:520px;overflow-y:auto}
-.prn-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.prn-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
 
-/* ── Preview ── */
-.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
-.preview-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
-.preview-scroll{overflow-x:auto;padding-bottom:6px}
+/* Preview */
+.prev-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
+.prev-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.prev-scroll{overflow-x:auto;padding-bottom:6px}
 .lbl-canvas{background:#fff;border:1.5px solid var(--border2);border-radius:5px;position:relative;box-shadow:0 2px 14px rgba(0,0,0,.09);display:inline-block;min-width:160px;min-height:80px}
-/* label element types */
-.le{position:absolute;pointer-events:none}
-.le-text{font-family:var(--mono);white-space:nowrap;color:#111;line-height:1.2}
-.le-text.mrp{font-weight:700}
-.le-text.sub{color:#aaa;font-style:italic}
-.le-hard-line{font-family:var(--mono);white-space:nowrap;color:#555}
-.le-bc-wrap{display:flex;flex-direction:column;align-items:flex-start}
-.le-bc-bars{display:flex;align-items:flex-end}
-.le-bc-bar{background:#111;display:inline-block}
-.le-bc-num{font-family:var(--mono);color:#333;margin-top:2px}
-.le-rule{left:4px;right:4px;border-top:1px dashed #e0ddd5}
+.le{position:absolute;font-family:var(--mono);white-space:nowrap;pointer-events:none;line-height:1.2}
+.le-bc{position:absolute;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none}
+.le-bars{display:flex;align-items:flex-end}
+.le-bar{background:#111;display:inline-block}
+.tabs{display:flex;gap:6px}
+.tab{padding:5px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all .15s}
+.tab.on{background:var(--surface2);color:var(--text);font-weight:600;border-color:var(--border2)}
+.prev-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
+.empty-note{font-size:13px;color:var(--text3);padding:10px 4px}
 
-.preview-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
-
-/* misc */
-.hint{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5}
-.divider{height:1px;background:var(--border);margin:1rem 0}
-.sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
-.tpl-tag{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
-.mirror-note{font-size:12px;color:var(--info-text);background:var(--info-bg);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:10px;border-left:3px solid var(--info-text);line-height:1.5}
-.empty-note{font-size:13px;color:var(--text3);padding:8px 2px}
-.legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
-.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
-
-@media(max-width:620px){
-  main{padding:1rem 1rem 3rem}
-  .grid2{grid-template-columns:1fr}
-  .seq-dyn-inner{flex-wrap:wrap}
-  .seq-dyn-inner select{width:100%}
-  header{padding:0 1rem}
-  .hard-meta{gap:4px}
-}
+@media(max-width:620px){main{padding:1rem 1rem 3rem}.grid2{grid-template-columns:1fr}header{padding:0 1rem}.cells-area{flex-wrap:wrap}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
     <div class="logo-icon">
@@ -179,12 +182,11 @@ textarea{resize:vertical}
     PRN Generator <span class="logo-sub">/ Barcode Labels</span>
   </div>
 </header>
-
 <main>
 
-<!-- Step 1 -->
-<div class="step">
-  <div class="step-head"><span class="step-num">1</span><span class="step-title">Label Configuration</span></div>
+<!-- S1: Config -->
+<div class="card">
+  <div class="card-head"><span class="step-num">1</span><span class="card-title">Label Configuration</span></div>
   <div class="grid2">
     <div class="field">
       <label>Traceability type</label>
@@ -207,317 +209,431 @@ textarea{resize:vertical}
   <div id="tplTag" style="display:none"><span class="tpl-tag" id="tplName"></span></div>
 </div>
 
-<!-- Step 2 -->
-<div class="step" id="s2" style="display:none">
-  <div class="step-head"><span class="step-num">2</span><span class="step-title">Label Fields</span></div>
-  <div class="tabs">
-    <button class="tab on" onclick="swTab('img')" id="t-img">Upload image</button>
-    <button class="tab" onclick="swTab('txt')" id="t-txt">Enter field names</button>
+<!-- S2: Variables + Barcodes -->
+<div class="card" id="s2" style="display:none">
+  <div class="card-head">
+    <span class="step-num">2</span>
+    <span class="card-title">Select Variables</span>
+    <span class="card-badge" id="s2badge"></span>
   </div>
-  <div id="p-img">
-    <div class="upload-zone" id="dz"
-      onclick="document.getElementById('fi').click()"
-      ondragover="event.preventDefault();this.classList.add('drag')"
-      ondragleave="this.classList.remove('drag')"
-      ondrop="onDrop(event)">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span>Drop barcode label image here, or click to browse</span>
-      <span style="font-size:11px;color:var(--text3)">PNG, JPG, WEBP</span>
-    </div>
-    <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
-    <img id="ip" class="img-preview" style="display:none">
-    <p class="hint" style="margin-top:8px">Add each dynamic field from the label below. Hardcoded text blocks (address, "Made in India", etc.) are added in step 3 and can be freely mixed and reordered with dynamic fields.</p>
-    <div style="display:flex;gap:7px;margin-top:10px">
-      <input type="text" id="qa" placeholder="Dynamic field name, e.g. Category, MRP…" onkeydown="if(event.key==='Enter')addDyn()">
-      <button class="btn-secondary" onclick="addDyn()">+ Add field</button>
-    </div>
-  </div>
-  <div id="p-txt" style="display:none">
-    <div class="field">
-      <label>Field names — one per line or comma-separated</label>
-      <textarea id="ftext" rows="7" placeholder="Category&#10;MRP&#10;Name&#10;Fit&#10;Color&#10;Size&#10;Store Reference&#10;EAN" oninput="onTxtF()"></textarea>
-    </div>
-    <p class="hint">Each line becomes one dynamic field.</p>
-  </div>
-</div>
-
-<!-- Step 3 -->
-<div class="step" id="s3" style="display:none">
-  <div class="step-head">
-    <span class="step-num">3</span>
-    <span class="step-title">Sequence & Variable Mapping</span>
-    <span class="step-badge" id="s3b"></span>
-  </div>
-
-  <!-- Barcode picker -->
+  <p class="hint" style="margin-bottom:.9rem">Check all variables you want on the label. Then set barcode variables below.</p>
+  <div class="var-grid" id="varGrid"></div>
+  <div class="divider"></div>
   <div class="bc-box">
     <div class="sec-label" style="margin-bottom:8px">Barcode variable(s) — up to 2</div>
     <div class="grid2" style="gap:.75rem">
       <div class="field">
         <label>Barcode 1</label>
-        <select id="bc1var" onchange="onBcChange()"><option value="">— none —</option></select>
+        <select id="bc1" onchange="onBc()"><option value="">— none —</option></select>
       </div>
       <div class="field">
         <label>Barcode 2 <span style="font-size:11px;color:var(--text3)">(optional)</span></label>
-        <select id="bc2var" onchange="onBcChange()"><option value="">— none —</option></select>
+        <select id="bc2" onchange="onBc()"><option value="">— none —</option></select>
       </div>
     </div>
-    <p class="bc-note">Barcode fields always print after all text rows, using B commands. Barcodes cannot be interleaved with text rows in the PRN format.</p>
+    <p class="bc-note">Barcode variables print as B commands after all text rows.</p>
   </div>
+</div>
 
-  <!-- Legend -->
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--surface2);border:1px solid var(--border)"></div>Dynamic field (variable)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--hard-bg);border:1px solid var(--hard-border)"></div>Hardcoded text block</div>
+<!-- S3: Layout builder -->
+<div class="card" id="s3" style="display:none">
+  <div class="card-head">
+    <span class="step-num">3</span>
+    <span class="card-title">Label Layout</span>
+    <span class="card-badge" id="s3badge"></span>
   </div>
-
-  <!-- Unified sequence -->
   <div id="dblNote" class="mirror-note" style="display:none">
-    <strong>Double layer:</strong> The sequence below is mirrored to both left and right label copies automatically.
+    <strong>Double layer:</strong> Layout mirrors automatically to left and right copies.
   </div>
-  <p class="hint" style="margin-bottom:8px">Drag the <strong>≡</strong> handle to reorder items. Dynamic fields and hardcoded blocks can be freely mixed — the Y position in the PRN is calculated from their order here.</p>
-  <div class="seq-list" id="seqList"><p class="empty-note">No items yet — add dynamic fields above or hardcoded blocks below.</p></div>
-
-  <!-- Add buttons -->
-  <div class="add-btns">
-    <input type="text" id="dynAdd" placeholder="Add dynamic field…" onkeydown="if(event.key==='Enter')addDyn()">
-    <button class="btn-secondary" onclick="addDyn()">+ Dynamic field</button>
-    <button class="btn-hard" onclick="addHard()">+ Hardcoded block</button>
+  <p class="hint" style="margin-bottom:.9rem">
+    Drag <strong>≡</strong> to reorder rows. Each row holds up to 3 variable chips — drag a chip onto another to swap/reorder within a row or move it to another row.
+    <strong>X</strong> sets the left margin for that row. Click a chip label to set its inline prefix (e.g. <em>"MRP: Rs."</em>).
+  </p>
+  <div class="seq-wrap" id="seqWrap"><p class="empty-note">No rows yet — add rows below.</p></div>
+  <div class="add-bar">
+    <button class="btn-sec" onclick="addVarRow()">+ Variable row</button>
+    <button class="btn-hard" onclick="addHardRow()">+ Hardcoded row</button>
   </div>
 </div>
 
 <!-- Preview -->
-<div class="preview-card" id="previewCard" style="display:none">
-  <div class="preview-top">
-    <div class="step-head" style="margin-bottom:0">
-      <span class="step-num" style="font-size:13px;background:var(--surface3)">◎</span>
-      <span class="step-title">Label Preview</span>
+<div class="prev-card" id="prevCard" style="display:none">
+  <div class="prev-top">
+    <div class="card-head" style="margin-bottom:0">
+      <span class="step-num" style="background:var(--surface3)">◎</span>
+      <span class="card-title">Label Preview</span>
     </div>
-    <div class="tabs" id="layerTabs" style="display:none;margin-bottom:0">
+    <div class="tabs" id="layerTabs" style="display:none">
       <button class="tab on" onclick="setPL(1)" id="pl1">Left copy</button>
       <button class="tab" onclick="setPL(2)" id="pl2">Right copy</button>
     </div>
   </div>
-  <div class="preview-scroll">
-    <div class="lbl-canvas" id="lc"></div>
-  </div>
-  <p class="preview-caption">Proportional preview — actual dimensions depend on printer DPI &amp; label size settings.</p>
+  <div class="prev-scroll"><div class="lbl-canvas" id="lc"></div></div>
+  <p class="prev-caption">Proportional preview — actual dimensions depend on printer DPI &amp; label size.</p>
 </div>
 
-<!-- Step 4 -->
-<div class="step" id="s4" style="display:none">
-  <div class="prn-header">
-    <div class="step-head" style="margin-bottom:0">
-      <span class="step-num">4</span>
-      <span class="step-title">PRN Output</span>
+<!-- S4: Output -->
+<div class="card" id="s4" style="display:none">
+  <div class="prn-head">
+    <div class="card-head" style="margin-bottom:0">
+      <span class="step-num">4</span><span class="card-title">PRN Output</span>
     </div>
-    <button class="btn-secondary" id="cpBtn" onclick="copyPRN()">Copy to clipboard</button>
+    <button class="btn-sec" id="cpBtn" onclick="copyPRN()">Copy to clipboard</button>
   </div>
   <div class="prn-box" id="pout">Click "Generate PRN" to build the code.</div>
   <button class="btn-primary" onclick="genPRN()">⟳ Generate PRN</button>
 </div>
 
-</main>
+<!-- Picker modal -->
+<div class="overlay" id="overlay" style="display:none" onclick="if(event.target===this)closePicker()">
+  <div class="picker">
+    <h3 id="pickerTitle">Add variable to row</h3>
+    <div class="picker-list" id="pickerList"></div>
+    <div class="picker-foot">
+      <button class="btn-cancel" onclick="closePicker()">Cancel</button>
+      <button class="btn-ok" onclick="confirmPicker()">Add selected</button>
+    </div>
+  </div>
+</div>
 
+</main>
 <script>
-/* ══════════ CONSTANTS ══════════ */
+/* ══════ CONSTANTS ══════ */
 const ITYPE_VARS=["Name","ProductCode","MRP","ScanIdentifier","Ean","Upc","Isbn","Color","Size","Category","Brand","Type","Weight","Tags","Style","TaxType"];
 const ITEM_VARS=["ItemName","ItemCode","ItemSku","ItemMrp","ItemEAN","ItemSize","ItemStyle","ItemColor","ItemBrand","ItemCategory","VendorSkuCode","ItemCategoryCode","ItemCreated"];
-const DL={lx:25,rx:430,blx:70,brx:483,by:240,ty0:30,tys:30};
-const SC=0.54; // preview scale: PRN units → px
+const DL={lx:25,rx:430,blx:70,brx:483,by:240};
+const LW=420; // label width PRN units single
+const SC=0.52;// preview scale
 
-/* ══════════ STATE ══════════
-   S.seq: ordered array of items, each either:
-     {kind:'dyn',  name, variable, prefix, wrap}
-     {kind:'hard', text, x, y, step, rot, size, mirror}
-   Barcodes are separate (always at end of A section).
-══════════════════════════════ */
-let S={trace:'',roll:'',seq:[],bc1:'',bc2:'',pl:1};
-let dragSrc=null;
+/* ══════ STATE ══════
+  S.rows: [
+    {kind:'var', x:15, cells:[{v,prefix,wrap}, ...]}  // max 3 cells
+    {kind:'hard', x:15, text, step, rot, size, mirror}
+  ]
+══════════════════ */
+let S={trace:'',roll:'',checked:new Set(),rows:[],bc1:'',bc2:'',pl:1};
+let lineDrag=null;   // row index being dragged
+let chipDrag=null;   // {ri, ci} chip being dragged
+let pickerTarget=null; // {ri} or null=new row
+let pickerSel=new Set();
 
-/* ══════════ HELPERS ══════════ */
+/* ══════ HELPERS ══════ */
 const isItem=()=>S.trace==='item';
 const isDbl=()=>S.roll==='double';
-const varList=()=>isItem()?ITEM_VARS:ITYPE_VARS;
+const AVars=()=>isItem()?ITEM_VARS:ITYPE_VARS;
 const vn=i=>'V'+String(i).padStart(2,'0');
-const cex=f=>isItem()?`$item.${f.variable}`:`$row.getColumnValue('${f.variable}')`;
+const gcv=v=>isItem()?`$item.${v}`:`$row.getColumnValue('${v}')`;
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-const tplName=()=>(isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN')+' · '+(isDbl()?'Double layer':'Single layer');
-const dyns=()=>S.seq.filter(s=>s.kind==='dyn');
-const hards=()=>S.seq.filter(s=>s.kind==='hard');
+const tplStr=()=>(isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN')+' · '+(isDbl()?'Double layer':'Single layer');
+const usedSet=()=>{
+  const s=new Set();
+  S.rows.forEach(r=>{if(r.kind==='var')r.cells.forEach(c=>{if(c.v)s.add(c.v);});});
+  if(S.bc1)s.add(S.bc1);if(S.bc2)s.add(S.bc2);return s;
+};
 
-/* ══════════ STEP 1 ══════════ */
+/* ══════ S1: CONFIG ══════ */
 function onCfg(){
   S.trace=document.getElementById('trace').value;
   S.roll=document.getElementById('roll').value;
   const ok=S.trace&&S.roll;
   document.getElementById('s2').style.display=ok?'':'none';
   document.getElementById('tplTag').style.display=ok?'':'none';
-  if(ok)document.getElementById('tplName').textContent=tplName();
-  renderAll();showBelow();
+  if(ok)document.getElementById('tplName').textContent=tplStr();
+  renderVarGrid();renderBcPickers();refresh();
 }
 
-/* ══════════ STEP 2 ══════════ */
-function swTab(t){
-  ['img','txt'].forEach(x=>{
-    document.getElementById('t-'+x).className='tab'+(t===x?' on':'');
-    document.getElementById('p-'+x).style.display=t===x?'':'none';
+/* ══════ S2: VARIABLE CHECKBOXES ══════ */
+function renderVarGrid(){
+  const vs=AVars();
+  document.getElementById('s2badge').textContent=isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN';
+  const g=document.getElementById('varGrid');g.innerHTML='';
+  vs.forEach(v=>{
+    const lbl=document.createElement('label');
+    lbl.className='var-chip'+(S.checked.has(v)?' on':'');
+    const cb=document.createElement('input');cb.type='checkbox';cb.checked=S.checked.has(v);
+    cb.addEventListener('change',()=>{
+      if(cb.checked)S.checked.add(v);else S.checked.delete(v);
+      lbl.className='var-chip'+(cb.checked?' on':'');
+      renderBcPickers();refresh();
+    });
+    lbl.appendChild(cb);lbl.appendChild(document.createTextNode(v));
+    g.appendChild(lbl);
   });
 }
-function onDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);}
-function onFile(e){const f=e.target.files[0];if(f)loadImg(f);}
-function loadImg(f){
-  const r=new FileReader();
-  r.onload=ev=>{
-    const el=document.getElementById('ip');el.src=ev.target.result;el.style.display='';
-    const dz=document.getElementById('dz');dz.classList.add('has-file');
-    dz.innerHTML=`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>${esc(f.name)}</span>`;
-  };
-  r.readAsDataURL(f);
+
+function renderBcPickers(){
+  const vs=AVars();
+  [['bc1',S.bc1],['bc2',S.bc2]].forEach(([id,cur])=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML='<option value="">— none —</option>'+vs.map(v=>`<option value="${v}"${v===cur?' selected':''}>${esc(v)}</option>`).join('');
+  });
+}
+function onBc(){
+  S.bc1=document.getElementById('bc1').value;
+  S.bc2=document.getElementById('bc2').value;
+  refresh();
 }
 
-/* ══════════ ADD ITEMS ══════════ */
-function addDyn(){
-  const el=document.getElementById('dynAdd')||document.getElementById('qa');
-  const v=el.value.trim();if(!v)return;
-  if(!S.seq.find(s=>s.kind==='dyn'&&s.name===v))
-    S.seq.push({kind:'dyn',name:v,variable:'',prefix:'',wrap:0});
-  el.value='';renderAll();showBelow();
-}
-
-function onTxtF(){
-  const names=document.getElementById('ftext').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
-  // keep existing dyn items if name matches, add new ones, remove old ones not in list
-  const existing=S.seq.filter(s=>s.kind==='dyn');
-  const hardItems=S.seq.filter(s=>s.kind==='hard');
-  const newDyns=names.map(n=>existing.find(s=>s.name===n)||{kind:'dyn',name:n,variable:'',prefix:'',wrap:0});
-  // rebuild seq: preserve relative order of hards, insert dyns in order
-  S.seq=[...newDyns,...hardItems];
-  renderAll();showBelow();
-}
-
-function addHard(){
-  S.seq.push({kind:'hard',text:'',x:15,y:0,step:20,rot:0,size:1,mirror:isDbl()});
-  renderAll();showBelow();
-}
-
-/* ══════════ RENDER ══════════ */
-function showBelow(){
-  const hasItems=S.seq.length>0;
-  const hasMapped=S.seq.some(s=>s.kind==='dyn'&&s.variable)||S.bc1;
-  document.getElementById('s3').style.display=hasItems?'':'none';
+/* ══════ SHOW/HIDE ══════ */
+function refresh(){
+  const hasCk=S.checked.size>0;
+  document.getElementById('s3').style.display=hasCk?'':'none';
+  const hasMapped=S.rows.some(r=>r.kind==='var'&&r.cells.some(c=>c.v))||S.bc1;
   document.getElementById('s4').style.display=hasMapped?'':'none';
-  document.getElementById('previewCard').style.display=hasMapped?'':'none';
+  document.getElementById('prevCard').style.display=hasMapped?'':'none';
+  renderSeq();
   if(hasMapped)drawPreview();
 }
 
-function renderAll(){renderBcPickers();renderSeq();}
-
-function renderBcPickers(){
-  const vs=varList();
-  [['bc1var',S.bc1],['bc2var',S.bc2]].forEach(([id,cur])=>{
-    const sel=document.getElementById(id);
-    sel.innerHTML='<option value="">— none —</option>'+vs.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
-  });
+/* ══════ S3: SEQUENCE ══════ */
+function addVarRow(){
+  pickerTarget=null;pickerSel=new Set();openPicker('Add variable row');
 }
-function onBcChange(){
-  S.bc1=document.getElementById('bc1var').value;
-  S.bc2=document.getElementById('bc2var').value;
-  showBelow();
+function addHardRow(){
+  S.rows.push({kind:'hard',x:15,text:'',step:20,rot:0,size:1,mirror:isDbl()});
+  refresh();
+}
+function addChipToRow(ri){
+  pickerTarget={ri};pickerSel=new Set();openPicker('Add variable to row');
 }
 
-/* ── Unified sequence renderer ── */
+/* ── Picker ── */
+function openPicker(title){
+  document.getElementById('pickerTitle').textContent=title;
+  const used=usedSet();
+  const checked=Array.from(S.checked);
+  const list=document.getElementById('pickerList');list.innerHTML='';
+  if(!checked.length){list.innerHTML='<p class="empty-note" style="font-size:13px">No variables checked in step 2.</p>';}
+  else{
+    checked.forEach(v=>{
+      const inCurRow=pickerTarget&&S.rows[pickerTarget.ri]?.cells?.some(c=>c.v===v);
+      const isUsed=used.has(v)&&!inCurRow;
+      const row=document.createElement('div');
+      row.className='picker-opt'+(isUsed?' p-used':'')+(pickerSel.has(v)?' p-sel':'');
+      row.innerHTML=`<span style="flex:1">${esc(v)}</span>${isUsed?'<span style="font-size:11px">in use</span>':''}`;
+      if(!isUsed)row.onclick=()=>{
+        if(pickerSel.has(v))pickerSel.delete(v);else pickerSel.add(v);
+        row.className='picker-opt'+(pickerSel.has(v)?' p-sel':'');
+      };
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('overlay').style.display='flex';
+}
+function closePicker(){document.getElementById('overlay').style.display='none';}
+function confirmPicker(){
+  const sel=Array.from(pickerSel);if(!sel.length){closePicker();return;}
+  if(pickerTarget===null){
+    // new row per variable
+    sel.forEach(v=>S.rows.push({kind:'var',x:15,cells:[{v,prefix:'',wrap:0}]}));
+  } else {
+    const row=S.rows[pickerTarget.ri];
+    sel.forEach(v=>{if(row.cells.length<3&&!row.cells.find(c=>c.v===v))row.cells.push({v,prefix:'',wrap:0});});
+  }
+  closePicker();refresh();
+}
+
+/* ── Sequence renderer ── */
 function renderSeq(){
-  document.getElementById('s3b').textContent=isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN';
+  document.getElementById('s3badge').textContent=S.rows.length+' row'+(S.rows.length!==1?'s':'');
   document.getElementById('dblNote').style.display=isDbl()?'':'none';
-  const c=document.getElementById('seqList');
-  if(!S.seq.length){c.innerHTML='<p class="empty-note">No items yet.</p>';return;}
-  c.innerHTML='';
-  const vs=varList();
+  const wrap=document.getElementById('seqWrap');
+  if(!S.rows.length){wrap.innerHTML='<p class="empty-note">No rows yet — add variable rows or hardcoded rows below.</p>';return;}
+  wrap.innerHTML='';
+  S.rows.forEach((row,ri)=>{
+    const el=document.createElement('div');
+    el.className='line-row'+(row.kind==='hard'?' hard-row':'');
+    el.draggable=true;el.dataset.ri=ri;
 
-  S.seq.forEach((item,i)=>{
-    const row=document.createElement('div');
-    row.className='seq-row '+(item.kind==='hard'?'seq-hard':'seq-dyn');
-    row.draggable=true;
-    row.dataset.idx=i;
-
-    /* drag events */
-    row.addEventListener('dragstart',e=>{
-      dragSrc=i;
-      setTimeout(()=>row.classList.add('dragging'),0);
-      e.dataTransfer.effectAllowed='move';
+    /* row-level drag */
+    el.addEventListener('dragstart',e=>{
+      if(chipDrag)return;
+      lineDrag=ri;setTimeout(()=>el.classList.add('line-dragging'),0);
+      e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('t','line');
     });
-    row.addEventListener('dragend',()=>{
-      row.classList.remove('dragging');
-      document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('drag-over'));
+    el.addEventListener('dragend',()=>{
+      el.classList.remove('line-dragging');
+      document.querySelectorAll('.line-row').forEach(r=>r.classList.remove('line-over'));
+      lineDrag=null;
     });
-    row.addEventListener('dragover',e=>{
-      e.preventDefault();e.dataTransfer.dropEffect='move';
-      document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('drag-over'));
-      row.classList.add('drag-over');
-    });
-    row.addEventListener('drop',e=>{
+    el.addEventListener('dragover',e=>{
+      if(chipDrag)return;
       e.preventDefault();
-      document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('drag-over'));
-      if(dragSrc===null||dragSrc===i)return;
-      const moved=S.seq.splice(dragSrc,1)[0];
-      const targetIdx=dragSrc<i?i-1:i; // adjust for splice
-      S.seq.splice(dragSrc<i?i:i,0,moved);
-      dragSrc=null;
-      renderAll();showBelow();
+      document.querySelectorAll('.line-row').forEach(r=>r.classList.remove('line-over'));
+      el.classList.add('line-over');
+    });
+    el.addEventListener('drop',e=>{
+      e.preventDefault();
+      el.classList.remove('line-over');
+      if(chipDrag!==null){
+        // chip dropped on row (not on a chip/slot) → append to end
+        if(S.rows[ri].kind!=='var'||S.rows[ri].cells.length>=3)return;
+        const {ri:sri,ci:sci}=chipDrag;
+        if(sri===ri)return;
+        const srcRow=S.rows[sri];
+        const cell=srcRow.cells.splice(sci,1)[0];
+        S.rows[ri].cells.push(cell);
+        if(srcRow.cells.length===0)S.rows.splice(sri<ri?sri:sri,1);
+        chipDrag=null;refresh();return;
+      }
+      if(lineDrag===null||lineDrag===ri)return;
+      const moved=S.rows.splice(lineDrag,1)[0];
+      S.rows.splice(lineDrag<ri?ri-1:ri,0,moved);
+      lineDrag=null;refresh();
     });
 
-    /* handle */
-    const handle=document.createElement('span');
-    handle.className='drag-handle';handle.title='Drag to reorder';handle.textContent='≡';
-    row.appendChild(handle);
+    /* drag handle */
+    const h=document.createElement('span');h.className='drag-handle';h.textContent='≡';h.title='Drag to reorder';
+    el.appendChild(h);
 
-    if(item.kind==='dyn'){
-      /* ── dynamic field ── */
-      const inner=document.createElement('div');inner.className='seq-dyn-inner';
-      const opts=vs.map(v=>`<option value="${v}"${v===item.variable?' selected':''}>${v}</option>`).join('');
-      inner.innerHTML=`
-        <span class="fname" title="${esc(item.name)}">${esc(item.name)}</span>
-        <select onchange="S.seq[${i}].variable=this.value;showBelow()"><option value="">— variable —</option>${opts}</select>
-        <input type="text" value="${esc(item.prefix)}" placeholder='"MRP: Rs."' title="Inline prefix" onchange="S.seq[${i}].prefix=this.value;drawPreview()">
-        <input type="number" min="0" max="80" value="${item.wrap||''}" placeholder="wrap" title="Wrap at N chars (0=off)" onchange="S.seq[${i}].wrap=+this.value">`;
-      row.appendChild(inner);
+    /* X margin */
+    const xl=document.createElement('span');xl.className='x-label';xl.textContent='X:';
+    const xi=document.createElement('input');xi.type='number';xi.className='x-inp';xi.value=row.x;xi.title='Left margin (PRN units)';
+    xi.onchange=()=>{S.rows[ri].x=+xi.value;drawPreview();};
+    el.appendChild(xl);el.appendChild(xi);
+
+    if(row.kind==='var'){
+      /* cells area */
+      const ca=document.createElement('div');ca.className='cells-area';
+      row.cells.forEach((cell,ci)=>{
+        ca.appendChild(makeSlot(ri,ci));
+        ca.appendChild(makeChip(ri,ci,cell,row));
+      });
+      ca.appendChild(makeSlot(ri,row.cells.length));
+      if(row.cells.length<3){
+        const ab=document.createElement('button');ab.className='add-chip-btn';ab.title='Add variable';ab.textContent='+';
+        ab.onclick=e=>{e.stopPropagation();addChipToRow(ri);};
+        ca.appendChild(ab);
+      }
+      el.appendChild(ca);
     } else {
-      /* ── hardcoded block ── */
-      const inner=document.createElement('div');inner.className='seq-hard-inner';
-      const tag=document.createElement('span');tag.className='hard-tag';tag.textContent='FIXED';
-      const body=document.createElement('div');body.className='hard-body';
-      const mirrorCheck=isDbl()?`<label><input type="checkbox" ${item.mirror?'checked':''} onchange="S.seq[${i}].mirror=this.checked;drawPreview()"> Both sides</label>`:'';
-      body.innerHTML=`
-        <textarea placeholder="One text line per line, e.g.&#10;Imported/Manufactured &amp; Marketed By:&#10;ACME Pvt. Ltd., Mumbai&#10;+91 98765 43210" onchange="S.seq[${i}].text=this.value;drawPreview()">${esc(item.text||'')}</textarea>
-        <div class="hard-meta">
-          <label>X <input type="number" value="${item.x}" onchange="S.seq[${i}].x=+this.value;drawPreview()"></label>
-          <label>Y offset <input type="number" value="${item.y}" title="Extra Y offset from calculated position (0 = auto from sequence)" onchange="S.seq[${i}].y=+this.value;drawPreview()"></label>
-          <label>Y step <input type="number" value="${item.step}" onchange="S.seq[${i}].step=+this.value;drawPreview()"></label>
-          <label>Rotation <select onchange="S.seq[${i}].rot=+this.value;drawPreview()">
-            <option value="0"${item.rot===0?' selected':''}>0°</option>
-            <option value="1"${item.rot===1?' selected':''}>90°</option>
-            <option value="2"${item.rot===2?' selected':''}>180°</option>
-            <option value="3"${item.rot===3?' selected':''}>270°</option>
-          </select></label>
-          <label>Font <input type="number" value="${item.size}" min="1" max="4" onchange="S.seq[${i}].size=+this.value;drawPreview()"></label>
-          ${mirrorCheck}
-        </div>`;
-      inner.appendChild(tag);inner.appendChild(body);
-      row.appendChild(inner);
+      /* hard content */
+      const hc=document.createElement('div');hc.className='hard-content';
+      const hl=document.createElement('span');hl.className='hard-label';hl.textContent='FIXED TEXT';
+      const ta=document.createElement('textarea');
+      ta.placeholder='One line per line e.g.\nImported/Manufactured & Marketed By:\nACME Pvt. Ltd., Mumbai\n+91 98765 43210';
+      ta.value=row.text||'';
+      ta.onchange=()=>{S.rows[ri].text=ta.value;drawPreview();};
+      const meta=document.createElement('div');meta.className='hard-meta';
+      const mirHtml=isDbl()?`<label><input type="checkbox" ${row.mirror?'checked':''} onchange="S.rows[${ri}].mirror=this.checked;drawPreview()" style="width:auto"> Both sides</label>`:'';
+      meta.innerHTML=`
+        <label>Y step <input type="number" value="${row.step}" onchange="S.rows[${ri}].step=+this.value;drawPreview()"></label>
+        <label>Rotation <select onchange="S.rows[${ri}].rot=+this.value;drawPreview()">
+          <option value="0"${row.rot===0?' selected':''}>0°</option>
+          <option value="1"${row.rot===1?' selected':''}>90°</option>
+          <option value="2"${row.rot===2?' selected':''}>180°</option>
+          <option value="3"${row.rot===3?' selected':''}>270°</option>
+        </select></label>
+        <label>Font <input type="number" value="${row.size}" min="1" max="4" onchange="S.rows[${ri}].size=+this.value;drawPreview()"></label>
+        ${mirHtml}`;
+      hc.appendChild(hl);hc.appendChild(ta);hc.appendChild(meta);
+      el.appendChild(hc);
     }
 
-    /* remove button */
-    const rm=document.createElement('button');
-    rm.className='rm';rm.textContent='×';rm.title='Remove';
-    rm.onclick=()=>{S.seq.splice(i,1);renderAll();showBelow();};
-    row.appendChild(rm);
+    /* row remove */
+    const rm=document.createElement('button');rm.className='line-rm';rm.textContent='×';rm.title='Remove row';
+    rm.onclick=()=>{S.rows.splice(ri,1);refresh();};
+    el.appendChild(rm);
 
-    c.appendChild(row);
+    wrap.appendChild(el);
   });
 }
 
-/* ══════════ PREVIEW ══════════ */
+function makeChip(ri,ci,cell,row){
+  const chip=document.createElement('div');
+  chip.className='cell-chip';chip.draggable=true;chip.title='Drag to swap. Click label to set prefix.';
+  const lbl=document.createElement('span');lbl.className='chip-label';
+  lbl.textContent=(cell.prefix?cell.prefix.replace(/^"|"$/g,'')+' ':'')+cell.v;
+  lbl.title='Click to edit inline prefix';lbl.style.cursor='text';
+  lbl.onclick=e=>{e.stopPropagation();editPrefix(ri,ci,cell,lbl);};
+  const rm=document.createElement('button');rm.className='chip-rm';rm.textContent='×';rm.title='Remove';
+  rm.onclick=e=>{
+    e.stopPropagation();
+    row.cells.splice(ci,1);
+    if(row.cells.length===0)S.rows.splice(ri,1);
+    refresh();
+  };
+  chip.appendChild(lbl);chip.appendChild(rm);
+
+  chip.addEventListener('dragstart',e=>{
+    e.stopPropagation();chipDrag={ri,ci};
+    setTimeout(()=>chip.classList.add('chip-drag'),0);
+    e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('t','chip');
+  });
+  chip.addEventListener('dragend',()=>{
+    chip.classList.remove('chip-drag');
+    document.querySelectorAll('.cell-chip').forEach(c=>c.classList.remove('chip-over'));
+    document.querySelectorAll('.chip-slot').forEach(s=>s.classList.remove('slot-active'));
+    chipDrag=null;
+  });
+  chip.addEventListener('dragover',e=>{
+    if(!chipDrag)return;e.preventDefault();e.stopPropagation();
+    document.querySelectorAll('.cell-chip').forEach(c=>c.classList.remove('chip-over'));
+    chip.classList.add('chip-over');
+  });
+  chip.addEventListener('drop',e=>{
+    e.preventDefault();e.stopPropagation();
+    chip.classList.remove('chip-over');
+    if(!chipDrag)return;
+    const{ri:sri,ci:sci}=chipDrag;
+    if(sri===ri&&sci===ci)return;
+    const srcRow=S.rows[sri];const tgtRow=S.rows[ri];
+    if(tgtRow.kind!=='var')return;
+    if(sri===ri){
+      // same row swap
+      [srcRow.cells[sci],tgtRow.cells[ci]]=[tgtRow.cells[ci],srcRow.cells[sci]];
+    } else {
+      if(srcRow.kind!=='var')return;
+      // cross-row swap
+      const tmp=srcRow.cells[sci];
+      srcRow.cells[sci]=tgtRow.cells[ci];
+      tgtRow.cells[ci]=tmp;
+      if(srcRow.cells.every(c=>!c.v))S.rows.splice(sri<ri?sri:sri,1);
+    }
+    chipDrag=null;refresh();
+  });
+  return chip;
+}
+
+function makeSlot(ri,insertBefore){
+  const slot=document.createElement('div');slot.className='chip-slot';slot.textContent='+';
+  slot.addEventListener('dragover',e=>{
+    if(!chipDrag)return;e.preventDefault();e.stopPropagation();
+    document.querySelectorAll('.chip-slot').forEach(s=>s.classList.remove('slot-active'));
+    slot.classList.add('slot-active');
+  });
+  slot.addEventListener('dragleave',()=>slot.classList.remove('slot-active'));
+  slot.addEventListener('drop',e=>{
+    e.preventDefault();e.stopPropagation();slot.classList.remove('slot-active');
+    if(!chipDrag)return;
+    const{ri:sri,ci:sci}=chipDrag;
+    const srcRow=S.rows[sri];const tgtRow=S.rows[ri];
+    if(tgtRow.kind!=='var')return;
+    if(tgtRow.cells.length>=3&&sri!==ri)return;
+    const cell=srcRow.cells.splice(sci,1)[0];
+    let ins=insertBefore;
+    if(sri===ri&&sci<insertBefore)ins--;
+    tgtRow.cells.splice(Math.max(0,ins),0,cell);
+    if(srcRow.cells.length===0)S.rows.splice(sri<ri?sri:sri,1);
+    chipDrag=null;refresh();
+  });
+  return slot;
+}
+
+function editPrefix(ri,ci,cell,lbl){
+  const cur=cell.prefix?cell.prefix.replace(/^"|"$/g,''):'';
+  const inp=document.createElement('input');inp.type='text';inp.value=cur;inp.placeholder='e.g. MRP: Rs.';
+  inp.style.cssText='width:120px;font-size:12px;padding:3px 6px;border:1px solid var(--info-border);border-radius:4px;outline:none';
+  lbl.replaceWith(inp);inp.focus();inp.select();
+  const save=()=>{
+    const v=inp.value.trim();
+    S.rows[ri].cells[ci].prefix=v?`"${v}"`:'';
+    refresh();
+  };
+  inp.onblur=save;inp.onkeydown=e=>{if(e.key==='Enter')save();if(e.key==='Escape'){inp.value=cur;save();}};
+}
+
+/* ══════ PREVIEW ══════ */
 function setPL(n){
   S.pl=n;
   document.getElementById('pl1').className='tab'+(n===1?' on':'');
@@ -529,260 +645,190 @@ function drawPreview(){
   const lc=document.getElementById('lc');
   const layerTabs=document.getElementById('layerTabs');
   lc.innerHTML='';
-
   const bcs=[S.bc1,S.bc2].filter(Boolean);
-  const hasContent=S.seq.some(s=>s.kind==='hard'&&(s.text||'').trim())||
-                   S.seq.some(s=>s.kind==='dyn'&&s.variable)||bcs.length;
-  if(!hasContent){
-    lc.innerHTML='<p class="empty-note" style="padding:1.5rem 2rem;text-align:center;font-size:12px">Map fields to see preview</p>';
-    lc.style.width='';lc.style.height='';return;
-  }
-
+  const hasMapped=S.rows.some(r=>r.kind==='var'&&r.cells.some(c=>c.v))||bcs.length;
+  if(!hasMapped){lc.innerHTML='<p class="empty-note" style="padding:1.5rem;font-size:12px;text-align:center">Map fields to see preview</p>';lc.style.width='';lc.style.height='';return;}
   layerTabs.style.display=isDbl()?'flex':'none';
-  const xBase=isDbl()?(S.pl===1?DL.lx:DL.rx):15;
-  const bcX=isDbl()?(S.pl===1?DL.blx:DL.brx):15;
-
-  /* Compute layout — walk sequence, assign Y to each item */
-  const layout=computeLayout();
-  const totalH=layout.totalH;
-  const labelW=isDbl()?400:430;
+  const xShift=isDbl()&&S.pl===2?405:0;
+  const lay=calcLayout();
+  const labelW=isDbl()?820:LW;
   lc.style.width=Math.round(labelW*SC)+'px';
-  lc.style.height=Math.round(totalH*SC)+'px';
+  lc.style.height=Math.round(lay.totalH*SC)+'px';
+  function mk(txt,fs,fw,col){
+    const e=document.createElement('div');e.className='le';e.textContent=txt;
+    e.style.fontSize=fs+'px';e.style.fontWeight=fw||'400';e.style.color=col||'#222';return e;
+  }
+  function pl(e,x,y){e.style.left=Math.round(x*SC)+'px';e.style.top=Math.round(y*SC)+'px';lc.appendChild(e);}
 
-  function mk(cls,txt){const e=document.createElement('div');e.className='le '+cls;if(txt!==undefined)e.textContent=txt;return e;}
-  function place(e,x,y){e.style.left=Math.round(x*SC)+'px';e.style.top=Math.round(y*SC)+'px';lc.appendChild(e);}
-
-  layout.items.forEach(li=>{
-    const item=li.item;
-    if(item.kind==='dyn'){
-      const isMRP=item.variable==='MRP'||item.variable==='ItemMrp';
-      const pfx=item.prefix?item.prefix.replace(/^"|"$/g,''):'';
-      const txt=(pfx||'')+(item.variable||item.name);
-      const e=mk('le-text'+(isMRP?' mrp':''),txt);
-      e.style.fontSize=(isMRP?11:8)+'px';
-      place(e,xBase,li.y);
-      if(item.wrap>0){
-        const e2=mk('le-text sub','↳ wrap line 2');
-        e2.style.fontSize='7px';
-        place(e2,xBase,li.y+14);
-      }
+  lay.rows.forEach(lr=>{
+    const row=lr.row;
+    if(row.kind==='var'){
+      lr.cells.forEach((ci,idx)=>{
+        const cell=row.cells[idx];const xp=lr.xPos[idx]+xShift;
+        const pfx=cell.prefix?cell.prefix.replace(/^"|"$/g,''):'';
+        const txt=(pfx?pfx+' ':'')+cell.v;
+        const isMRP=cell.v==='MRP'||cell.v==='ItemMrp';
+        pl(mk(txt,isMRP?11:8,isMRP?'700':'400',isMRP?'#111':'#333'),xp,lr.y);
+      });
     } else {
-      // hardcoded block
-      const lines=(item.text||'').split('\n');
-      let hy=li.y+item.y;
+      const lines=(row.text||'').split('\n');let hy=lr.y;
       lines.forEach(ln=>{
-        if(!ln.trim()){hy+=item.step;return;}
-        const e=mk('le-hard-line',ln);
-        e.style.fontSize=(6+item.size)+'px';
-        if(item.rot===1||item.rot===3){e.style.transform=`rotate(${item.rot===1?90:-90}deg)`;e.style.transformOrigin='top left';}
-        place(e,item.x,hy);hy+=item.step;
+        if(!ln.trim()){hy+=row.step;return;}
+        const e=mk(ln,6+row.size,'400','#555');
+        if(row.rot===1||row.rot===3){e.style.transform=`rotate(${row.rot===1?90:-90}deg)`;e.style.transformOrigin='top left';}
+        pl(e,row.x+xShift,hy);hy+=row.step;
       });
     }
   });
 
-  // barcodes at end
-  let by=layout.afterTextY;
-  bcs.forEach(bcVar=>{
-    const wrap=mk('le-bc-wrap');
-    const bars=mk('le-bc-bars');
-    [3,1,2,1,3,2,1,2,3,1,2,1,1,3,2,1,3,1,2,3,1,1,2,3].forEach((w,pi,arr)=>{
-      const b=mk('le-bc-bar');b.style.width=(w*1.3)+'px';b.style.height=Math.round(40*SC)+'px';
+  // barcodes
+  let by=lay.afterY;
+  bcs.forEach(bcV=>{
+    const bx=15+xShift;
+    const wrap=document.createElement('div');wrap.className='le-bc';
+    wrap.style.left=Math.round(bx*SC)+'px';wrap.style.top=Math.round(by*SC)+'px';
+    const bars=document.createElement('div');bars.className='le-bars';
+    [3,1,2,1,3,2,1,2,3,1,2,1,1,3,2,1,3,1,2,3].forEach((w,pi,arr)=>{
+      const b=document.createElement('div');b.className='le-bar';b.style.width=(w*1.3)+'px';b.style.height=Math.round(40*SC)+'px';
       bars.appendChild(b);
       if(pi<arr.length-1){const g=document.createElement('div');g.style.cssText='width:1.5px;display:inline-block;background:#fff';bars.appendChild(g);}
     });
-    const num=mk('le-bc-num',bcVar);num.style.fontSize='7px';
-    wrap.appendChild(bars);wrap.appendChild(num);
-    place(wrap,bcX,by);by+=85;
+    const num=document.createElement('div');num.style.cssText='font-family:var(--mono);font-size:7px;color:#333;margin-top:2px';num.textContent=bcV;
+    wrap.appendChild(bars);wrap.appendChild(num);lc.appendChild(wrap);by+=88;
   });
 }
 
-/* compute Y positions for each seq item */
-function computeLayout(){
-  let y=10;
-  const items=[];
-  S.seq.forEach(item=>{
-    if(item.kind==='dyn'){
-      const isMRP=item.variable==='MRP'||item.variable==='ItemMrp';
-      const h=item.wrap>0?40:isMRP?25:20;
-      items.push({item,y});
-      y+=h;
+/* Compute Y layout for rows */
+function calcLayout(){
+  const rows=[];let y=10;
+  const labelRight=LW-10;
+
+  S.rows.forEach(row=>{
+    if(row.kind==='var'){
+      const n=row.cells.length;
+      // X positions for up to 3 cells: left, center, right
+      const xPos=row.cells.map((_,ci)=>{
+        if(ci===0)return row.x;
+        if(ci===1)return n===3?Math.round(labelRight/2):Math.round(labelRight*0.58);
+        return labelRight-20;
+      });
+      rows.push({row,y,xPos});
+      const isMRP=row.cells.some(c=>c.v==='MRP'||c.v==='ItemMrp');
+      const hasWrap=row.cells.some(c=>c.wrap>0);
+      y+=hasWrap?40:isMRP?26:22;
     } else {
-      // hard block: measure lines
-      const lines=(item.text||'').split('\n').filter(l=>l.trim());
-      const blockH=Math.max(lines.length,1)*item.step+6;
-      items.push({item,y});
-      y+=blockH;
+      const lines=(row.text||'').split('\n').filter(l=>l.trim());
+      rows.push({row,y,xPos:[]});
+      y+=Math.max(lines.length,1)*row.step+6;
     }
   });
-  return {items,afterTextY:y,totalH:Math.max(y+80,200)};
+  return{rows,afterY:y,totalH:Math.max(y+100,200)};
 }
 
-/* ══════════ PRN BUILDER ══════════ */
+/* ══════ PRN BUILDER ══════ */
 function buildPRN(){
-  const dynItems=S.seq.filter(s=>s.kind==='dyn'&&s.variable);
   const bcs=[S.bc1,S.bc2].filter(Boolean);
-  if(!dynItems.length&&!bcs.length) return '; No fields mapped — complete step 3 first.';
+  const hasVar=S.rows.some(r=>r.kind==='var'&&r.cells.some(c=>c.v));
+  if(!hasVar&&!bcs.length)return '; No fields mapped — complete step 3 first.';
 
   const out=[];
+  const lay=calcLayout();
+  const labelRight=LW-10;
 
-  /* count variable slots per copy */
-  const wrapExtra=isDbl()?0:dynItems.filter(f=>f.wrap>0).length;
-  const vpc=dynItems.length+wrapExtra+bcs.length;
+  // collect all dyn cells in sequence
+  const allCells=[];
+  S.rows.forEach(row=>{if(row.kind==='var')row.cells.filter(c=>c.v).forEach(c=>allCells.push({c,row}));});
+  const wrapBonus=isDbl()?0:allCells.filter(({c})=>c.wrap>0).length;
+  const vpc=allCells.length+wrapBonus+bcs.length;
 
-  /* compute Y positions for PRN output — same logic as preview */
-  function computePRNLayout(){
-    let y=isDbl()?DL.ty0:10;
-    let dynTextIdx=0; // for DL: which text row slot
-    const dynY=[];
-    const hardEntries=[]; // {item, y}
-
-    S.seq.forEach(item=>{
-      if(item.kind==='dyn'&&item.variable){
-        if(isDbl()){
-          dynY.push(DL.ty0+dynTextIdx*DL.tys);
-          dynTextIdx++;
-        } else {
-          const isMRP=item.variable==='MRP'||item.variable==='ItemMrp';
-          dynY.push(y);
-          y+=item.wrap>0?40:isMRP?25:20;
-        }
-      } else if(item.kind==='hard'){
-        const lines=(item.text||'').split('\n').filter(l=>l.trim());
-        if(!isDbl()){
-          hardEntries.push({item,y:y+item.y});
-          y+=Math.max(lines.length,1)*item.step+6;
-        } else {
-          // for double layer, hard blocks use their own y
-          hardEntries.push({item,y:item.y||y});
-          y+=Math.max(lines.length,1)*item.step+6;
-        }
-      }
-    });
-    return {dynY,hardEntries,bcStartY:y};
-  }
-
-  /* build A/B command lines for one copy */
-  function copyLines(xBase,vOff,bcXPos){
-    const layout=computePRNLayout();
-    const lines=[];
-    let vi=vOff;
-    let dynIdx=0;
-
-    dynItems.forEach((f,fi)=>{
-      const pfx=f.prefix?`"${f.prefix.replace(/^"|"$/g,'')}"`:'' ;
-      const isMRP=f.variable==='MRP'||f.variable==='ItemMrp';
-      const y=layout.dynY[dynIdx]||10;
-
-      if(isDbl()){
-        lines.push(`A${xBase},${y},0,2,1,1,N,${pfx}${vn(vi)}`);
-        vi++;dynIdx++;
+  /* Build A/B lines for one copy; xOff=0 for left/single, xOff=405 for right */
+  function copyLines(xOff,vOff,bcX){
+    const lines=[];let vi=vOff;
+    lay.rows.forEach(lr=>{
+      const row=lr.row;
+      if(row.kind==='var'){
+        row.cells.filter(c=>c.v).forEach((cell,ci)=>{
+          const pfx=cell.prefix?`"${cell.prefix.replace(/^"|"$/g,'')}"`:'' ;
+          const isMRP=cell.v==='MRP'||cell.v==='ItemMrp';
+          const xp=lr.xPos[ci]+xOff;
+          if(isDbl()){
+            out.push(`A${xp},${lr.y},0,2,1,1,N,${pfx}${vn(vi)}`);vi++;
+          } else {
+            if(cell.wrap>0){
+              out.push(`A${xp},${lr.y},0,1,1,1,N,${pfx}${vn(vi)}`);
+              out.push(`A${xp},${lr.y+15},0,1,1,1,N,${vn(vi+1)}`);vi+=2;
+            } else if(isMRP){
+              out.push(`A${xp},${lr.y},0,1,1,2,N,${pfx}${vn(vi)}`);vi++;
+            } else {
+              out.push(`A${xp},${lr.y},0,1,1,1,N,${pfx}${vn(vi)}`);vi++;
+            }
+          }
+        });
       } else {
-        if(f.wrap>0){
-          lines.push(`A15,${y},0,1,1,1,N,${pfx}${vn(vi)}`);
-          lines.push(`A15,${y+15},0,1,1,1,N,${vn(vi+1)}`);
-          vi+=2;
-        } else if(isMRP){
-          lines.push(`A15,${y},0,1,1,2,N,${pfx}${vn(vi)}`);vi++;
-        } else {
-          lines.push(`A15,${y},0,1,1,1,N,${pfx}${vn(vi)}`);vi++;
-        }
-        dynIdx++;
+        // hard row
+        const txts=(row.text||'').split('\n').filter(l=>l.trim());
+        let hy=lr.y;
+        txts.forEach(ln=>{
+          out.push(`A${row.x+xOff},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
+          if(isDbl()&&row.mirror&&xOff===0)
+            out.push(`A${row.x+405},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
+          hy+=row.step;
+        });
       }
     });
-
-    // hardcoded A lines (interleaved based on sequence position)
-    layout.hardEntries.forEach(({item,y})=>{
-      const txtLines=(item.text||'').split('\n').filter(l=>l.trim());
-      let hy=y;
-      const mirrorOffset=isDbl()&&item.mirror?405:null;
-      txtLines.forEach(ln=>{
-        lines.push(`A${item.x+(xBase===DL.rx?405:0)},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
-        hy+=item.step;
-      });
-    });
-
     // barcodes
-    bcs.forEach((bcVar,bi)=>{
-      if(isDbl()){
-        lines.push(`B${bcXPos},${DL.by},0,1,2,6,60,B,${vn(vi)}`);
-      } else {
-        lines.push(`B15,${layout.bcStartY+bi*95},0,1,2,1,40,B,${vn(vi)}`);
-      }
+    bcs.forEach((bcV,bi)=>{
+      if(isDbl()){out.push(`B${bcX},${DL.by},0,1,2,6,60,B,${vn(vi)}`);}
+      else{out.push(`B15,${lay.afterY+bi*95},0,1,2,1,40,B,${vn(vi)}`);}
       vi++;
     });
-
     return lines;
   }
 
-  /* hardcoded A lines for FK blocks — using their own x, computed y */
-  function hardALines(forRightSide=false){
-    const layout=computePRNLayout();
-    layout.hardEntries.forEach(({item,y})=>{
-      const txtLines=(item.text||'').split('\n').filter(l=>l.trim());
-      let hy=y;
-      txtLines.forEach(ln=>{
-        if(isDbl()){
-          if(!forRightSide) out.push(`A${item.x},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
-          if(isDbl()&&item.mirror) out.push(`A${item.x+405},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
-        } else {
-          out.push(`A${item.x},${hy},${item.rot},1,${item.size},1,N,"${ln.trim()}"`);
-        }
-        hy+=item.step;
-      });
-    });
-  }
-
   /* foreach value lines */
-  function foreachVals(){
-    dynItems.forEach(f=>{
-      if(!isDbl()&&f.wrap>0){
-        out.push(`#set($shortName = ${cex(f)})`);
-        out.push(`#if($shortName.length() > ${f.wrap})`);
-        out.push(`$shortName.substring(0,${f.wrap})`);
-        out.push(`$shortName.substring(${f.wrap})`);
+  function fvals(){
+    allCells.forEach(({c})=>{
+      if(!isDbl()&&c.wrap>0){
+        out.push(`#set($shortName = ${gcv(c.v)})`);
+        out.push(`#if($shortName.length() > ${c.wrap})`);
+        out.push(`$shortName.substring(0,${c.wrap})`);
+        out.push(`$shortName.substring(${c.wrap})`);
         out.push('#else');out.push('$shortName');out.push('-');out.push('#end');
       } else {
-        out.push(cex(f));
+        out.push(gcv(c.v));
       }
     });
-    bcs.forEach(bcVar=>{
-      out.push(isItem()?`$item.${bcVar}`:`$row.getColumnValue('${bcVar}')`);
-    });
+    bcs.forEach(bcV=>out.push(gcv(bcV)));
   }
 
   if(isDbl()){
     out.push('FK"1"');out.push('FS"1"');
     for(let i=0;i<vpc*2;i++)out.push(`${vn(i)},30,N,""`);
-    copyLines(DL.lx,0,DL.blx).forEach(l=>out.push(l));
-    copyLines(DL.rx,vpc,DL.brx).forEach(l=>out.push(l));
+    copyLines(0,0,DL.blx);
+    copyLines(405,vpc,DL.brx);
     out.push('PA1,1');out.push('FE');
 
     out.push('FK"2"');out.push('FS"2"');
     for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
-    copyLines(DL.lx,0,DL.blx).forEach(l=>out.push(l));
+    copyLines(0,0,DL.blx);
     out.push('PA1,1');out.push('FE');
 
     out.push(`#foreach($row in $rows)#if($foreach.index % 2 == 0)FR"#if($rows.size() % 2 == 1 && $rows.size() == $foreach.count)2#{else}1#{end}"`);
     out.push('?');out.push('#end');
-    foreachVals();
-    out.push('#{end}');
-
+    fvals();out.push('#{end}');
   } else {
     out.push('FK"1"');out.push('FS"1"');
     for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
-    copyLines(15,0,15).forEach(l=>out.push(l));
+    copyLines(0,0,15);
     out.push('PA1,1');out.push('FE');
-
     out.push(isItem()?'#foreach($item in $items)FR"1"':'#foreach($row in $rows)FR"1"');
-    out.push('?');
-    foreachVals();
-    out.push('#{end}');
+    out.push('?');fvals();out.push('#{end}');
   }
 
   return out.join('\n');
 }
 
-/* ══════════ OUTPUT ══════════ */
+/* ══════ OUTPUT ══════ */
 function genPRN(){
   document.getElementById('pout').textContent=buildPRN();
   document.getElementById('s4').style.display='';
