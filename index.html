@@ -11,141 +11,147 @@
   --text:#1a1a18;--text2:#6b6a64;--text3:#9a9990;
   --accent:#1a1a18;--accent-fg:#fff;
   --info-bg:#eef4ff;--info-text:#2255bb;--info-border:#aac4ff;
-  --success-bg:#edfaf3;--success-text:#1a6640;
   --hard-bg:#fff8f0;--hard-border:#f5c88a;--hard-text:#7a4400;
+  --bc-bg:#f0fff4;--bc-border:#6fcf97;--bc-text:#1a6640;
   --danger:#cc3333;
   --radius:10px;--radius-sm:6px;
   --mono:'Courier New',Courier,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;position:sticky;top:0;z-index:300}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px}
 .logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
 .logo-sub{font-weight:400;color:var(--text2);font-size:13px;margin-left:2px}
-main{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem}
-.card-head{display:flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
 .step-num{width:22px;height:22px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0}
 .card-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
 .card-badge{margin-left:auto;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:var(--info-bg);color:var(--info-text)}
+
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.field{display:flex;flex-direction:column;gap:5px}
-.field label{font-size:13px;color:var(--text2);font-weight:500}
+.field label{font-size:13px;color:var(--text2);font-weight:500;display:block;margin-bottom:5px}
 select,input,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
 select:focus,input:focus,textarea:focus{border-color:var(--border2)}
 textarea{resize:vertical}
+
 .tpl-tag{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
-.sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
 .hint{font-size:12px;color:var(--text3);line-height:1.5}
 .divider{height:1px;background:var(--border);margin:1rem 0}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
 .mirror-note{font-size:12px;color:var(--info-text);background:var(--info-bg);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:10px;border-left:3px solid var(--info-text);line-height:1.5}
 
-/* Variable chips */
-.var-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
-.var-chip{display:flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;background:var(--surface);color:var(--text2);transition:all .15s;user-select:none}
+/* Var chips for step 2 */
+.var-grid{display:flex;flex-wrap:wrap;gap:6px}
+.var-chip{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;background:var(--surface);color:var(--text2);transition:all .15s;user-select:none}
 .var-chip:hover{border-color:var(--border2);background:var(--surface2)}
 .var-chip.on{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text);font-weight:600}
 .var-chip input{display:none}
 
-/* BC box */
-.bc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:0}
-.bc-note{font-size:11px;color:var(--text3);margin-top:8px;font-style:italic}
+/* ═══════════════════════════════════════
+   SEQUENCE ROWS
+   Three kinds:  var | hard | bc
+═══════════════════════════════════════ */
+.seq-wrap{display:flex;flex-direction:column;gap:5px}
 
-/* ═══════════════════════════════
-   LINE-BASED SEQUENCE
-   Each .line-row = one printed row
-   Up to 3 cell chips per line
-═══════════════════════════════ */
-.seq-wrap{display:flex;flex-direction:column;gap:4px}
-.line-row{
-  display:flex;align-items:flex-start;gap:8px;
-  padding:8px 10px;border-radius:var(--radius-sm);
-  border:1.5px solid transparent;background:var(--surface2);
-  transition:border-color .12s,opacity .18s,box-shadow .12s;
-  min-height:48px;
+/* every row shares these basics */
+.seq-row{
+  border-radius:var(--radius-sm);border:1.5px solid transparent;
+  transition:opacity .18s,border-color .12s,box-shadow .12s;
 }
-.line-row:hover{border-color:var(--border)}
-.line-row.line-dragging{opacity:.28;border-color:var(--border2)}
-.line-row.line-over{border-color:var(--info-text);box-shadow:0 0 0 3px var(--info-bg);background:var(--info-bg)}
-.line-row.hard-row{background:var(--hard-bg);border-color:var(--hard-border)!important}
-.line-row.hard-row:hover{border-color:#e0a050!important}
-.drag-handle{cursor:grab;color:var(--text3);font-size:17px;flex-shrink:0;padding:2px 0;margin-top:2px;line-height:1}
-.drag-handle:active{cursor:grabbing}
-.x-label{font-size:10px;color:var(--text3);flex-shrink:0;white-space:nowrap;margin-top:6px}
-.x-inp{width:46px!important;font-size:12px!important;padding:4px 5px!important;text-align:center;flex-shrink:0}
+.seq-row.row-drag{opacity:.25}
+.seq-row.row-over{border-color:var(--info-text)!important;box-shadow:0 0 0 3px var(--info-bg)}
 
-/* Cells area */
-.cells-area{flex:1;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;min-width:0;padding-top:2px}
-.cell-chip{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 9px;border-radius:var(--radius-sm);
-  font-size:12px;font-weight:600;
-  border:1px solid var(--info-border);
-  background:var(--info-bg);color:var(--info-text);
-  cursor:grab;user-select:none;flex-shrink:0;
-  transition:opacity .15s,box-shadow .12s,border-color .12s;
-  max-width:190px;
-}
-.cell-chip:active{cursor:grabbing}
-.cell-chip.chip-drag{opacity:.25}
-.cell-chip.chip-over{box-shadow:0 0 0 2px var(--info-text);border-color:var(--info-text)}
-.chip-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text;max-width:130px}
-.chip-rm{border:none;background:transparent;cursor:pointer;color:var(--info-text);font-size:14px;padding:0;line-height:1;font-family:inherit;opacity:.6;flex-shrink:0}
-.chip-rm:hover{opacity:1;color:var(--danger)}
-/* drop slot between chips */
-.chip-slot{
-  width:20px;height:32px;border-radius:4px;
-  border:1.5px dashed transparent;flex-shrink:0;
-  transition:all .1s;display:flex;align-items:center;justify-content:center;
-  font-size:11px;color:transparent;
-}
-.chip-slot.slot-active{border-color:var(--info-text);background:var(--info-bg);color:var(--info-text)}
-.add-chip-btn{
-  width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--border2);
-  background:transparent;cursor:pointer;color:var(--text3);font-size:16px;
-  line-height:1;font-family:inherit;transition:all .15s;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-}
-.add-chip-btn:hover{border-color:var(--info-text);color:var(--info-text);background:var(--info-bg)}
+/* ── VAR row ── */
+.var-row{background:var(--surface2);padding:8px 10px}
+.var-row:hover{border-color:var(--border)}
+.var-row-inner{display:flex;align-items:stretch;gap:8px;flex-wrap:nowrap}
 
-/* Hard line content */
-.hard-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
-.hard-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--hard-text);background:#fde8c0;border-radius:3px;padding:2px 6px;align-self:flex-start}
-.hard-content textarea{font-family:var(--mono);font-size:12px;min-height:44px;padding:5px 8px}
+/* drag handle */
+.dh{cursor:grab;color:var(--text3);font-size:17px;line-height:1;padding:2px 0;flex-shrink:0;align-self:center}
+.dh:active{cursor:grabbing}
+
+/* X margin mini input */
+.x-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0}
+.x-wrap span{font-size:9px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase}
+.x-inp{width:44px!important;font-size:12px!important;padding:4px 5px!important;text-align:center}
+
+/* cells inside a var row */
+.cells-wrap{flex:1;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;min-width:0}
+.cell-slot{width:18px;height:34px;border-radius:4px;border:1.5px dashed transparent;flex-shrink:0;transition:all .1s;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent}
+.cell-slot.slot-on{border-color:var(--info-text);background:var(--info-bg);color:var(--info-text)}
+
+/* individual cell block */
+.cell-block{
+  display:flex;flex-direction:column;gap:3px;
+  background:var(--surface);border:1px solid var(--info-border);border-radius:var(--radius-sm);
+  padding:5px 8px;flex-shrink:0;min-width:100px;max-width:200px;
+  cursor:grab;transition:opacity .15s,box-shadow .12s,border-color .12s;
+}
+.cell-block:active{cursor:grabbing}
+.cell-block.cell-dragging{opacity:.25}
+.cell-block.cell-over{box-shadow:0 0 0 2px var(--info-text);border-color:var(--info-text)}
+.cell-top{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.cell-varname{font-size:12px;font-weight:700;color:var(--info-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.cell-rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:14px;padding:0;line-height:1;font-family:inherit;flex-shrink:0}
+.cell-rm:hover{color:var(--danger)}
+.cell-prefix-inp{font-size:11px!important;padding:3px 6px!important;color:var(--text2);border-color:var(--border)!important}
+.cell-prefix-inp::placeholder{color:var(--text3)}
+
+.add-cell-btn{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--border2);background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;font-family:inherit;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;align-self:center}
+.add-cell-btn:hover{border-color:var(--info-text);color:var(--info-text);background:var(--info-bg)}
+
+/* ── HARD row ── */
+.hard-row{background:var(--hard-bg);border-color:var(--hard-border)!important;padding:9px 10px}
+.hard-row-inner{display:flex;align-items:flex-start;gap:8px}
+.hard-tag{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hard-text);background:#fde8c0;border-radius:3px;padding:2px 6px;white-space:nowrap;margin-top:2px;flex-shrink:0}
+.hard-body{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.hard-body textarea{font-family:var(--mono);font-size:12px;min-height:44px;padding:5px 8px}
 .hard-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .hard-meta label{font-size:11px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .hard-meta input[type=number]{width:50px;font-size:12px;padding:4px 5px}
 .hard-meta select{width:62px;font-size:12px;padding:4px 5px}
 .hard-meta input[type=checkbox]{width:auto}
 
-/* line remove */
-.line-rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:0 2px;font-family:inherit;transition:color .12s;flex-shrink:0;margin-top:2px}
-.line-rm:hover{color:var(--danger)}
+/* ── BC row ── */
+.bc-row{background:var(--bc-bg);border-color:var(--bc-border)!important;padding:8px 10px}
+.bc-row-inner{display:flex;align-items:center;gap:8px}
+.bc-tag{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--bc-text);background:#c8f0d8;border-radius:3px;padding:2px 6px;white-space:nowrap;flex-shrink:0}
+.bc-var-sel{flex:1;font-size:13px}
 
-/* add bar */
+/* row remove */
+.row-rm{border:none;background:transparent;cursor:pointer;color:var(--text3);font-size:19px;line-height:1;padding:0 2px;font-family:inherit;transition:color .12s;flex-shrink:0;align-self:center}
+.row-rm:hover{color:var(--danger)}
+
+/* add buttons */
 .add-bar{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.btn-sec{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
+.btn-sec{padding:6px 13px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
 .btn-sec:hover{background:var(--surface2)}
-.btn-hard{padding:6px 12px;border:1px solid var(--hard-border);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--hard-bg);color:var(--hard-text);font-family:inherit;font-weight:600;transition:background .15s;white-space:nowrap}
+.btn-hard{padding:6px 13px;border:1px solid var(--hard-border);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--hard-bg);color:var(--hard-text);font-family:inherit;font-weight:600;transition:background .15s;white-space:nowrap}
 .btn-hard:hover{background:#fde8c0}
+.btn-bc{padding:6px 13px;border:1px solid var(--bc-border);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;background:var(--bc-bg);color:var(--bc-text);font-family:inherit;font-weight:600;transition:background .15s;white-space:nowrap}
+.btn-bc:hover{background:#c8f0d8}
 .btn-primary{width:100%;padding:11px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;margin-top:.6rem;font-family:inherit;transition:opacity .15s}
 .btn-primary:hover{opacity:.85}
 
-/* Picker modal */
+/* picker modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .picker{background:var(--surface);border-radius:var(--radius);padding:1.5rem;width:400px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .picker h3{font-size:14px;font-weight:700;margin-bottom:.8rem}
 .picker-list{display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto}
-.picker-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;border:1px solid transparent;transition:background .12s;user-select:none}
-.picker-opt:hover:not(.p-used){background:var(--surface2);border-color:var(--border)}
-.picker-opt.p-sel{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
-.picker-opt.p-used{color:var(--text3);cursor:default}
+.p-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;border:1px solid transparent;transition:background .12s;user-select:none}
+.p-opt:hover:not(.p-used){background:var(--surface2);border-color:var(--border)}
+.p-opt.p-sel{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
+.p-opt.p-used{color:var(--text3);cursor:default}
 .picker-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem}
 .btn-ok{padding:7px 18px;background:var(--accent);color:var(--accent-fg);border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-cancel{padding:7px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:transparent;font-family:inherit;color:var(--text2)}
 
-/* PRN */
+/* PRN output */
 .prn-box{background:#1a1a18;color:#e8e6df;border-radius:var(--radius-sm);padding:1.1rem 1.2rem;font-family:var(--mono);font-size:11.5px;line-height:1.9;white-space:pre-wrap;word-break:break-all;min-height:80px;max-height:520px;overflow-y:auto}
 .prn-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
 
@@ -154,17 +160,20 @@ textarea{resize:vertical}
 .prev-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
 .prev-scroll{overflow-x:auto;padding-bottom:6px}
 .lbl-canvas{background:#fff;border:1.5px solid var(--border2);border-radius:5px;position:relative;box-shadow:0 2px 14px rgba(0,0,0,.09);display:inline-block;min-width:160px;min-height:80px}
-.le{position:absolute;font-family:var(--mono);white-space:nowrap;pointer-events:none;line-height:1.2}
-.le-bc{position:absolute;display:flex;flex-direction:column;align-items:flex-start;pointer-events:none}
+.le{position:absolute;font-family:var(--mono);white-space:nowrap;pointer-events:none;line-height:1.2;color:#222}
+.le-bc-wrap{position:absolute;display:flex;flex-direction:column;pointer-events:none}
 .le-bars{display:flex;align-items:flex-end}
 .le-bar{background:#111;display:inline-block}
 .tabs{display:flex;gap:6px}
 .tab{padding:5px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all .15s}
 .tab.on{background:var(--surface2);color:var(--text);font-weight:600;border-color:var(--border2)}
 .prev-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
-.empty-note{font-size:13px;color:var(--text3);padding:10px 4px}
+.empty-note{font-size:13px;color:var(--text3);padding:10px 2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
-@media(max-width:620px){main{padding:1rem 1rem 3rem}.grid2{grid-template-columns:1fr}header{padding:0 1rem}.cells-area{flex-wrap:wrap}}
+@media(max-width:620px){main{padding:1rem 1rem 3rem}.grid2{grid-template-columns:1fr}header{padding:0 1rem}}
 </style>
 </head>
 <body>
@@ -184,7 +193,7 @@ textarea{resize:vertical}
 </header>
 <main>
 
-<!-- S1: Config -->
+<!-- S1 Config -->
 <div class="card">
   <div class="card-head"><span class="step-num">1</span><span class="card-title">Label Configuration</span></div>
   <div class="grid2">
@@ -209,33 +218,18 @@ textarea{resize:vertical}
   <div id="tplTag" style="display:none"><span class="tpl-tag" id="tplName"></span></div>
 </div>
 
-<!-- S2: Variables + Barcodes -->
+<!-- S2 Variables -->
 <div class="card" id="s2" style="display:none">
   <div class="card-head">
     <span class="step-num">2</span>
     <span class="card-title">Select Variables</span>
     <span class="card-badge" id="s2badge"></span>
   </div>
-  <p class="hint" style="margin-bottom:.9rem">Check all variables you want on the label. Then set barcode variables below.</p>
+  <p class="hint" style="margin-bottom:.9rem">Check variables you want on the label. You'll arrange them in step 3.</p>
   <div class="var-grid" id="varGrid"></div>
-  <div class="divider"></div>
-  <div class="bc-box">
-    <div class="sec-label" style="margin-bottom:8px">Barcode variable(s) — up to 2</div>
-    <div class="grid2" style="gap:.75rem">
-      <div class="field">
-        <label>Barcode 1</label>
-        <select id="bc1" onchange="onBc()"><option value="">— none —</option></select>
-      </div>
-      <div class="field">
-        <label>Barcode 2 <span style="font-size:11px;color:var(--text3)">(optional)</span></label>
-        <select id="bc2" onchange="onBc()"><option value="">— none —</option></select>
-      </div>
-    </div>
-    <p class="bc-note">Barcode variables print as B commands after all text rows.</p>
-  </div>
 </div>
 
-<!-- S3: Layout builder -->
+<!-- S3 Layout -->
 <div class="card" id="s3" style="display:none">
   <div class="card-head">
     <span class="step-num">3</span>
@@ -243,16 +237,22 @@ textarea{resize:vertical}
     <span class="card-badge" id="s3badge"></span>
   </div>
   <div id="dblNote" class="mirror-note" style="display:none">
-    <strong>Double layer:</strong> Layout mirrors automatically to left and right copies.
+    <strong>Double layer:</strong> Layout is mirrored to both left and right label copies automatically.
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--info-bg);border:1px solid var(--info-border)"></div>Variable row</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--hard-bg);border:1px solid var(--hard-border)"></div>Hardcoded text</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--bc-bg);border:1px solid var(--bc-border)"></div>Barcode</div>
   </div>
   <p class="hint" style="margin-bottom:.9rem">
-    Drag <strong>≡</strong> to reorder rows. Each row holds up to 3 variable chips — drag a chip onto another to swap/reorder within a row or move it to another row.
-    <strong>X</strong> sets the left margin for that row. Click a chip label to set its inline prefix (e.g. <em>"MRP: Rs."</em>).
+    Drag <strong>≡</strong> to reorder rows. Each variable row holds up to 3 fields side-by-side — drag a field chip onto another to swap, or onto a <strong>+</strong> slot to insert. 
+    <strong>Field name</strong> box sets the printed label prefix (e.g. <em>MRP: Rs.</em>). <strong>X</strong> sets left margin per row.
   </p>
-  <div class="seq-wrap" id="seqWrap"><p class="empty-note">No rows yet — add rows below.</p></div>
+  <div class="seq-wrap" id="seqWrap"><p class="empty-note">No rows yet — use buttons below to build your label.</p></div>
   <div class="add-bar">
     <button class="btn-sec" onclick="addVarRow()">+ Variable row</button>
-    <button class="btn-hard" onclick="addHardRow()">+ Hardcoded row</button>
+    <button class="btn-hard" onclick="addHardRow()">+ Hardcoded text</button>
+    <button class="btn-bc" onclick="addBcRow()">+ Barcode row</button>
   </div>
 </div>
 
@@ -272,12 +272,10 @@ textarea{resize:vertical}
   <p class="prev-caption">Proportional preview — actual dimensions depend on printer DPI &amp; label size.</p>
 </div>
 
-<!-- S4: Output -->
+<!-- S4 Output -->
 <div class="card" id="s4" style="display:none">
   <div class="prn-head">
-    <div class="card-head" style="margin-bottom:0">
-      <span class="step-num">4</span><span class="card-title">PRN Output</span>
-    </div>
+    <div class="card-head" style="margin-bottom:0"><span class="step-num">4</span><span class="card-title">PRN Output</span></div>
     <button class="btn-sec" id="cpBtn" onclick="copyPRN()">Copy to clipboard</button>
   </div>
   <div class="prn-box" id="pout">Click "Generate PRN" to build the code.</div>
@@ -287,7 +285,7 @@ textarea{resize:vertical}
 <!-- Picker modal -->
 <div class="overlay" id="overlay" style="display:none" onclick="if(event.target===this)closePicker()">
   <div class="picker">
-    <h3 id="pickerTitle">Add variable to row</h3>
+    <h3 id="pickerTitle">Add variable</h3>
     <div class="picker-list" id="pickerList"></div>
     <div class="picker-foot">
       <button class="btn-cancel" onclick="closePicker()">Cancel</button>
@@ -298,51 +296,55 @@ textarea{resize:vertical}
 
 </main>
 <script>
-/* ══════ CONSTANTS ══════ */
+/* ════════ CONSTANTS ════════ */
 const ITYPE_VARS=["Name","ProductCode","MRP","ScanIdentifier","Ean","Upc","Isbn","Color","Size","Category","Brand","Type","Weight","Tags","Style","TaxType"];
 const ITEM_VARS=["ItemName","ItemCode","ItemSku","ItemMrp","ItemEAN","ItemSize","ItemStyle","ItemColor","ItemBrand","ItemCategory","VendorSkuCode","ItemCategoryCode","ItemCreated"];
-const DL={lx:25,rx:430,blx:70,brx:483,by:240};
-const LW=420; // label width PRN units single
-const SC=0.52;// preview scale
+const DL={lx:25,rx:430,blx:70,brx:483,by_start:240};
+const LW=420; // label width PRN units
+const SC=0.52; // preview px per PRN unit
 
-/* ══════ STATE ══════
-  S.rows: [
-    {kind:'var', x:15, cells:[{v,prefix,wrap}, ...]}  // max 3 cells
-    {kind:'hard', x:15, text, step, rot, size, mirror}
-  ]
-══════════════════ */
-let S={trace:'',roll:'',checked:new Set(),rows:[],bc1:'',bc2:'',pl:1};
-let lineDrag=null;   // row index being dragged
-let chipDrag=null;   // {ri, ci} chip being dragged
-let pickerTarget=null; // {ri} or null=new row
+/* ════════ STATE ════════
+  S.rows — ordered array of rows:
+    {kind:'var',  x, cells:[{v, prefix, wrap},...]}   max 3 cells
+    {kind:'hard', x, text, step, rot, size, mirror}
+    {kind:'bc',   v}                                  barcode variable
+════════════════════════ */
+let S={trace:'',roll:'',checked:new Set(),rows:[],pl:1};
+let rowDrag=null;   // index of row being dragged
+let chipDrag=null;  // {ri,ci} chip being dragged
+let pickerTarget=null; // null=new row | {ri} = add to existing
 let pickerSel=new Set();
 
-/* ══════ HELPERS ══════ */
+/* ════════ HELPERS ════════ */
 const isItem=()=>S.trace==='item';
 const isDbl=()=>S.roll==='double';
 const AVars=()=>isItem()?ITEM_VARS:ITYPE_VARS;
 const vn=i=>'V'+String(i).padStart(2,'0');
 const gcv=v=>isItem()?`$item.${v}`:`$row.getColumnValue('${v}')`;
-const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const tplStr=()=>(isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN')+' · '+(isDbl()?'Double layer':'Single layer');
-const usedSet=()=>{
-  const s=new Set();
-  S.rows.forEach(r=>{if(r.kind==='var')r.cells.forEach(c=>{if(c.v)s.add(c.v);});});
-  if(S.bc1)s.add(S.bc1);if(S.bc2)s.add(S.bc2);return s;
-};
 
-/* ══════ S1: CONFIG ══════ */
+function usedVars(){
+  const s=new Set();
+  S.rows.forEach(r=>{
+    if(r.kind==='var') r.cells.forEach(c=>{if(c.v)s.add(c.v);});
+    if(r.kind==='bc'&&r.v) s.add(r.v);
+  });
+  return s;
+}
+
+/* ════════ S1 CONFIG ════════ */
 function onCfg(){
   S.trace=document.getElementById('trace').value;
   S.roll=document.getElementById('roll').value;
   const ok=S.trace&&S.roll;
   document.getElementById('s2').style.display=ok?'':'none';
   document.getElementById('tplTag').style.display=ok?'':'none';
-  if(ok)document.getElementById('tplName').textContent=tplStr();
-  renderVarGrid();renderBcPickers();refresh();
+  if(ok) document.getElementById('tplName').textContent=tplStr();
+  renderVarGrid();refresh();
 }
 
-/* ══════ S2: VARIABLE CHECKBOXES ══════ */
+/* ════════ S2 VARIABLE CHECKBOXES ════════ */
 function renderVarGrid(){
   const vs=AVars();
   document.getElementById('s2badge').textContent=isItem()?'ITEM_LABEL_PRN':'ITEM_TYPE_LABEL_PRN';
@@ -352,68 +354,67 @@ function renderVarGrid(){
     lbl.className='var-chip'+(S.checked.has(v)?' on':'');
     const cb=document.createElement('input');cb.type='checkbox';cb.checked=S.checked.has(v);
     cb.addEventListener('change',()=>{
-      if(cb.checked)S.checked.add(v);else S.checked.delete(v);
+      if(cb.checked) S.checked.add(v); else S.checked.delete(v);
       lbl.className='var-chip'+(cb.checked?' on':'');
-      renderBcPickers();refresh();
+      // update any bc rows whose var was unchecked
+      refresh();
     });
-    lbl.appendChild(cb);lbl.appendChild(document.createTextNode(v));
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(v));
     g.appendChild(lbl);
   });
 }
 
-function renderBcPickers(){
-  const vs=AVars();
-  [['bc1',S.bc1],['bc2',S.bc2]].forEach(([id,cur])=>{
-    const sel=document.getElementById(id);
-    sel.innerHTML='<option value="">— none —</option>'+vs.map(v=>`<option value="${v}"${v===cur?' selected':''}>${esc(v)}</option>`).join('');
-  });
-}
-function onBc(){
-  S.bc1=document.getElementById('bc1').value;
-  S.bc2=document.getElementById('bc2').value;
-  refresh();
-}
-
-/* ══════ SHOW/HIDE ══════ */
+/* ════════ SHOW / HIDE ════════ */
 function refresh(){
   const hasCk=S.checked.size>0;
   document.getElementById('s3').style.display=hasCk?'':'none';
-  const hasMapped=S.rows.some(r=>r.kind==='var'&&r.cells.some(c=>c.v))||S.bc1;
+  document.getElementById('dblNote').style.display=isDbl()?'':'none';
+  const hasMapped=S.rows.some(r=>(r.kind==='var'&&r.cells.some(c=>c.v))||(r.kind==='bc'&&r.v));
   document.getElementById('s4').style.display=hasMapped?'':'none';
   document.getElementById('prevCard').style.display=hasMapped?'':'none';
   renderSeq();
-  if(hasMapped)drawPreview();
+  if(hasMapped) drawPreview();
 }
 
-/* ══════ S3: SEQUENCE ══════ */
+/* ════════ ADD ROW HELPERS ════════ */
 function addVarRow(){
-  pickerTarget=null;pickerSel=new Set();openPicker('Add variable row');
+  pickerTarget=null; pickerSel=new Set();
+  openPicker('Add variable row');
 }
 function addHardRow(){
   S.rows.push({kind:'hard',x:15,text:'',step:20,rot:0,size:1,mirror:isDbl()});
   refresh();
 }
-function addChipToRow(ri){
-  pickerTarget={ri};pickerSel=new Set();openPicker('Add variable to row');
+function addBcRow(){
+  // add barcode row with first unchecked-but-available var, or empty
+  S.rows.push({kind:'bc',v:''});
+  refresh();
+}
+function addCellToRow(ri){
+  pickerTarget={ri}; pickerSel=new Set();
+  openPicker('Add variable to row');
 }
 
-/* ── Picker ── */
+/* ════════ PICKER ════════ */
 function openPicker(title){
   document.getElementById('pickerTitle').textContent=title;
-  const used=usedSet();
+  const used=usedVars();
+  const list=document.getElementById('pickerList');
+  list.innerHTML='';
   const checked=Array.from(S.checked);
-  const list=document.getElementById('pickerList');list.innerHTML='';
-  if(!checked.length){list.innerHTML='<p class="empty-note" style="font-size:13px">No variables checked in step 2.</p>';}
-  else{
+  if(!checked.length){
+    list.innerHTML='<p class="empty-note" style="font-size:13px">No variables checked in step 2.</p>';
+  } else {
     checked.forEach(v=>{
-      const inCurRow=pickerTarget&&S.rows[pickerTarget.ri]?.cells?.some(c=>c.v===v);
-      const isUsed=used.has(v)&&!inCurRow;
+      const inTarget=pickerTarget && S.rows[pickerTarget.ri]?.cells?.some(c=>c.v===v);
+      const isUsed=used.has(v)&&!inTarget;
       const row=document.createElement('div');
-      row.className='picker-opt'+(isUsed?' p-used':'')+(pickerSel.has(v)?' p-sel':'');
-      row.innerHTML=`<span style="flex:1">${esc(v)}</span>${isUsed?'<span style="font-size:11px">in use</span>':''}`;
-      if(!isUsed)row.onclick=()=>{
-        if(pickerSel.has(v))pickerSel.delete(v);else pickerSel.add(v);
-        row.className='picker-opt'+(pickerSel.has(v)?' p-sel':'');
+      row.className='p-opt'+(isUsed?' p-used':'')+(pickerSel.has(v)?' p-sel':'');
+      row.innerHTML=`<span style="flex:1">${esc(v)}</span>${isUsed?'<span style="font-size:11px">already placed</span>':''}`;
+      if(!isUsed) row.onclick=()=>{
+        if(pickerSel.has(v)) pickerSel.delete(v); else pickerSel.add(v);
+        row.className='p-opt'+(pickerSel.has(v)?' p-sel':'');
       };
       list.appendChild(row);
     });
@@ -422,218 +423,314 @@ function openPicker(title){
 }
 function closePicker(){document.getElementById('overlay').style.display='none';}
 function confirmPicker(){
-  const sel=Array.from(pickerSel);if(!sel.length){closePicker();return;}
+  const sel=Array.from(pickerSel);
+  if(!sel.length){closePicker();return;}
   if(pickerTarget===null){
-    // new row per variable
+    // one new var row per selected variable
     sel.forEach(v=>S.rows.push({kind:'var',x:15,cells:[{v,prefix:'',wrap:0}]}));
   } else {
     const row=S.rows[pickerTarget.ri];
-    sel.forEach(v=>{if(row.cells.length<3&&!row.cells.find(c=>c.v===v))row.cells.push({v,prefix:'',wrap:0});});
+    sel.forEach(v=>{
+      if(row.cells.length<3&&!row.cells.find(c=>c.v===v))
+        row.cells.push({v,prefix:'',wrap:0});
+    });
   }
-  closePicker();refresh();
+  closePicker(); refresh();
 }
 
-/* ── Sequence renderer ── */
+/* ════════ SEQUENCE RENDERER ════════ */
 function renderSeq(){
   document.getElementById('s3badge').textContent=S.rows.length+' row'+(S.rows.length!==1?'s':'');
-  document.getElementById('dblNote').style.display=isDbl()?'':'none';
   const wrap=document.getElementById('seqWrap');
-  if(!S.rows.length){wrap.innerHTML='<p class="empty-note">No rows yet — add variable rows or hardcoded rows below.</p>';return;}
+  if(!S.rows.length){
+    wrap.innerHTML='<p class="empty-note">No rows yet — use the buttons below to build your label.</p>';
+    return;
+  }
   wrap.innerHTML='';
   S.rows.forEach((row,ri)=>{
     const el=document.createElement('div');
-    el.className='line-row'+(row.kind==='hard'?' hard-row':'');
-    el.draggable=true;el.dataset.ri=ri;
+    el.className='seq-row '+(row.kind==='var'?'var-row':row.kind==='hard'?'hard-row':'bc-row');
+    el.draggable=true;
+    el.dataset.ri=ri;
+    attachRowDrag(el,ri);
 
-    /* row-level drag */
-    el.addEventListener('dragstart',e=>{
-      if(chipDrag)return;
-      lineDrag=ri;setTimeout(()=>el.classList.add('line-dragging'),0);
-      e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('t','line');
-    });
-    el.addEventListener('dragend',()=>{
-      el.classList.remove('line-dragging');
-      document.querySelectorAll('.line-row').forEach(r=>r.classList.remove('line-over'));
-      lineDrag=null;
-    });
-    el.addEventListener('dragover',e=>{
-      if(chipDrag)return;
-      e.preventDefault();
-      document.querySelectorAll('.line-row').forEach(r=>r.classList.remove('line-over'));
-      el.classList.add('line-over');
-    });
-    el.addEventListener('drop',e=>{
-      e.preventDefault();
-      el.classList.remove('line-over');
-      if(chipDrag!==null){
-        // chip dropped on row (not on a chip/slot) → append to end
-        if(S.rows[ri].kind!=='var'||S.rows[ri].cells.length>=3)return;
-        const {ri:sri,ci:sci}=chipDrag;
-        if(sri===ri)return;
-        const srcRow=S.rows[sri];
-        const cell=srcRow.cells.splice(sci,1)[0];
-        S.rows[ri].cells.push(cell);
-        if(srcRow.cells.length===0)S.rows.splice(sri<ri?sri:sri,1);
-        chipDrag=null;refresh();return;
-      }
-      if(lineDrag===null||lineDrag===ri)return;
-      const moved=S.rows.splice(lineDrag,1)[0];
-      S.rows.splice(lineDrag<ri?ri-1:ri,0,moved);
-      lineDrag=null;refresh();
-    });
-
-    /* drag handle */
-    const h=document.createElement('span');h.className='drag-handle';h.textContent='≡';h.title='Drag to reorder';
-    el.appendChild(h);
-
-    /* X margin */
-    const xl=document.createElement('span');xl.className='x-label';xl.textContent='X:';
-    const xi=document.createElement('input');xi.type='number';xi.className='x-inp';xi.value=row.x;xi.title='Left margin (PRN units)';
-    xi.onchange=()=>{S.rows[ri].x=+xi.value;drawPreview();};
-    el.appendChild(xl);el.appendChild(xi);
-
-    if(row.kind==='var'){
-      /* cells area */
-      const ca=document.createElement('div');ca.className='cells-area';
-      row.cells.forEach((cell,ci)=>{
-        ca.appendChild(makeSlot(ri,ci));
-        ca.appendChild(makeChip(ri,ci,cell,row));
-      });
-      ca.appendChild(makeSlot(ri,row.cells.length));
-      if(row.cells.length<3){
-        const ab=document.createElement('button');ab.className='add-chip-btn';ab.title='Add variable';ab.textContent='+';
-        ab.onclick=e=>{e.stopPropagation();addChipToRow(ri);};
-        ca.appendChild(ab);
-      }
-      el.appendChild(ca);
-    } else {
-      /* hard content */
-      const hc=document.createElement('div');hc.className='hard-content';
-      const hl=document.createElement('span');hl.className='hard-label';hl.textContent='FIXED TEXT';
-      const ta=document.createElement('textarea');
-      ta.placeholder='One line per line e.g.\nImported/Manufactured & Marketed By:\nACME Pvt. Ltd., Mumbai\n+91 98765 43210';
-      ta.value=row.text||'';
-      ta.onchange=()=>{S.rows[ri].text=ta.value;drawPreview();};
-      const meta=document.createElement('div');meta.className='hard-meta';
-      const mirHtml=isDbl()?`<label><input type="checkbox" ${row.mirror?'checked':''} onchange="S.rows[${ri}].mirror=this.checked;drawPreview()" style="width:auto"> Both sides</label>`:'';
-      meta.innerHTML=`
-        <label>Y step <input type="number" value="${row.step}" onchange="S.rows[${ri}].step=+this.value;drawPreview()"></label>
-        <label>Rotation <select onchange="S.rows[${ri}].rot=+this.value;drawPreview()">
-          <option value="0"${row.rot===0?' selected':''}>0°</option>
-          <option value="1"${row.rot===1?' selected':''}>90°</option>
-          <option value="2"${row.rot===2?' selected':''}>180°</option>
-          <option value="3"${row.rot===3?' selected':''}>270°</option>
-        </select></label>
-        <label>Font <input type="number" value="${row.size}" min="1" max="4" onchange="S.rows[${ri}].size=+this.value;drawPreview()"></label>
-        ${mirHtml}`;
-      hc.appendChild(hl);hc.appendChild(ta);hc.appendChild(meta);
-      el.appendChild(hc);
-    }
-
-    /* row remove */
-    const rm=document.createElement('button');rm.className='line-rm';rm.textContent='×';rm.title='Remove row';
-    rm.onclick=()=>{S.rows.splice(ri,1);refresh();};
-    el.appendChild(rm);
+    if(row.kind==='var') buildVarRow(el,row,ri);
+    else if(row.kind==='hard') buildHardRow(el,row,ri);
+    else buildBcRow(el,row,ri);
 
     wrap.appendChild(el);
   });
 }
 
-function makeChip(ri,ci,cell,row){
-  const chip=document.createElement('div');
-  chip.className='cell-chip';chip.draggable=true;chip.title='Drag to swap. Click label to set prefix.';
-  const lbl=document.createElement('span');lbl.className='chip-label';
-  lbl.textContent=(cell.prefix?cell.prefix.replace(/^"|"$/g,'')+' ':'')+cell.v;
-  lbl.title='Click to edit inline prefix';lbl.style.cursor='text';
-  lbl.onclick=e=>{e.stopPropagation();editPrefix(ri,ci,cell,lbl);};
-  const rm=document.createElement('button');rm.className='chip-rm';rm.textContent='×';rm.title='Remove';
+/* ── Row-level drag ── */
+function attachRowDrag(el,ri){
+  el.addEventListener('dragstart',e=>{
+    if(chipDrag) return;
+    rowDrag=ri;
+    setTimeout(()=>el.classList.add('row-drag'),0);
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('dtype','row');
+  });
+  el.addEventListener('dragend',()=>{
+    el.classList.remove('row-drag');
+    document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('row-over'));
+    rowDrag=null;
+  });
+  el.addEventListener('dragover',e=>{
+    if(chipDrag) return;
+    e.preventDefault();
+    document.querySelectorAll('.seq-row').forEach(r=>r.classList.remove('row-over'));
+    el.classList.add('row-over');
+  });
+  el.addEventListener('drop',e=>{
+    e.preventDefault();
+    el.classList.remove('row-over');
+    // chip dropped onto a row (not onto a cell/slot) — append to var row
+    if(chipDrag!==null){
+      if(row_at(ri).kind!=='var') return;
+      if(row_at(ri).cells.length>=3) return;
+      const{ri:sri,ci:sci}=chipDrag;
+      if(sri===ri) return;
+      const cell=S.rows[sri].cells.splice(sci,1)[0];
+      S.rows[ri].cells.push(cell);
+      if(S.rows[sri].cells.length===0) S.rows.splice(sri,1);
+      chipDrag=null; refresh(); return;
+    }
+    if(rowDrag===null||rowDrag===ri) return;
+    const moved=S.rows.splice(rowDrag,1)[0];
+    S.rows.splice(rowDrag<ri?ri-1:ri,0,moved);
+    rowDrag=null; refresh();
+  });
+}
+const row_at=ri=>S.rows[ri];
+
+/* ── VAR ROW DOM ── */
+function buildVarRow(el,row,ri){
+  const inner=document.createElement('div');inner.className='var-row-inner';
+
+  // drag handle
+  const dh=mkDH(); inner.appendChild(dh);
+
+  // X margin
+  inner.appendChild(mkXInp(ri,row));
+
+  // cells area
+  const ca=document.createElement('div');ca.className='cells-wrap';
+  row.cells.forEach((cell,ci)=>{
+    ca.appendChild(mkSlot(ri,ci));
+    ca.appendChild(mkCellBlock(ri,ci,cell,row));
+  });
+  ca.appendChild(mkSlot(ri,row.cells.length));
+  if(row.cells.length<3){
+    const ab=document.createElement('button');ab.className='add-cell-btn';ab.title='Add variable';ab.textContent='+';
+    ab.onclick=e=>{e.stopPropagation();addCellToRow(ri);};
+    ca.appendChild(ab);
+  }
+  inner.appendChild(ca);
+  inner.appendChild(mkRowRm(ri));
+  el.appendChild(inner);
+}
+
+function mkDH(){
+  const h=document.createElement('span');h.className='dh';h.textContent='≡';h.title='Drag to reorder row';return h;
+}
+function mkRowRm(ri){
+  const rm=document.createElement('button');rm.className='row-rm';rm.textContent='×';rm.title='Remove row';
+  rm.onclick=()=>{S.rows.splice(ri,1);refresh();};return rm;
+}
+function mkXInp(ri,row){
+  const w=document.createElement('div');w.className='x-wrap';
+  const lbl=document.createElement('span');lbl.textContent='X';
+  const inp=document.createElement('input');inp.type='number';inp.className='x-inp';inp.value=row.x;inp.title='Left margin (PRN units)';
+  inp.onchange=()=>{S.rows[ri].x=+inp.value;drawPreview();};
+  w.appendChild(lbl);w.appendChild(inp);return w;
+}
+
+/* cell block with always-visible prefix input */
+function mkCellBlock(ri,ci,cell,row){
+  const blk=document.createElement('div');blk.className='cell-block';blk.draggable=true;
+
+  // top: varname + remove
+  const top=document.createElement('div');top.className='cell-top';
+  const nm=document.createElement('span');nm.className='cell-varname';nm.textContent=cell.v;
+  const rm=document.createElement('button');rm.className='cell-rm';rm.textContent='×';rm.title='Remove';
   rm.onclick=e=>{
     e.stopPropagation();
     row.cells.splice(ci,1);
-    if(row.cells.length===0)S.rows.splice(ri,1);
+    if(row.cells.length===0) S.rows.splice(ri,1);
     refresh();
   };
-  chip.appendChild(lbl);chip.appendChild(rm);
+  top.appendChild(nm);top.appendChild(rm);
 
-  chip.addEventListener('dragstart',e=>{
-    e.stopPropagation();chipDrag={ri,ci};
-    setTimeout(()=>chip.classList.add('chip-drag'),0);
-    e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('t','chip');
+  // prefix input — always visible
+  const pfxInp=document.createElement('input');
+  pfxInp.type='text';pfxInp.className='cell-prefix-inp';
+  pfxInp.placeholder='Field label e.g. MRP: Rs.';
+  pfxInp.value=cell.prefix||'';
+  pfxInp.title='Printed before the variable value on the label';
+  pfxInp.onchange=()=>{S.rows[ri].cells[ci].prefix=pfxInp.value;drawPreview();};
+  pfxInp.oninput=()=>{S.rows[ri].cells[ci].prefix=pfxInp.value;drawPreview();};
+  // stop drag from firing when typing
+  pfxInp.addEventListener('mousedown',e=>e.stopPropagation());
+
+  blk.appendChild(top);blk.appendChild(pfxInp);
+
+  /* chip drag */
+  blk.addEventListener('dragstart',e=>{
+    e.stopPropagation();
+    chipDrag={ri,ci};
+    setTimeout(()=>blk.classList.add('cell-dragging'),0);
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('dtype','chip');
   });
-  chip.addEventListener('dragend',()=>{
-    chip.classList.remove('chip-drag');
-    document.querySelectorAll('.cell-chip').forEach(c=>c.classList.remove('chip-over'));
-    document.querySelectorAll('.chip-slot').forEach(s=>s.classList.remove('slot-active'));
+  blk.addEventListener('dragend',()=>{
+    blk.classList.remove('cell-dragging');
+    document.querySelectorAll('.cell-block').forEach(c=>c.classList.remove('cell-over'));
+    document.querySelectorAll('.cell-slot').forEach(s=>s.classList.remove('slot-on'));
     chipDrag=null;
   });
-  chip.addEventListener('dragover',e=>{
-    if(!chipDrag)return;e.preventDefault();e.stopPropagation();
-    document.querySelectorAll('.cell-chip').forEach(c=>c.classList.remove('chip-over'));
-    chip.classList.add('chip-over');
-  });
-  chip.addEventListener('drop',e=>{
+  blk.addEventListener('dragover',e=>{
+    if(!chipDrag) return;
     e.preventDefault();e.stopPropagation();
-    chip.classList.remove('chip-over');
-    if(!chipDrag)return;
+    document.querySelectorAll('.cell-block').forEach(c=>c.classList.remove('cell-over'));
+    blk.classList.add('cell-over');
+  });
+  blk.addEventListener('drop',e=>{
+    e.preventDefault();e.stopPropagation();
+    blk.classList.remove('cell-over');
+    if(!chipDrag) return;
     const{ri:sri,ci:sci}=chipDrag;
-    if(sri===ri&&sci===ci)return;
+    if(sri===ri&&sci===ci) return;
     const srcRow=S.rows[sri];const tgtRow=S.rows[ri];
-    if(tgtRow.kind!=='var')return;
+    if(tgtRow.kind!=='var') return;
     if(sri===ri){
-      // same row swap
       [srcRow.cells[sci],tgtRow.cells[ci]]=[tgtRow.cells[ci],srcRow.cells[sci]];
     } else {
-      if(srcRow.kind!=='var')return;
-      // cross-row swap
+      if(srcRow.kind!=='var') return;
       const tmp=srcRow.cells[sci];
       srcRow.cells[sci]=tgtRow.cells[ci];
       tgtRow.cells[ci]=tmp;
-      if(srcRow.cells.every(c=>!c.v))S.rows.splice(sri<ri?sri:sri,1);
+      if(srcRow.cells.every(c=>!c.v)) S.rows.splice(sri,1);
     }
     chipDrag=null;refresh();
   });
-  return chip;
+  return blk;
 }
 
-function makeSlot(ri,insertBefore){
-  const slot=document.createElement('div');slot.className='chip-slot';slot.textContent='+';
+function mkSlot(ri,insertBefore){
+  const slot=document.createElement('div');slot.className='cell-slot';slot.textContent='+';
   slot.addEventListener('dragover',e=>{
-    if(!chipDrag)return;e.preventDefault();e.stopPropagation();
-    document.querySelectorAll('.chip-slot').forEach(s=>s.classList.remove('slot-active'));
-    slot.classList.add('slot-active');
+    if(!chipDrag) return;
+    e.preventDefault();e.stopPropagation();
+    document.querySelectorAll('.cell-slot').forEach(s=>s.classList.remove('slot-on'));
+    slot.classList.add('slot-on');
   });
-  slot.addEventListener('dragleave',()=>slot.classList.remove('slot-active'));
+  slot.addEventListener('dragleave',()=>slot.classList.remove('slot-on'));
   slot.addEventListener('drop',e=>{
-    e.preventDefault();e.stopPropagation();slot.classList.remove('slot-active');
-    if(!chipDrag)return;
+    e.preventDefault();e.stopPropagation();
+    slot.classList.remove('slot-on');
+    if(!chipDrag) return;
     const{ri:sri,ci:sci}=chipDrag;
     const srcRow=S.rows[sri];const tgtRow=S.rows[ri];
-    if(tgtRow.kind!=='var')return;
-    if(tgtRow.cells.length>=3&&sri!==ri)return;
+    if(tgtRow.kind!=='var') return;
+    if(tgtRow.cells.length>=3&&sri!==ri) return;
     const cell=srcRow.cells.splice(sci,1)[0];
     let ins=insertBefore;
-    if(sri===ri&&sci<insertBefore)ins--;
+    if(sri===ri&&sci<insertBefore) ins--;
     tgtRow.cells.splice(Math.max(0,ins),0,cell);
-    if(srcRow.cells.length===0)S.rows.splice(sri<ri?sri:sri,1);
+    if(srcRow.cells.length===0) S.rows.splice(sri<ri?sri:sri,1);
     chipDrag=null;refresh();
   });
   return slot;
 }
 
-function editPrefix(ri,ci,cell,lbl){
-  const cur=cell.prefix?cell.prefix.replace(/^"|"$/g,''):'';
-  const inp=document.createElement('input');inp.type='text';inp.value=cur;inp.placeholder='e.g. MRP: Rs.';
-  inp.style.cssText='width:120px;font-size:12px;padding:3px 6px;border:1px solid var(--info-border);border-radius:4px;outline:none';
-  lbl.replaceWith(inp);inp.focus();inp.select();
-  const save=()=>{
-    const v=inp.value.trim();
-    S.rows[ri].cells[ci].prefix=v?`"${v}"`:'';
-    refresh();
-  };
-  inp.onblur=save;inp.onkeydown=e=>{if(e.key==='Enter')save();if(e.key==='Escape'){inp.value=cur;save();}};
+/* ── HARD ROW DOM ── */
+function buildHardRow(el,row,ri){
+  const inner=document.createElement('div');inner.className='hard-row-inner';
+  inner.appendChild(mkDH());
+  inner.appendChild(mkXInp(ri,row));
+
+  const tag=document.createElement('span');tag.className='hard-tag';tag.textContent='FIXED';
+
+  const body=document.createElement('div');body.className='hard-body';
+  const ta=document.createElement('textarea');
+  ta.placeholder='One line per entry e.g.\nImported/Manufactured & Marketed By:\nACME Pvt. Ltd., Mumbai\n+91 98765 43210';
+  ta.value=row.text||'';
+  ta.addEventListener('mousedown',e=>e.stopPropagation());
+  ta.onchange=()=>{S.rows[ri].text=ta.value;drawPreview();};
+
+  const meta=document.createElement('div');meta.className='hard-meta';
+  const mirHtml=isDbl()?`<label><input type="checkbox" ${row.mirror?'checked':''} onchange="S.rows[${ri}].mirror=this.checked;drawPreview()" style="width:auto"> Both sides</label>`:'';
+  meta.innerHTML=`
+    <label>Y step <input type="number" value="${row.step}" onchange="S.rows[${ri}].step=+this.value;drawPreview()"></label>
+    <label>Rotation <select onchange="S.rows[${ri}].rot=+this.value;drawPreview()">
+      <option value="0"${row.rot===0?' selected':''}>0°</option>
+      <option value="1"${row.rot===1?' selected':''}>90°</option>
+      <option value="2"${row.rot===2?' selected':''}>180°</option>
+      <option value="3"${row.rot===3?' selected':''}>270°</option>
+    </select></label>
+    <label>Font <input type="number" value="${row.size}" min="1" max="4" onchange="S.rows[${ri}].size=+this.value;drawPreview()"></label>
+    ${mirHtml}`;
+  body.appendChild(ta);body.appendChild(meta);
+  inner.appendChild(tag);inner.appendChild(body);
+  inner.appendChild(mkRowRm(ri));
+  el.appendChild(inner);
 }
 
-/* ══════ PREVIEW ══════ */
+/* ── BC ROW DOM ── */
+function buildBcRow(el,row,ri){
+  const inner=document.createElement('div');inner.className='bc-row-inner';
+  inner.appendChild(mkDH());
+
+  const tag=document.createElement('span');tag.className='bc-tag';tag.textContent='BARCODE';
+
+  const sel=document.createElement('select');sel.className='bc-var-sel';
+  const checked=Array.from(S.checked);
+  sel.innerHTML='<option value="">— select variable —</option>'+
+    checked.map(v=>`<option value="${v}"${v===row.v?' selected':''}>${esc(v)}</option>`).join('');
+  sel.onchange=()=>{S.rows[ri].v=sel.value;refresh();};
+  sel.addEventListener('mousedown',e=>e.stopPropagation());
+
+  inner.appendChild(tag);inner.appendChild(sel);inner.appendChild(mkRowRm(ri));
+  el.appendChild(inner);
+}
+
+/* ════════ LAYOUT ENGINE ════════
+   Returns array of {row, y, xPositions[]}
+   y positions computed sequentially from top
+════════════════════════════════ */
+function calcLayout(){
+  const entries=[];
+  let y=10;
+  const labelRight=LW-12;
+
+  S.rows.forEach(row=>{
+    if(row.kind==='var'){
+      const n=row.cells.length;
+      // X positions: pos0=row.x, pos1=center, pos2=right
+      const xPos=row.cells.map((_,ci)=>{
+        if(ci===0) return row.x;
+        if(ci===1) return n===3 ? Math.round(labelRight/2) : Math.round(labelRight*0.56);
+        return labelRight-18;
+      });
+      entries.push({row,y,xPos});
+      const isMRP=row.cells.some(c=>c.v==='MRP'||c.v==='ItemMrp');
+      const hasWrap=row.cells.some(c=>c.wrap>0);
+      y+=hasWrap?40:isMRP?26:22;
+    } else if(row.kind==='hard'){
+      const lines=(row.text||'').split('\n').filter(l=>l.trim());
+      entries.push({row,y,xPos:[]});
+      y+=Math.max(lines.length,1)*row.step+6;
+    } else {
+      // bc row
+      entries.push({row,y,xPos:[]});
+      y+=90;
+    }
+  });
+  return{entries,totalH:Math.max(y+20,200)};
+}
+
+/* ════════ PREVIEW ════════ */
 function setPL(n){
   S.pl=n;
   document.getElementById('pl1').className='tab'+(n===1?' on':'');
@@ -645,148 +742,161 @@ function drawPreview(){
   const lc=document.getElementById('lc');
   const layerTabs=document.getElementById('layerTabs');
   lc.innerHTML='';
-  const bcs=[S.bc1,S.bc2].filter(Boolean);
-  const hasMapped=S.rows.some(r=>r.kind==='var'&&r.cells.some(c=>c.v))||bcs.length;
-  if(!hasMapped){lc.innerHTML='<p class="empty-note" style="padding:1.5rem;font-size:12px;text-align:center">Map fields to see preview</p>';lc.style.width='';lc.style.height='';return;}
-  layerTabs.style.display=isDbl()?'flex':'none';
-  const xShift=isDbl()&&S.pl===2?405:0;
-  const lay=calcLayout();
-  const labelW=isDbl()?820:LW;
-  lc.style.width=Math.round(labelW*SC)+'px';
-  lc.style.height=Math.round(lay.totalH*SC)+'px';
-  function mk(txt,fs,fw,col){
-    const e=document.createElement('div');e.className='le';e.textContent=txt;
-    e.style.fontSize=fs+'px';e.style.fontWeight=fw||'400';e.style.color=col||'#222';return e;
-  }
-  function pl(e,x,y){e.style.left=Math.round(x*SC)+'px';e.style.top=Math.round(y*SC)+'px';lc.appendChild(e);}
 
-  lay.rows.forEach(lr=>{
-    const row=lr.row;
+  const hasMapped=S.rows.some(r=>(r.kind==='var'&&r.cells.some(c=>c.v))||(r.kind==='bc'&&r.v));
+  if(!hasMapped){
+    lc.innerHTML='<p class="empty-note" style="padding:1.5rem;text-align:center;font-size:12px">Map fields to see preview</p>';
+    lc.style.width='';lc.style.height='';return;
+  }
+  layerTabs.style.display=isDbl()?'flex':'none';
+
+  const lay=calcLayout();
+  // For double layer, show one copy at a time (left or right offset)
+  const xShift=isDbl()&&S.pl===2?405:0;
+  const canvasW=isDbl()?825:LW;
+  lc.style.width=Math.round(canvasW*SC)+'px';
+  lc.style.height=Math.round(lay.totalH*SC)+'px';
+
+  function le(txt,fs,fw,col,rot){
+    const e=document.createElement('div');e.className='le';
+    e.textContent=txt;e.style.fontSize=fs+'px';
+    e.style.fontWeight=fw||'400';e.style.color=col||'#222';
+    if(rot===1||rot===3){e.style.transform=`rotate(${rot===1?90:-90}deg)`;e.style.transformOrigin='top left';}
+    return e;
+  }
+  function pl(e,x,y){
+    e.style.left=Math.round(x*SC)+'px';
+    e.style.top=Math.round(y*SC)+'px';
+    lc.appendChild(e);
+  }
+
+  lay.entries.forEach(({row,y,xPos})=>{
     if(row.kind==='var'){
-      lr.cells.forEach((ci,idx)=>{
-        const cell=row.cells[idx];const xp=lr.xPos[idx]+xShift;
-        const pfx=cell.prefix?cell.prefix.replace(/^"|"$/g,''):'';
+      row.cells.forEach((cell,ci)=>{
+        if(!cell.v) return;
+        const pfx=cell.prefix||'';
         const txt=(pfx?pfx+' ':'')+cell.v;
         const isMRP=cell.v==='MRP'||cell.v==='ItemMrp';
-        pl(mk(txt,isMRP?11:8,isMRP?'700':'400',isMRP?'#111':'#333'),xp,lr.y);
+        const e=le(txt,isMRP?11:8,isMRP?'700':'400',isMRP?'#111':'#333');
+        pl(e,xPos[ci]+xShift,y);
+        if(cell.wrap>0){
+          const e2=le('↳ wrap line 2',7,'400','#aaa');
+          pl(e2,xPos[ci]+xShift,y+14);
+        }
       });
-    } else {
-      const lines=(row.text||'').split('\n');let hy=lr.y;
+    } else if(row.kind==='hard'){
+      const lines=(row.text||'').split('\n');
+      let hy=y;
       lines.forEach(ln=>{
         if(!ln.trim()){hy+=row.step;return;}
-        const e=mk(ln,6+row.size,'400','#555');
-        if(row.rot===1||row.rot===3){e.style.transform=`rotate(${row.rot===1?90:-90}deg)`;e.style.transformOrigin='top left';}
-        pl(e,row.x+xShift,hy);hy+=row.step;
+        const hx=row.x+xShift;
+        const e=le(ln,6+row.size,'400','#555',row.rot);
+        pl(e,hx,hy);
+        // mirror for double layer
+        if(isDbl()&&row.mirror&&S.pl===1){
+          const e2=le(ln,6+row.size,'400','#555',row.rot);
+          pl(e2,row.x+405,hy);
+        }
+        hy+=row.step;
       });
+    } else if(row.kind==='bc'&&row.v){
+      const bx=15+xShift;
+      const bcWrap=document.createElement('div');bcWrap.className='le-bc-wrap';
+      bcWrap.style.left=Math.round(bx*SC)+'px';
+      bcWrap.style.top=Math.round(y*SC)+'px';
+      const bars=document.createElement('div');bars.className='le-bars';
+      [3,1,2,1,3,2,1,2,3,1,2,1,1,3,2,1,3,1,2,3,1,2,1].forEach((w,pi,arr)=>{
+        const b=document.createElement('div');b.className='le-bar';
+        b.style.width=(w*1.2)+'px';b.style.height=Math.round(40*SC)+'px';
+        bars.appendChild(b);
+        if(pi<arr.length-1){
+          const g=document.createElement('div');
+          g.style.cssText='width:1.5px;display:inline-block;background:#fff';
+          bars.appendChild(g);
+        }
+      });
+      const num=document.createElement('div');
+      num.style.cssText='font-family:var(--mono);font-size:7px;color:#333;margin-top:2px';
+      num.textContent=row.v;
+      bcWrap.appendChild(bars);bcWrap.appendChild(num);
+      lc.appendChild(bcWrap);
     }
-  });
-
-  // barcodes
-  let by=lay.afterY;
-  bcs.forEach(bcV=>{
-    const bx=15+xShift;
-    const wrap=document.createElement('div');wrap.className='le-bc';
-    wrap.style.left=Math.round(bx*SC)+'px';wrap.style.top=Math.round(by*SC)+'px';
-    const bars=document.createElement('div');bars.className='le-bars';
-    [3,1,2,1,3,2,1,2,3,1,2,1,1,3,2,1,3,1,2,3].forEach((w,pi,arr)=>{
-      const b=document.createElement('div');b.className='le-bar';b.style.width=(w*1.3)+'px';b.style.height=Math.round(40*SC)+'px';
-      bars.appendChild(b);
-      if(pi<arr.length-1){const g=document.createElement('div');g.style.cssText='width:1.5px;display:inline-block;background:#fff';bars.appendChild(g);}
-    });
-    const num=document.createElement('div');num.style.cssText='font-family:var(--mono);font-size:7px;color:#333;margin-top:2px';num.textContent=bcV;
-    wrap.appendChild(bars);wrap.appendChild(num);lc.appendChild(wrap);by+=88;
   });
 }
 
-/* Compute Y layout for rows */
-function calcLayout(){
-  const rows=[];let y=10;
-  const labelRight=LW-10;
-
-  S.rows.forEach(row=>{
-    if(row.kind==='var'){
-      const n=row.cells.length;
-      // X positions for up to 3 cells: left, center, right
-      const xPos=row.cells.map((_,ci)=>{
-        if(ci===0)return row.x;
-        if(ci===1)return n===3?Math.round(labelRight/2):Math.round(labelRight*0.58);
-        return labelRight-20;
-      });
-      rows.push({row,y,xPos});
-      const isMRP=row.cells.some(c=>c.v==='MRP'||c.v==='ItemMrp');
-      const hasWrap=row.cells.some(c=>c.wrap>0);
-      y+=hasWrap?40:isMRP?26:22;
-    } else {
-      const lines=(row.text||'').split('\n').filter(l=>l.trim());
-      rows.push({row,y,xPos:[]});
-      y+=Math.max(lines.length,1)*row.step+6;
-    }
-  });
-  return{rows,afterY:y,totalH:Math.max(y+100,200)};
-}
-
-/* ══════ PRN BUILDER ══════ */
+/* ════════ PRN BUILDER ════════ */
 function buildPRN(){
-  const bcs=[S.bc1,S.bc2].filter(Boolean);
-  const hasVar=S.rows.some(r=>r.kind==='var'&&r.cells.some(c=>c.v));
-  if(!hasVar&&!bcs.length)return '; No fields mapped — complete step 3 first.';
+  const hasMapped=S.rows.some(r=>(r.kind==='var'&&r.cells.some(c=>c.v))||(r.kind==='bc'&&r.v));
+  if(!hasMapped) return '; No fields mapped — complete step 3 first.';
 
-  const out=[];
   const lay=calcLayout();
-  const labelRight=LW-10;
+  const out=[];
 
-  // collect all dyn cells in sequence
+  // collect all dynamic cells in order (for var rows only)
   const allCells=[];
-  S.rows.forEach(row=>{if(row.kind==='var')row.cells.filter(c=>c.v).forEach(c=>allCells.push({c,row}));});
-  const wrapBonus=isDbl()?0:allCells.filter(({c})=>c.wrap>0).length;
-  const vpc=allCells.length+wrapBonus+bcs.length;
+  S.rows.forEach(row=>{
+    if(row.kind==='var') row.cells.filter(c=>c.v).forEach(c=>allCells.push({c,row}));
+  });
+  const bcRows=S.rows.filter(r=>r.kind==='bc'&&r.v);
 
-  /* Build A/B lines for one copy; xOff=0 for left/single, xOff=405 for right */
-  function copyLines(xOff,vOff,bcX){
-    const lines=[];let vi=vOff;
-    lay.rows.forEach(lr=>{
-      const row=lr.row;
+  // var slots: wrap fields take 2 slots each
+  const wrapBonus=isDbl()?0:allCells.filter(({c})=>c.wrap>0).length;
+  const varSlots=allCells.length+wrapBonus;
+  const bcSlots=bcRows.length;
+  const vpc=varSlots+bcSlots;
+
+  /* Build all A/B print commands for one copy.
+     xOff: 0 for left/single, 405 for right copy in double */
+  function buildCopy(xOff,vStart){
+    const lines=[];
+    let vi=vStart;
+
+    lay.entries.forEach(({row,y,xPos})=>{
       if(row.kind==='var'){
         row.cells.filter(c=>c.v).forEach((cell,ci)=>{
-          const pfx=cell.prefix?`"${cell.prefix.replace(/^"|"$/g,'')}"`:'' ;
+          const pfx=cell.prefix?`"${cell.prefix}"`:'' ;
           const isMRP=cell.v==='MRP'||cell.v==='ItemMrp';
-          const xp=lr.xPos[ci]+xOff;
+          const xp=xPos[ci]+xOff;
           if(isDbl()){
-            out.push(`A${xp},${lr.y},0,2,1,1,N,${pfx}${vn(vi)}`);vi++;
+            lines.push(`A${xp},${y},0,2,1,1,N,${pfx?pfx:''}${vn(vi)}`);
+            vi++;
           } else {
             if(cell.wrap>0){
-              out.push(`A${xp},${lr.y},0,1,1,1,N,${pfx}${vn(vi)}`);
-              out.push(`A${xp},${lr.y+15},0,1,1,1,N,${vn(vi+1)}`);vi+=2;
+              lines.push(`A${xp},${y},0,1,1,1,N,${pfx?pfx:''}${vn(vi)}`);
+              lines.push(`A${xp},${y+15},0,1,1,1,N,${vn(vi+1)}`);
+              vi+=2;
             } else if(isMRP){
-              out.push(`A${xp},${lr.y},0,1,1,2,N,${pfx}${vn(vi)}`);vi++;
+              lines.push(`A${xp},${y},0,1,1,2,N,${pfx?pfx:''}${vn(vi)}`);
+              vi++;
             } else {
-              out.push(`A${xp},${lr.y},0,1,1,1,N,${pfx}${vn(vi)}`);vi++;
+              lines.push(`A${xp},${y},0,1,1,1,N,${pfx?pfx:''}${vn(vi)}`);
+              vi++;
             }
           }
         });
-      } else {
-        // hard row
-        const txts=(row.text||'').split('\n').filter(l=>l.trim());
-        let hy=lr.y;
-        txts.forEach(ln=>{
-          out.push(`A${row.x+xOff},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
-          if(isDbl()&&row.mirror&&xOff===0)
-            out.push(`A${row.x+405},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
+      } else if(row.kind==='hard'){
+        const txtLines=(row.text||'').split('\n').filter(l=>l.trim());
+        let hy=y;
+        txtLines.forEach(ln=>{
+          lines.push(`A${row.x+xOff},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
+          // for double layer with mirror AND we are building left copy (xOff=0), add right side
+          if(isDbl()&&row.mirror&&xOff===0){
+            lines.push(`A${row.x+405},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
+          }
           hy+=row.step;
         });
+      } else if(row.kind==='bc'&&row.v){
+        const bx=isDbl()?(xOff===0?DL.blx:DL.brx):15;
+        const by=y;
+        lines.push(`B${bx},${by},0,1,2,${isDbl()?'6':'1'},${isDbl()?'60':'40'},B,${vn(vi)}`);
+        vi++;
       }
-    });
-    // barcodes
-    bcs.forEach((bcV,bi)=>{
-      if(isDbl()){out.push(`B${bcX},${DL.by},0,1,2,6,60,B,${vn(vi)}`);}
-      else{out.push(`B15,${lay.afterY+bi*95},0,1,2,1,40,B,${vn(vi)}`);}
-      vi++;
     });
     return lines;
   }
 
-  /* foreach value lines */
-  function fvals(){
+  /* Foreach value lines */
+  function foreachVals(){
     allCells.forEach(({c})=>{
       if(!isDbl()&&c.wrap>0){
         out.push(`#set($shortName = ${gcv(c.v)})`);
@@ -798,37 +908,43 @@ function buildPRN(){
         out.push(gcv(c.v));
       }
     });
-    bcs.forEach(bcV=>out.push(gcv(bcV)));
+    bcRows.forEach(r=>out.push(gcv(r.v)));
   }
 
   if(isDbl()){
+    // FK"1" — left (vStart=0) + right (vStart=vpc)
     out.push('FK"1"');out.push('FS"1"');
-    for(let i=0;i<vpc*2;i++)out.push(`${vn(i)},30,N,""`);
-    copyLines(0,0,DL.blx);
-    copyLines(405,vpc,DL.brx);
+    for(let i=0;i<vpc*2;i++) out.push(`${vn(i)},30,N,""`);
+    buildCopy(0,0).forEach(l=>out.push(l));
+    buildCopy(405,vpc).forEach(l=>out.push(l));
     out.push('PA1,1');out.push('FE');
 
+    // FK"2" — single copy (odd last row)
     out.push('FK"2"');out.push('FS"2"');
-    for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
-    copyLines(0,0,DL.blx);
+    for(let i=0;i<vpc;i++) out.push(`${vn(i)},30,N,""`);
+    buildCopy(0,0).forEach(l=>out.push(l));
     out.push('PA1,1');out.push('FE');
 
     out.push(`#foreach($row in $rows)#if($foreach.index % 2 == 0)FR"#if($rows.size() % 2 == 1 && $rows.size() == $foreach.count)2#{else}1#{end}"`);
     out.push('?');out.push('#end');
-    fvals();out.push('#{end}');
+    foreachVals();
+    out.push('#{end}');
   } else {
     out.push('FK"1"');out.push('FS"1"');
-    for(let i=0;i<vpc;i++)out.push(`${vn(i)},30,N,""`);
-    copyLines(0,0,15);
+    for(let i=0;i<vpc;i++) out.push(`${vn(i)},30,N,""`);
+    buildCopy(0,0).forEach(l=>out.push(l));
     out.push('PA1,1');out.push('FE');
+
     out.push(isItem()?'#foreach($item in $items)FR"1"':'#foreach($row in $rows)FR"1"');
-    out.push('?');fvals();out.push('#{end}');
+    out.push('?');
+    foreachVals();
+    out.push('#{end}');
   }
 
   return out.join('\n');
 }
 
-/* ══════ OUTPUT ══════ */
+/* ════════ OUTPUT ════════ */
 function genPRN(){
   document.getElementById('pout').textContent=buildPRN();
   document.getElementById('s4').style.display='';
