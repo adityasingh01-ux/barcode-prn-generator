@@ -101,6 +101,10 @@ textarea{resize:vertical}
 .cell-rm:hover{color:var(--danger)}
 .cell-prefix-inp{font-size:11px!important;padding:3px 6px!important;color:var(--text2);border-color:var(--border)!important}
 .cell-prefix-inp::placeholder{color:var(--text3)}
+.cell-wrap-row{display:flex;align-items:center;gap:5px;margin-top:3px}
+.cell-wrap-row label{font-size:10px;color:var(--text3);white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:4px}
+.cell-wrap-inp{width:48px!important;font-size:11px!important;padding:3px 5px!important;border-color:var(--border)!important}
+.cell-wrap-row .wrap-hint{font-size:10px;color:var(--text3);font-style:italic}
 
 .add-cell-btn{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--border2);background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;font-family:inherit;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;align-self:center}
 .add-cell-btn:hover{border-color:var(--info-text);color:var(--info-text);background:var(--info-bg)}
@@ -570,10 +574,33 @@ function mkCellBlock(ri,ci,cell,row){
   pfxInp.title='Printed before the variable value on the label';
   pfxInp.onchange=()=>{S.rows[ri].cells[ci].prefix=pfxInp.value;drawPreview();};
   pfxInp.oninput=()=>{S.rows[ri].cells[ci].prefix=pfxInp.value;drawPreview();};
-  // stop drag from firing when typing
   pfxInp.addEventListener('mousedown',e=>e.stopPropagation());
 
-  blk.appendChild(top);blk.appendChild(pfxInp);
+  // wrap / char-limit row
+  const wrapRow=document.createElement('div');wrapRow.className='cell-wrap-row';
+  const wrapLbl=document.createElement('label');
+  wrapLbl.title='If value exceeds this length, remainder prints on next line (0 = off)';
+  const wrapInp=document.createElement('input');
+  wrapInp.type='number';wrapInp.className='cell-wrap-inp';
+  wrapInp.min=0;wrapInp.max=120;
+  wrapInp.value=cell.wrap>0?cell.wrap:'';
+  wrapInp.placeholder='0';
+  wrapInp.addEventListener('mousedown',e=>e.stopPropagation());
+  wrapInp.onchange=()=>{S.rows[ri].cells[ci].wrap=+wrapInp.value||0;drawPreview();};
+  wrapInp.oninput=()=>{S.rows[ri].cells[ci].wrap=+wrapInp.value||0;drawPreview();};
+  wrapLbl.appendChild(document.createTextNode('Wrap at '));
+  wrapLbl.appendChild(wrapInp);
+  wrapLbl.appendChild(document.createTextNode(' chars'));
+  const wrapHint=document.createElement('span');
+  wrapHint.className='wrap-hint';
+  wrapHint.textContent=cell.wrap>0?'→ 2 lines':'(0 = off)';
+  // update hint live
+  wrapInp.addEventListener('input',()=>{
+    wrapHint.textContent=+wrapInp.value>0?'→ 2 lines':'(0 = off)';
+  });
+  wrapRow.appendChild(wrapLbl);wrapRow.appendChild(wrapHint);
+
+  blk.appendChild(top);blk.appendChild(pfxInp);blk.appendChild(wrapRow);
 
   /* chip drag */
   blk.addEventListener('dragstart',e=>{
