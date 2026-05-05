@@ -75,10 +75,11 @@ textarea{resize:vertical}
 .dh{cursor:grab;color:var(--text3);font-size:17px;line-height:1;padding:2px 0;flex-shrink:0;align-self:center}
 .dh:active{cursor:grabbing}
 
-/* X margin mini input */
-.x-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0}
-.x-wrap span{font-size:9px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase}
-.x-inp{width:44px!important;font-size:12px!important;padding:4px 5px!important;text-align:center}
+/* X / Y margin mini inputs */
+.xy-wrap{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.xy-inp-row{display:flex;align-items:center;gap:3px}
+.xy-inp-row span{font-size:9px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase;width:10px;flex-shrink:0}
+.xy-inp{width:44px!important;font-size:12px!important;padding:4px 5px!important;text-align:center}
 
 /* cells inside a var row */
 .cells-wrap{flex:1;display:flex;align-items:center;flex-wrap:nowrap;gap:4px;min-width:0}
@@ -105,6 +106,13 @@ textarea{resize:vertical}
 .cell-wrap-row label{font-size:10px;color:var(--text3);white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:4px}
 .cell-wrap-inp{width:48px!important;font-size:11px!important;padding:3px 5px!important;border-color:var(--border)!important}
 .cell-wrap-row .wrap-hint{font-size:10px;color:var(--text3);font-style:italic}
+.cell-bold-row{display:flex;align-items:center;gap:5px;margin-top:3px}
+.cell-bold-row label{font-size:10px;color:var(--text3);white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:4px}
+.cell-bold-inp{width:48px!important;font-size:11px!important;padding:3px 5px!important;border-color:var(--border)!important}
+/* bc row X margin for double layer */
+.bc-xl-xr{display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap}
+.bc-xl-xr label{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.bc-xl-xr input[type=number]{width:54px;font-size:12px;padding:4px 5px}
 
 .add-cell-btn{width:28px;height:28px;border-radius:50%;border:1.5px dashed var(--border2);background:transparent;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;font-family:inherit;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;align-self:center}
 .add-cell-btn:hover{border-color:var(--info-text);color:var(--info-text);background:var(--info-bg)}
@@ -387,12 +395,11 @@ function addVarRow(){
   openPicker('Add variable row');
 }
 function addHardRow(){
-  S.rows.push({kind:'hard',x:15,text:'',step:20,rot:0,size:1,mirror:isDbl()});
+  S.rows.push({kind:'hard',x:15,y:0,text:'',step:20,rot:0,size:1,mirror:isDbl()});
   refresh();
 }
 function addBcRow(){
-  // add barcode row with first unchecked-but-available var, or empty
-  S.rows.push({kind:'bc',v:''});
+  S.rows.push({kind:'bc',v:'',xl:70,xr:483});
   refresh();
 }
 function addCellToRow(ri){
@@ -431,12 +438,12 @@ function confirmPicker(){
   if(!sel.length){closePicker();return;}
   if(pickerTarget===null){
     // one new var row per selected variable
-    sel.forEach(v=>S.rows.push({kind:'var',x:15,cells:[{v,prefix:'',wrap:0}]}));
+    sel.forEach(v=>S.rows.push({kind:'var',x:15,y:0,cells:[{v,prefix:'',wrap:0,bold:1}]}));
   } else {
     const row=S.rows[pickerTarget.ri];
     sel.forEach(v=>{
       if(row.cells.length<3&&!row.cells.find(c=>c.v===v))
-        row.cells.push({v,prefix:'',wrap:0});
+        row.cells.push({v,prefix:'',wrap:0,bold:1});
     });
   }
   closePicker(); refresh();
@@ -515,8 +522,8 @@ function buildVarRow(el,row,ri){
   // drag handle
   const dh=mkDH(); inner.appendChild(dh);
 
-  // X margin
-  inner.appendChild(mkXInp(ri,row));
+  // X+Y margin
+  inner.appendChild(mkXYInp(ri,row));
 
   // cells area
   const ca=document.createElement('div');ca.className='cells-wrap';
@@ -542,12 +549,23 @@ function mkRowRm(ri){
   const rm=document.createElement('button');rm.className='row-rm';rm.textContent='×';rm.title='Remove row';
   rm.onclick=()=>{S.rows.splice(ri,1);refresh();};return rm;
 }
-function mkXInp(ri,row){
-  const w=document.createElement('div');w.className='x-wrap';
-  const lbl=document.createElement('span');lbl.textContent='X';
-  const inp=document.createElement('input');inp.type='number';inp.className='x-inp';inp.value=row.x;inp.title='Left margin (PRN units)';
-  inp.onchange=()=>{S.rows[ri].x=+inp.value;drawPreview();};
-  w.appendChild(lbl);w.appendChild(inp);return w;
+function mkXYInp(ri,row){
+  const w=document.createElement('div');w.className='xy-wrap';
+  // X row
+  const xr=document.createElement('div');xr.className='xy-inp-row';
+  const xl=document.createElement('span');xl.textContent='X';
+  const xi=document.createElement('input');xi.type='number';xi.className='xy-inp';xi.value=row.x||0;xi.title='Left margin (PRN units)';
+  xi.onchange=()=>{S.rows[ri].x=+xi.value;drawPreview();};
+  xi.addEventListener('mousedown',e=>e.stopPropagation());
+  xr.appendChild(xl);xr.appendChild(xi);
+  // Y row
+  const yr=document.createElement('div');yr.className='xy-inp-row';
+  const yl=document.createElement('span');yl.textContent='Y';
+  const yi=document.createElement('input');yi.type='number';yi.className='xy-inp';yi.value=row.y||0;yi.title='Y position override (0 = auto from sequence)';
+  yi.onchange=()=>{S.rows[ri].y=+yi.value;drawPreview();};
+  yi.addEventListener('mousedown',e=>e.stopPropagation());
+  yr.appendChild(yl);yr.appendChild(yi);
+  w.appendChild(xr);w.appendChild(yr);return w;
 }
 
 /* cell block with always-visible prefix input */
@@ -594,13 +612,27 @@ function mkCellBlock(ri,ci,cell,row){
   const wrapHint=document.createElement('span');
   wrapHint.className='wrap-hint';
   wrapHint.textContent=cell.wrap>0?'→ 2 lines':'(0 = off)';
-  // update hint live
   wrapInp.addEventListener('input',()=>{
     wrapHint.textContent=+wrapInp.value>0?'→ 2 lines':'(0 = off)';
   });
   wrapRow.appendChild(wrapLbl);wrapRow.appendChild(wrapHint);
 
-  blk.appendChild(top);blk.appendChild(pfxInp);blk.appendChild(wrapRow);
+  // bold (width multiplier) row
+  const boldRow=document.createElement('div');boldRow.className='cell-bold-row';
+  const boldLbl=document.createElement('label');
+  boldLbl.title='Width multiplier in A command (1=normal, 2=bold/wide). Controls the wm parameter.';
+  const boldInp=document.createElement('input');
+  boldInp.type='number';boldInp.className='cell-bold-inp';
+  boldInp.min=1;boldInp.max=8;
+  boldInp.value=cell.bold||1;
+  boldInp.addEventListener('mousedown',e=>e.stopPropagation());
+  boldInp.onchange=()=>{S.rows[ri].cells[ci].bold=+boldInp.value||1;drawPreview();};
+  boldLbl.appendChild(document.createTextNode('Width mult '));
+  boldLbl.appendChild(boldInp);
+  boldLbl.appendChild(document.createTextNode(' (1=normal, 2=bold)'));
+  boldRow.appendChild(boldLbl);
+
+  blk.appendChild(top);blk.appendChild(pfxInp);blk.appendChild(wrapRow);blk.appendChild(boldRow);
 
   /* chip drag */
   blk.addEventListener('dragstart',e=>{
@@ -675,7 +707,7 @@ function mkSlot(ri,insertBefore){
 function buildHardRow(el,row,ri){
   const inner=document.createElement('div');inner.className='hard-row-inner';
   inner.appendChild(mkDH());
-  inner.appendChild(mkXInp(ri,row));
+  inner.appendChild(mkXYInp(ri,row));
 
   const tag=document.createElement('span');tag.className='hard-tag';tag.textContent='FIXED';
 
@@ -711,14 +743,29 @@ function buildBcRow(el,row,ri){
 
   const tag=document.createElement('span');tag.className='bc-tag';tag.textContent='BARCODE';
 
+  const body=document.createElement('div');body.style.cssText='flex:1;display:flex;flex-direction:column;gap:5px;min-width:0';
+
+  const selRow=document.createElement('div');selRow.style.cssText='display:flex;align-items:center;gap:8px';
   const sel=document.createElement('select');sel.className='bc-var-sel';
   const checked=Array.from(S.checked);
   sel.innerHTML='<option value="">— select variable —</option>'+
     checked.map(v=>`<option value="${v}"${v===row.v?' selected':''}>${esc(v)}</option>`).join('');
   sel.onchange=()=>{S.rows[ri].v=sel.value;refresh();};
   sel.addEventListener('mousedown',e=>e.stopPropagation());
+  selRow.appendChild(sel);
+  body.appendChild(selRow);
 
-  inner.appendChild(tag);inner.appendChild(sel);inner.appendChild(mkRowRm(ri));
+  // For double layer: separate X for left and right
+  if(isDbl()){
+    const xlxr=document.createElement('div');xlxr.className='bc-xl-xr';
+    xlxr.innerHTML=`
+      <label>X Left <input type="number" value="${row.xl||70}" onchange="S.rows[${ri}].xl=+this.value;drawPreview()" style="width:54px;font-size:12px;padding:4px 5px"></label>
+      <label>X Right <input type="number" value="${row.xr||483}" onchange="S.rows[${ri}].xr=+this.value;drawPreview()" style="width:54px;font-size:12px;padding:4px 5px"></label>`;
+    xlxr.querySelectorAll('input').forEach(i=>i.addEventListener('mousedown',e=>e.stopPropagation()));
+    body.appendChild(xlxr);
+  }
+
+  inner.appendChild(tag);inner.appendChild(body);inner.appendChild(mkRowRm(ri));
   el.appendChild(inner);
 }
 
@@ -728,33 +775,35 @@ function buildBcRow(el,row,ri){
 ════════════════════════════════ */
 function calcLayout(){
   const entries=[];
-  let y=10;
+  let autoY=10;
   const labelRight=LW-12;
 
   S.rows.forEach(row=>{
+    // if row has explicit Y set (>0), use it; otherwise use auto sequence
+    const y=row.y>0?row.y:autoY;
+
     if(row.kind==='var'){
       const n=row.cells.length;
-      // X positions: pos0=row.x, pos1=center, pos2=right
       const xPos=row.cells.map((_,ci)=>{
-        if(ci===0) return row.x;
-        if(ci===1) return n===3 ? Math.round(labelRight/2) : Math.round(labelRight*0.56);
+        if(ci===0) return row.x||15;
+        if(ci===1) return n===3?Math.round(labelRight/2):Math.round(labelRight*0.56);
         return labelRight-18;
       });
       entries.push({row,y,xPos});
-      const isMRP=row.cells.some(c=>c.v==='MRP'||c.v==='ItemMrp');
       const hasWrap=row.cells.some(c=>c.wrap>0);
-      y+=hasWrap?40:isMRP?26:22;
+      // bold>1 needs a bit more height
+      const isTall=row.cells.some(c=>(c.bold||1)>1);
+      autoY=y+(hasWrap?40:isTall?28:22);
     } else if(row.kind==='hard'){
       const lines=(row.text||'').split('\n').filter(l=>l.trim());
       entries.push({row,y,xPos:[]});
-      y+=Math.max(lines.length,1)*row.step+6;
+      autoY=y+Math.max(lines.length,1)*row.step+6;
     } else {
-      // bc row
       entries.push({row,y,xPos:[]});
-      y+=90;
+      autoY=y+90;
     }
   });
-  return{entries,totalH:Math.max(y+20,200)};
+  return{entries,totalH:Math.max(autoY+20,200)};
 }
 
 /* ════════ PREVIEW ════════ */
@@ -803,8 +852,10 @@ function drawPreview(){
         if(!cell.v) return;
         const pfx=cell.prefix||'';
         const txt=(pfx?pfx+' ':'')+cell.v;
-        const isMRP=cell.v==='MRP'||cell.v==='ItemMrp';
-        const e=le(txt,isMRP?11:8,isMRP?'700':'400',isMRP?'#111':'#333');
+        const bold=cell.bold||1;
+        const fs=bold>1?11:8;
+        const fw=bold>1?'700':'400';
+        const e=le(txt,fs,fw,'#222');
         pl(e,xPos[ci]+xShift,y);
         if(cell.wrap>0){
           const e2=le('↳ wrap line 2',7,'400','#aaa');
@@ -819,7 +870,6 @@ function drawPreview(){
         const hx=row.x+xShift;
         const e=le(ln,6+row.size,'400','#555',row.rot);
         pl(e,hx,hy);
-        // mirror for double layer
         if(isDbl()&&row.mirror&&S.pl===1){
           const e2=le(ln,6+row.size,'400','#555',row.rot);
           pl(e2,row.x+405,hy);
@@ -827,7 +877,8 @@ function drawPreview(){
         hy+=row.step;
       });
     } else if(row.kind==='bc'&&row.v){
-      const bx=15+xShift;
+      // use xl/xr for double layer, row.x for single (default 15)
+      const bx=isDbl()?(S.pl===1?(row.xl||70):(row.xr||483)):(row.x||15);
       const bcWrap=document.createElement('div');bcWrap.className='le-bc-wrap';
       bcWrap.style.left=Math.round(bx*SC)+'px';
       bcWrap.style.top=Math.round(y*SC)+'px';
@@ -872,8 +923,6 @@ function buildPRN(){
   const bcSlots=bcRows.length;
   const vpc=varSlots+bcSlots;
 
-  /* Build all A/B print commands for one copy.
-     xOff: 0 for left/single, 405 for right copy in double */
   function buildCopy(xOff,vStart){
     const lines=[];
     let vi=vStart;
@@ -882,21 +931,18 @@ function buildPRN(){
       if(row.kind==='var'){
         row.cells.filter(c=>c.v).forEach((cell,ci)=>{
           const pfx=cell.prefix?`"${cell.prefix}"`:'' ;
-          const isMRP=cell.v==='MRP'||cell.v==='ItemMrp';
+          const bold=cell.bold||1;
           const xp=xPos[ci]+xOff;
           if(isDbl()){
-            lines.push(`A${xp},${y},0,2,1,1,N,${pfx?pfx:''}${vn(vi)}`);
+            lines.push(`A${xp},${y},0,2,1,${bold},N,${pfx}${vn(vi)}`);
             vi++;
           } else {
             if(cell.wrap>0){
-              lines.push(`A${xp},${y},0,1,1,1,N,${pfx?pfx:''}${vn(vi)}`);
-              lines.push(`A${xp},${y+15},0,1,1,1,N,${vn(vi+1)}`);
+              lines.push(`A${xp},${y},0,1,1,${bold},N,${pfx}${vn(vi)}`);
+              lines.push(`A${xp},${y+15},0,1,1,${bold},N,${vn(vi+1)}`);
               vi+=2;
-            } else if(isMRP){
-              lines.push(`A${xp},${y},0,1,1,2,N,${pfx?pfx:''}${vn(vi)}`);
-              vi++;
             } else {
-              lines.push(`A${xp},${y},0,1,1,1,N,${pfx?pfx:''}${vn(vi)}`);
+              lines.push(`A${xp},${y},0,1,1,${bold},N,${pfx}${vn(vi)}`);
               vi++;
             }
           }
@@ -906,16 +952,15 @@ function buildPRN(){
         let hy=y;
         txtLines.forEach(ln=>{
           lines.push(`A${row.x+xOff},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
-          // for double layer with mirror AND we are building left copy (xOff=0), add right side
           if(isDbl()&&row.mirror&&xOff===0){
             lines.push(`A${row.x+405},${hy},${row.rot},1,${row.size},1,N,"${ln.trim()}"`);
           }
           hy+=row.step;
         });
       } else if(row.kind==='bc'&&row.v){
-        const bx=isDbl()?(xOff===0?DL.blx:DL.brx):15;
-        const by=y;
-        lines.push(`B${bx},${by},0,1,2,${isDbl()?'6':'1'},${isDbl()?'60':'40'},B,${vn(vi)}`);
+        // single layer uses row.x (default 15); double uses xl/xr
+        const bx=isDbl()?(xOff===0?(row.xl||70):(row.xr||483)):(row.x||15);
+        lines.push(`B${bx},${y},0,1,2,${isDbl()?'6':'1'},${isDbl()?'60':'40'},B,${vn(vi)}`);
         vi++;
       }
     });
