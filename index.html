@@ -390,16 +390,36 @@ function refresh(){
 }
 
 /* ════════ ADD ROW HELPERS ════════ */
+
+// Compute what the next auto-Y would be after all current rows
+function nextAutoY(){
+  let autoY=10;
+  S.rows.forEach(row=>{
+    const y=row.y>0?row.y:autoY;
+    if(row.kind==='var'){
+      const hasWrap=row.cells.some(c=>c.wrap>0);
+      const isTall=row.cells.some(c=>(c.bold||1)>1);
+      autoY=y+(hasWrap?40:isTall?28:22);
+    } else if(row.kind==='hard'){
+      const lines=(row.text||'').split('\n').filter(l=>l.trim());
+      autoY=y+Math.max(lines.length,1)*row.step+6;
+    } else {
+      autoY=y+90;
+    }
+  });
+  return autoY;
+}
+
 function addVarRow(){
   pickerTarget=null; pickerSel=new Set();
   openPicker('Add variable row');
 }
 function addHardRow(){
-  S.rows.push({kind:'hard',x:15,y:0,text:'',step:20,rot:0,size:1,mirror:isDbl()});
+  S.rows.push({kind:'hard',x:15,y:nextAutoY(),text:'',step:20,rot:0,size:1,mirror:isDbl()});
   refresh();
 }
 function addBcRow(){
-  S.rows.push({kind:'bc',v:'',xl:70,xr:483});
+  S.rows.push({kind:'bc',v:'',y:nextAutoY(),xl:70,xr:483});
   refresh();
 }
 function addCellToRow(ri){
@@ -437,8 +457,12 @@ function confirmPicker(){
   const sel=Array.from(pickerSel);
   if(!sel.length){closePicker();return;}
   if(pickerTarget===null){
-    // one new var row per selected variable
-    sel.forEach(v=>S.rows.push({kind:'var',x:15,y:0,cells:[{v,prefix:'',wrap:0,bold:1}]}));
+    // one new var row per selected variable — pre-fill Y with computed position
+    // recalculate after each push so subsequent rows get correct Y
+    sel.forEach(v=>{
+      const y=nextAutoY();
+      S.rows.push({kind:'var',x:15,y,cells:[{v,prefix:'',wrap:0,bold:1}]});
+    });
   } else {
     const row=S.rows[pickerTarget.ri];
     sel.forEach(v=>{
@@ -561,7 +585,7 @@ function mkXYInp(ri,row){
   // Y row
   const yr=document.createElement('div');yr.className='xy-inp-row';
   const yl=document.createElement('span');yl.textContent='Y';
-  const yi=document.createElement('input');yi.type='number';yi.className='xy-inp';yi.value=row.y||0;yi.title='Y position override (0 = auto from sequence)';
+  const yi=document.createElement('input');yi.type='number';yi.className='xy-inp';yi.value=row.y||10;yi.title='Y position in PRN (actual value used in A/B command)';
   yi.onchange=()=>{S.rows[ri].y=+yi.value;drawPreview();};
   yi.addEventListener('mousedown',e=>e.stopPropagation());
   yr.appendChild(yl);yr.appendChild(yi);
@@ -617,19 +641,18 @@ function mkCellBlock(ri,ci,cell,row){
   });
   wrapRow.appendChild(wrapLbl);wrapRow.appendChild(wrapHint);
 
-  // bold (width multiplier) row
+  // boldness row
   const boldRow=document.createElement('div');boldRow.className='cell-bold-row';
   const boldLbl=document.createElement('label');
-  boldLbl.title='Width multiplier in A command (1=normal, 2=bold/wide). Controls the wm parameter.';
+  boldLbl.title='Boldness (width multiplier in A command): 1=normal, 2=medium, 3=bold';
   const boldInp=document.createElement('input');
   boldInp.type='number';boldInp.className='cell-bold-inp';
-  boldInp.min=1;boldInp.max=8;
+  boldInp.min=1;boldInp.max=3;
   boldInp.value=cell.bold||1;
   boldInp.addEventListener('mousedown',e=>e.stopPropagation());
-  boldInp.onchange=()=>{S.rows[ri].cells[ci].bold=+boldInp.value||1;drawPreview();};
-  boldLbl.appendChild(document.createTextNode('Width mult '));
+  boldInp.onchange=()=>{S.rows[ri].cells[ci].bold=Math.min(3,Math.max(1,+boldInp.value||1));drawPreview();};
+  boldLbl.appendChild(document.createTextNode('Boldness '));
   boldLbl.appendChild(boldInp);
-  boldLbl.appendChild(document.createTextNode(' (1=normal, 2=bold)'));
   boldRow.appendChild(boldLbl);
 
   blk.appendChild(top);blk.appendChild(pfxInp);blk.appendChild(wrapRow);blk.appendChild(boldRow);
@@ -779,8 +802,9 @@ function calcLayout(){
   const labelRight=LW-12;
 
   S.rows.forEach(row=>{
-    // if row has explicit Y set (>0), use it; otherwise use auto sequence
-    const y=row.y>0?row.y:autoY;
+    // row.y is always the actual PRN Y — use it directly
+    // autoY is kept in sync for any rows that somehow have y=0 (legacy)
+    const y=(row.y&&row.y>0)?row.y:autoY;
 
     if(row.kind==='var'){
       const n=row.cells.length;
@@ -791,7 +815,6 @@ function calcLayout(){
       });
       entries.push({row,y,xPos});
       const hasWrap=row.cells.some(c=>c.wrap>0);
-      // bold>1 needs a bit more height
       const isTall=row.cells.some(c=>(c.bold||1)>1);
       autoY=y+(hasWrap?40:isTall?28:22);
     } else if(row.kind==='hard'){
