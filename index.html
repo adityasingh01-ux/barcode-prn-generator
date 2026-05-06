@@ -520,13 +520,13 @@ function confirmPicker(){
   if(pickerTarget===null){
     sel.forEach(v=>{
       const y=nextAutoY();
-      S.rows.push({kind:'var',x:15,y,cells:[{v,prefix:'',wrap:0,bold:1,cx:null}]});
+      S.rows.push({kind:'var',x:15,y,cells:[{v,prefix:'',wrap:0,bold:1,cxL:null,cxR:null}]});
     });
   } else {
     const row=S.rows[pickerTarget.ri];
     sel.forEach(v=>{
       if(row.cells.length<3&&!row.cells.find(c=>c.v===v))
-        row.cells.push({v,prefix:'',wrap:0,bold:1,cx:null});
+        row.cells.push({v,prefix:'',wrap:0,bold:1,cxL:null,cxR:null});
     });
   }
   closePicker(); refresh();
@@ -736,25 +736,60 @@ function mkCellBlock(ri,ci,cell,row){
   });
   wrapRow.appendChild(wrapLbl);wrapRow.appendChild(wrapHint);
 
-  // X position input — for cell 0 this mirrors the row X; for cells 1,2 it sets their own X
-  const xRow=document.createElement('div');xRow.className='cell-wrap-row';
-  const xLbl=document.createElement('label');
-  xLbl.title=ci===0?'Left margin (same as row X — edit row X to change)':'X position on label for this field';
-  const xInp=document.createElement('input');
-  xInp.type='number';xInp.className='cell-wrap-inp';
-  // for ci=0 show row.x; for ci>0 show stored cx or default auto position
-  const defaultCx=ci===0?(row.x||15):ci===1?Math.round((LW-12)*0.56):LW-30;
-  xInp.value=cell.cx!=null?cell.cx:defaultCx;
-  if(ci===0) xInp.disabled=true; // cell 0 X is controlled by row X
-  xInp.addEventListener('mousedown',e=>e.stopPropagation());
-  xInp.onchange=()=>{
-    if(ci===0) return;
-    S.rows[ri].cells[ci].cx=+xInp.value;
-    drawPreview();
-  };
-  xLbl.appendChild(document.createTextNode('X pos '));
-  xLbl.appendChild(xInp);
-  xRow.appendChild(xLbl);
+  // X position input(s) — cxL for left copy, cxR for right copy
+  const xRow=document.createElement('div');xRow.className='cell-wrap-row';xRow.style.flexDirection='column';xRow.style.gap='3px';
+
+  if(ci===0){
+    // Cell 0: X controlled by row-level XL/XR — just show a disabled display
+    const xLbl=document.createElement('label');xLbl.title='Left margin — controlled by row X / XL input above';
+    const xInp=document.createElement('input');
+    xInp.type='number';xInp.className='cell-wrap-inp';
+    xInp.value=isDbl()?(row.xl!=null?row.xl:row.x||15):(row.x||15);
+    xInp.disabled=true;
+    xLbl.appendChild(document.createTextNode(isDbl()?'XL (row) ':'X (row) '));
+    xLbl.appendChild(xInp);
+    xRow.appendChild(xLbl);
+    if(isDbl()){
+      const xrLbl=document.createElement('label');xrLbl.title='Right copy X — controlled by row XR input above';
+      const xrInp=document.createElement('input');
+      xrInp.type='number';xrInp.className='cell-wrap-inp';
+      xrInp.value=row.xr!=null?row.xr:(row.xl!=null?row.xl+405:(row.x||15)+405);
+      xrInp.disabled=true;
+      xrLbl.appendChild(document.createTextNode('XR (row) '));
+      xrLbl.appendChild(xrInp);
+      xRow.appendChild(xrLbl);
+    }
+  } else {
+    // Cell 1, 2: independent X per copy
+    const defaultCxL=ci===1?Math.round((LW-12)*0.56):LW-30;
+    const defaultCxR=isDbl()?(ci===1?Math.round((LW-12)*0.56+405):LW+405-30):defaultCxL;
+
+    const xLbl=document.createElement('label');
+    xLbl.title=isDbl()?'X position for LEFT copy of this field':'X position for this field';
+    const xInp=document.createElement('input');
+    xInp.type='number';xInp.className='cell-wrap-inp';
+    xInp.value=cell.cxL!=null?cell.cxL:defaultCxL;
+    xInp.addEventListener('mousedown',e=>e.stopPropagation());
+    xInp.onchange=()=>{S.rows[ri].cells[ci].cxL=+xInp.value;drawPreview();};
+    xInp.oninput=()=>{S.rows[ri].cells[ci].cxL=+xInp.value;drawPreview();};
+    xLbl.appendChild(document.createTextNode(isDbl()?'XL pos ':'X pos '));
+    xLbl.appendChild(xInp);
+    xRow.appendChild(xLbl);
+
+    if(isDbl()){
+      const xrLbl=document.createElement('label');
+      xrLbl.title='X position for RIGHT copy of this field';
+      const xrInp=document.createElement('input');
+      xrInp.type='number';xrInp.className='cell-wrap-inp';
+      xrInp.value=cell.cxR!=null?cell.cxR:defaultCxR;
+      xrInp.addEventListener('mousedown',e=>e.stopPropagation());
+      xrInp.onchange=()=>{S.rows[ri].cells[ci].cxR=+xrInp.value;drawPreview();};
+      xrInp.oninput=()=>{S.rows[ri].cells[ci].cxR=+xrInp.value;drawPreview();};
+      xrLbl.appendChild(document.createTextNode('XR pos '));
+      xrLbl.appendChild(xrInp);
+      xRow.appendChild(xrLbl);
+    }
+  }
 
   // boldness row
   const boldRow=document.createElement('div');boldRow.className='cell-bold-row';
@@ -917,14 +952,15 @@ function calcLayout(){
       const x0R=isDbl()?(row.xr!=null?row.xr:(x0L+405)):x0L;
       const xPosL=row.cells.map((cell,ci)=>{
         if(ci===0) return x0L;
-        // use cell.cx if set, else auto
-        if(cell.cx!=null) return cell.cx;
+        if(cell.cxL!=null) return cell.cxL;
         if(ci===1) return n===3?Math.round(labelRight/2):Math.round(labelRight*0.56);
         return labelRight-18;
       });
       const xPosR=row.cells.map((cell,ci)=>{
         if(ci===0) return x0R;
-        if(cell.cx!=null) return isDbl()?cell.cx+405:cell.cx;
+        if(cell.cxR!=null) return cell.cxR;
+        // fallback: if only cxL set, add 405
+        if(cell.cxL!=null) return cell.cxL+405;
         if(ci===1) return n===3?Math.round((labelRight+405)/2):Math.round((labelRight+405)*0.56);
         return labelRight+405-18;
       });
@@ -1067,7 +1103,8 @@ function buildPRN(){
       const xPos=isRight?xPosR:xPosL;
 
       if(row.kind==='var'){
-        row.cells.filter(c=>c.v).forEach((cell,ci)=>{
+        row.cells.forEach((cell,ci)=>{
+          if(!cell.v) return;
           const pfx=cell.prefix?`"${cell.prefix}"`:'' ;
           const bold=cell.bold||1;
           const xp=xPos[ci];
