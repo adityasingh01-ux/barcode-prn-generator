@@ -132,6 +132,7 @@ textarea{resize:vertical}
 .cell-wrap-row{display:flex;align-items:center;gap:5px;margin-top:3px}
 .cell-wrap-row label{font-size:10px;color:var(--text3);white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:4px}
 .cell-wrap-inp{width:48px!important;font-size:11px!important;padding:3px 5px!important;border-color:var(--border)!important}
+.cell-wrap-inp:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed}
 .cell-wrap-row .wrap-hint{font-size:10px;color:var(--text3);font-style:italic}
 .cell-bold-row{display:flex;align-items:center;gap:5px;margin-top:3px}
 .cell-bold-row label{font-size:10px;color:var(--text3);white-space:nowrap;font-weight:500;display:flex;align-items:center;gap:4px}
@@ -436,21 +437,22 @@ function nextAutoY(){
   return autoY;
 }
 
-// Cascade Y values for all rows from index 0 so every row reflects
-// its actual computed position. Called when wrap/bold/step changes.
+// Cascade Y values for all rows from changedRi onward
+// Pass 0 to recompute everything from scratch (e.g. after drag/drop reorder)
 function cascadeY(changedRi){
   let autoY=10;
   S.rows.forEach((row,ri)=>{
     if(ri<changedRi){
-      // rows before the change: keep their stored Y, just advance autoY
-      autoY=rowEndY(row,row.y>0?row.y:autoY);
+      // before change: just advance autoY without touching stored Y
+      autoY=rowEndY(row, row.y>0?row.y:autoY);
     } else if(ri===changedRi){
-      // the changed row keeps its current Y, advance autoY from it
-      autoY=rowEndY(row,row.y>0?row.y:autoY);
+      // at change point: keep Y if user explicitly set it, else use autoY
+      if(changedRi===0||!(row.y>0)) row.y=autoY;
+      autoY=rowEndY(row, row.y);
     } else {
-      // rows after: recompute Y from autoY
+      // after change: always recompute from autoY
       row.y=autoY;
-      autoY=rowEndY(row,autoY);
+      autoY=rowEndY(row, row.y);
     }
   });
 }
@@ -516,17 +518,15 @@ function confirmPicker(){
   const sel=Array.from(pickerSel);
   if(!sel.length){closePicker();return;}
   if(pickerTarget===null){
-    // one new var row per selected variable — pre-fill Y with computed position
-    // recalculate after each push so subsequent rows get correct Y
     sel.forEach(v=>{
       const y=nextAutoY();
-      S.rows.push({kind:'var',x:15,y,cells:[{v,prefix:'',wrap:0,bold:1}]});
+      S.rows.push({kind:'var',x:15,y,cells:[{v,prefix:'',wrap:0,bold:1,cx:null}]});
     });
   } else {
     const row=S.rows[pickerTarget.ri];
     sel.forEach(v=>{
       if(row.cells.length<3&&!row.cells.find(c=>c.v===v))
-        row.cells.push({v,prefix:'',wrap:0,bold:1});
+        row.cells.push({v,prefix:'',wrap:0,bold:1,cx:null});
     });
   }
   closePicker(); refresh();
@@ -588,12 +588,12 @@ function attachRowDrag(el,ri){
       const cell=S.rows[sri].cells.splice(sci,1)[0];
       S.rows[ri].cells.push(cell);
       if(S.rows[sri].cells.length===0) S.rows.splice(sri,1);
-      chipDrag=null; refresh(); return;
+      chipDrag=null; cascadeY(0); refresh(); return;
     }
     if(rowDrag===null||rowDrag===ri) return;
     const moved=S.rows.splice(rowDrag,1)[0];
     S.rows.splice(rowDrag<ri?ri-1:ri,0,moved);
-    rowDrag=null; refresh();
+    rowDrag=null; cascadeY(0); refresh();
   });
 }
 const row_at=ri=>S.rows[ri];
@@ -736,6 +736,26 @@ function mkCellBlock(ri,ci,cell,row){
   });
   wrapRow.appendChild(wrapLbl);wrapRow.appendChild(wrapHint);
 
+  // X position input — for cell 0 this mirrors the row X; for cells 1,2 it sets their own X
+  const xRow=document.createElement('div');xRow.className='cell-wrap-row';
+  const xLbl=document.createElement('label');
+  xLbl.title=ci===0?'Left margin (same as row X — edit row X to change)':'X position on label for this field';
+  const xInp=document.createElement('input');
+  xInp.type='number';xInp.className='cell-wrap-inp';
+  // for ci=0 show row.x; for ci>0 show stored cx or default auto position
+  const defaultCx=ci===0?(row.x||15):ci===1?Math.round((LW-12)*0.56):LW-30;
+  xInp.value=cell.cx!=null?cell.cx:defaultCx;
+  if(ci===0) xInp.disabled=true; // cell 0 X is controlled by row X
+  xInp.addEventListener('mousedown',e=>e.stopPropagation());
+  xInp.onchange=()=>{
+    if(ci===0) return;
+    S.rows[ri].cells[ci].cx=+xInp.value;
+    drawPreview();
+  };
+  xLbl.appendChild(document.createTextNode('X pos '));
+  xLbl.appendChild(xInp);
+  xRow.appendChild(xLbl);
+
   // boldness row
   const boldRow=document.createElement('div');boldRow.className='cell-bold-row';
   const boldLbl=document.createElement('label');
@@ -750,7 +770,7 @@ function mkCellBlock(ri,ci,cell,row){
   boldLbl.appendChild(boldInp);
   boldRow.appendChild(boldLbl);
 
-  blk.appendChild(top);blk.appendChild(pfxInp);blk.appendChild(wrapRow);blk.appendChild(boldRow);
+  blk.appendChild(top);blk.appendChild(pfxInp);blk.appendChild(wrapRow);blk.appendChild(xRow);blk.appendChild(boldRow);
 
   /* chip drag */
   blk.addEventListener('dragstart',e=>{
@@ -816,7 +836,7 @@ function mkSlot(ri,insertBefore){
     if(sri===ri&&sci<insertBefore) ins--;
     tgtRow.cells.splice(Math.max(0,ins),0,cell);
     if(srcRow.cells.length===0) S.rows.splice(sri<ri?sri:sri,1);
-    chipDrag=null;refresh();
+    chipDrag=null; cascadeY(0); refresh();
   });
   return slot;
 }
@@ -892,16 +912,19 @@ function calcLayout(){
 
     if(row.kind==='var'){
       const n=row.cells.length;
-      // For single layer use row.x; for double layer use xl for left copy
+      // X0 from row.x (or xl for double layer left copy)
       const x0L=isDbl()?(row.xl!=null?row.xl:(row.x||15)):(row.x||15);
       const x0R=isDbl()?(row.xr!=null?row.xr:(x0L+405)):x0L;
-      const xPosL=row.cells.map((_,ci)=>{
+      const xPosL=row.cells.map((cell,ci)=>{
         if(ci===0) return x0L;
+        // use cell.cx if set, else auto
+        if(cell.cx!=null) return cell.cx;
         if(ci===1) return n===3?Math.round(labelRight/2):Math.round(labelRight*0.56);
         return labelRight-18;
       });
-      const xPosR=row.cells.map((_,ci)=>{
+      const xPosR=row.cells.map((cell,ci)=>{
         if(ci===0) return x0R;
+        if(cell.cx!=null) return isDbl()?cell.cx+405:cell.cx;
         if(ci===1) return n===3?Math.round((labelRight+405)/2):Math.round((labelRight+405)*0.56);
         return labelRight+405-18;
       });
