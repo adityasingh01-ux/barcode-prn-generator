@@ -212,6 +212,17 @@ textarea{resize:vertical}
 .tab.on{background:var(--accent-light);color:var(--accent2);font-weight:600;border-color:var(--accent)}
 .prev-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
 .empty-note{font-size:13px;color:var(--text3);padding:10px 2px}
+/* Parse PRN */
+.parse-banner{background:linear-gradient(135deg,var(--accent-light) 0%,var(--green-bg) 100%);border:1px solid var(--accent-border);border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.parse-banner p{font-size:13px;color:var(--text2);flex:1;min-width:160px;line-height:1.5}
+.btn-parse{padding:8px 18px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 2px 8px rgba(13,122,154,.2);transition:opacity .15s}
+.btn-parse:hover{opacity:.88}
+.parse-modal{background:var(--surface);border-radius:var(--radius);padding:1.5rem;width:560px;max-width:96vw;box-shadow:0 8px 40px rgba(13,122,154,.22);border:1px solid var(--border)}
+.parse-modal h3{font-size:14px;font-weight:700;margin-bottom:.5rem;color:var(--text)}
+.parse-modal p{font-size:12px;color:var(--text3);margin-bottom:.9rem;line-height:1.5}
+.parse-modal textarea{font-family:var(--mono);font-size:12px;min-height:220px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);width:100%;color:var(--text);background:var(--bg);line-height:1.7}
+.parse-modal textarea:focus{border-color:var(--accent);outline:none}
+.parse-err{font-size:12px;color:#c0392b;background:#fdf0ef;border:1px solid #f5b7b1;border-radius:var(--radius-sm);padding:7px 10px;margin-top:8px;display:none}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
 .leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
@@ -234,6 +245,26 @@ textarea{resize:vertical}
   </div>
 </header>
 <main>
+
+<!-- Parse PRN banner -->
+<div class="parse-banner">
+  <p>Already have a PRN file? Paste it to auto-fill all settings, then use the layout editor to tweak and regenerate.</p>
+  <button class="btn-parse" onclick="openParseModal()">⬆ Import existing PRN</button>
+</div>
+
+<!-- Parse PRN modal -->
+<div class="overlay" id="parseOverlay" style="display:none" onclick="if(event.target===this)closeParseModal()">
+  <div class="parse-modal">
+    <h3>Paste your PRN code</h3>
+    <p>Paste the full PRN — FK/FS blocks, variable declarations, A/B commands, and the #foreach loop. The parser will fill in traceability, roll type, field layout, X/Y positions, prefixes, wrap settings, and hardcoded text automatically.</p>
+    <textarea id="prnPasteArea" placeholder="FK&quot;1&quot;&#10;FS&quot;1&quot;&#10;V00,30,N,&quot;&quot;&#10;..."></textarea>
+    <div class="parse-err" id="parseErr"></div>
+    <div class="picker-foot" style="margin-top:1rem">
+      <button class="btn-cancel" onclick="closeParseModal()">Cancel</button>
+      <button class="btn-ok" onclick="parsePRN()">Parse &amp; Load</button>
+    </div>
+  </div>
+</div>
 
 <!-- S1 Config -->
 <div class="card">
@@ -1197,7 +1228,261 @@ function buildPRN(){
   return out.join('\n');
 }
 
-/* ════════ OUTPUT ════════ */
+/* ════════ PRN PARSER ════════ */
+function openParseModal(){
+  document.getElementById('parseOverlay').style.display='flex';
+  document.getElementById('prnPasteArea').value='';
+  document.getElementById('parseErr').style.display='none';
+  setTimeout(()=>document.getElementById('prnPasteArea').focus(),80);
+}
+function closeParseModal(){document.getElementById('parseOverlay').style.display='none';}
+function showParseErr(msg){const el=document.getElementById('parseErr');el.textContent=msg;el.style.display='block';}
+
+function parsePRN(){
+  const raw=document.getElementById('prnPasteArea').value.trim();
+  if(!raw){showParseErr('Please paste a PRN code first.');return;}
+
+  try{
+    const result=doParse(raw);
+    // Apply parsed result to state
+    S.trace=result.trace;
+    S.roll=result.roll;
+    S.checked=result.checked;
+    S.rows=result.rows;
+    S.pl=1;
+
+    // Update UI selects
+    document.getElementById('trace').value=S.trace;
+    document.getElementById('roll').value=S.roll;
+    onCfg(); // triggers renderVarGrid etc.
+    // tick the right checkboxes
+    renderVarGrid();
+    // override bc pickers
+    renderBcPickers();
+
+    closeParseModal();
+    // scroll to top
+    window.scrollTo({top:0,behavior:'smooth'});
+  } catch(e){
+    showParseErr('Parse error: '+e.message);
+  }
+}
+
+function doParse(raw){
+  const lines=raw.split('\n').map(l=>l.trim());
+
+  /* ── 1. Detect roll type ── */
+  const fk2Idx=lines.findIndex(l=>l==='FK"2"');
+  const roll=fk2Idx>-1?'double':'single';
+
+  /* ── 2. Work with FK"1" block only for layout ── */
+  // Find the range of FK"1" content (between FS"1" and PA1,1)
+  const fs1Idx=lines.findIndex(l=>l==='FS"1"');
+  const pa1Idx=lines.findIndex(l=>l.startsWith('PA1,1'));
+  if(fs1Idx<0||pa1Idx<0) throw new Error('Could not find FS"1" or PA1,1 in PRN.');
+  const fk1Lines=lines.slice(fs1Idx+1,pa1Idx);
+
+  /* ── 3. Count variables declared in FK"1" ── */
+  const varDecls=fk1Lines.filter(l=>/^V\d+,\d+,N,"/.test(l));
+  const totalVars=varDecls.length; // e.g. 12 for double 6-var label
+
+  /* ── 4. Parse A and B commands from FK"1" ── */
+  // A x,y,rot,font,hm,wm,N,content
+  // B x,y,rot,type,hw,vw,h,B,Vxx
+  const aLines=fk1Lines.filter(l=>/^A\d+,/.test(l));
+  const bLines=fk1Lines.filter(l=>/^B\d+,/.test(l));
+
+  /* ── 5. Parse foreach loop to get variable name order ── */
+  const feIdx=lines.findIndex(l=>l==='FE');
+  // Last FE in file — the foreach follows it
+  let lastFe=-1;
+  lines.forEach((l,i)=>{if(l==='FE')lastFe=i;});
+  const afterFe=lines.slice(lastFe+1);
+
+  // Extract variable names from getColumnValue or $item.X
+  const varNames=[]; // ordered list matching V00,V01... in FK"1"
+  let inWrap=false;let wrapLen=0;let wrapVar='';
+  afterFe.forEach(l=>{
+    // wrap pattern: #set($shortName = $row.getColumnValue('X'))
+    const wrapSet=l.match(/^#set\(\$\w+\s*=\s*(?:\$row\.getColumnValue\('([^']+)'\)|\$item\.(\S+))\)/);
+    if(wrapSet){inWrap=true;wrapVar=wrapSet[1]||wrapSet[2];return;}
+    // wrap length: #if($shortName.length() > N)
+    const wrapLen2=l.match(/^#if\(\$\w+\.length\(\)\s*>\s*(\d+)\)/);
+    if(wrapLen2&&inWrap){wrapLen=+wrapLen2[1];return;}
+    // end of wrap block — push with wrap
+    if(inWrap&&(l==='#{end}'||l.startsWith('$shortName')||l==='-'||l==='#else'||l==='#end')){
+      if(l.startsWith('$shortName')&&!varNames.find(v=>v.name===wrapVar)){
+        varNames.push({name:wrapVar,wrap:wrapLen});inWrap=false;wrapLen=0;wrapVar='';
+      }
+      return;
+    }
+    // direct getColumnValue
+    const gcvM=l.match(/^\$row\.getColumnValue\('([^']+)'\)$/);
+    if(gcvM){varNames.push({name:gcvM[1],wrap:0});return;}
+    // direct $item.X
+    const itemM=l.match(/^\$item\.(\S+)$/);
+    if(itemM){varNames.push({name:itemM[1],wrap:0});return;}
+  });
+
+  /* ── 6. Detect traceability ── */
+  // item trace uses $item.X; sku/none uses $row.getColumnValue
+  const hasItem=afterFe.some(l=>/^\$item\./.test(l));
+  const trace=hasItem?'item':'sku'; // default none→sku (same template)
+
+  // Vars per copy for double layer = totalVars/2; single = totalVars
+  const vpc=roll==='double'?Math.round(totalVars/2):totalVars;
+  // varNames array: first vpc entries are the data vars, last entries are barcodes
+  // We'll figure out which are barcodes from B lines
+
+  /* ── 7. Map Vxx → variable name ── */
+  // In FK"1" left copy, V00..V(vpc-1) map to varNames[0..vpc-1]
+  const varMap={}; // Vxx → {name, wrap}
+  varNames.forEach((v,i)=>{
+    if(i<vpc) varMap[`V${String(i).padStart(2,'0')}`]=v;
+  });
+
+  /* ── 8. Figure out which Vxx are barcodes ── */
+  const bcVarKeys=new Set(bLines.map(l=>{
+    const m=l.match(/,B,(V\d+)$/);return m?m[1]:null;
+  }).filter(Boolean));
+  // only left copy barcodes (V00..V(vpc-1))
+  const bcVarsOrdered=[...bcVarKeys].filter(k=>{
+    const idx=parseInt(k.replace('V',''));return idx<vpc;
+  });
+
+  /* ── 9. Build rows from left-copy A/B lines only ── */
+  // For double layer, left copy A lines use x < 405 (approx)
+  // For single layer, use all A lines
+  const leftA=roll==='double'?aLines.filter(l=>{
+    const m=l.match(/^A(\d+),/);return m&&+m[1]<400;
+  }):aLines;
+  const leftB=roll==='double'?bLines.filter(l=>{
+    const m=l.match(/^B(\d+),/);return m&&+m[1]<400;
+  }):bLines;
+
+  // Right copy A lines (for double layer xl/xr)
+  const rightA=roll==='double'?aLines.filter(l=>{
+    const m=l.match(/^A(\d+),/);return m&&+m[1]>=400;
+  }):[];
+  const rightB=roll==='double'?bLines.filter(l=>{
+    const m=l.match(/^B(\d+),/);return m&&+m[1]>=400;
+  }):[];
+
+  // Build a map of Vxx → right-copy X for double layer
+  const rightXMap={};
+  if(roll==='double'){
+    rightA.forEach(l=>{
+      // A x,y,rot,font,hm,wm,N,content — content may be "prefix"Vxx or just Vxx or "hardtext"
+      const m=l.match(/^A(\d+),(\d+),\d+,\d+,\d+,\d+,N,(.+)$/);
+      if(!m)return;
+      const content=m[3];
+      const vRef=content.match(/V(\d+)$/);
+      if(vRef){
+        const vKey='V'+String(+vRef[1]-vpc).padStart(2,'0'); // map back to left-copy key
+        rightXMap[vKey]=+m[1];
+      }
+    });
+    rightB.forEach(l=>{
+      const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);
+      if(!m)return;
+      const origIdx=+m[3].replace('V','')-vpc;
+      rightXMap['V'+String(origIdx).padStart(2,'0')]={x:+m[1],y:+m[2]};
+    });
+  }
+
+  /* ── 10. Parse each left-copy A line into row candidates ── */
+  // Group A lines by Y to detect same-line fields
+  const yCandidates={};
+  leftA.forEach(l=>{
+    const m=l.match(/^A(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),N,(.+)$/);
+    if(!m)return;
+    const[,x,y,rot,font,hm,wm,content]=[...m];
+    const xi=+x,yi=+y,roti=+rot,wmi=+wm;
+    const vRef=content.match(/(V\d+)$/);
+    const vKey=vRef?vRef[1]:null;
+    const prefixMatch=content.match(/^"([^"]+)"(V\d+)$/);
+    const hardOnly=!vKey;
+    const prefix=prefixMatch?prefixMatch[1]:'';
+
+    if(!yCandidates[yi])yCandidates[yi]=[];
+    yCandidates[yi].push({x:xi,y:yi,rot:roti,wm:wmi,vKey,prefix,hardOnly,content});
+  });
+
+  /* ── 11. Build rows ── */
+  const rows=[];
+  const checked=new Set();
+
+  // Sort by Y
+  const sortedYs=Object.keys(yCandidates).map(Number).sort((a,b)=>a-b);
+
+  sortedYs.forEach(yi=>{
+    const group=yCandidates[yi].sort((a,b)=>a.x-b.x);
+    const allHard=group.every(g=>g.hardOnly);
+
+    if(allHard){
+      // Hardcoded row — collect all text lines at consecutive Ys
+      const text=group.map(g=>{
+        const m=g.content.match(/^"([^"]+)"$/);
+        return m?m[1]:g.content.replace(/^"|"$/g,'');
+      }).join('\n');
+      // check if it's multi-line by looking at similar x/rot at nearby Ys
+      rows.push({kind:'hard',x:group[0].x,y:yi,text,step:20,rot:group[0].rot,size:group[0].wm||1,mirror:roll==='double'});
+    } else {
+      // Variable row (may have multiple cells on same Y)
+      const cells=[];
+      let rowX=group[0].x;
+      group.forEach((g,gi)=>{
+        if(!g.vKey)return;
+        const varInfo=varMap[g.vKey];
+        if(!varInfo)return;
+        checked.add(varInfo.name);
+        const cell={v:varInfo.name,prefix:g.prefix,wrap:varInfo.wrap||0,bold:g.wm||1,cxL:null,cxR:null};
+        if(gi>0){
+          cell.cxL=g.x;
+          // find right copy X
+          if(rightXMap[g.vKey])cell.cxR=rightXMap[g.vKey];
+        }
+        cells.push(cell);
+      });
+      if(cells.length>0){
+        const xrVal=roll==='double'&&rightXMap[group[0].vKey]?rightXMap[group[0].vKey]:null;
+        rows.push({
+          kind:'var',
+          x:rowX,
+          y:yi,
+          xl:roll==='double'?rowX:undefined,
+          xr:roll==='double'?(xrVal||rowX+405):undefined,
+          cells
+        });
+      }
+    }
+  });
+
+  // Add barcode rows from left B lines
+  leftB.forEach(l=>{
+    const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);
+    if(!m)return;
+    const vKey=m[3];
+    const varInfo=varMap[vKey];
+    if(!varInfo)return;
+    checked.add(varInfo.name);
+    const rightBcData=rightXMap[vKey];
+    rows.push({
+      kind:'bc',
+      v:varInfo.name,
+      y:+m[2],
+      xl:+m[1],
+      xr:roll==='double'?(typeof rightBcData==='object'?rightBcData.x:+m[1]+405):undefined,
+      x:+m[1]
+    });
+  });
+
+  // Sort rows by Y
+  rows.sort((a,b)=>a.y-b.y);
+
+  return{trace,roll,checked,rows};
+}
+
 function genPRN(){
   document.getElementById('pout').textContent=buildPRN();
   document.getElementById('s4').style.display='';
