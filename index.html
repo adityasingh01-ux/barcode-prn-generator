@@ -212,6 +212,17 @@ textarea{resize:vertical}
 .tab.on{background:var(--accent-light);color:var(--accent2);font-weight:600;border-color:var(--accent)}
 .prev-caption{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
 .empty-note{font-size:13px;color:var(--text3);padding:10px 2px}
+/* Parse PRN */
+.parse-banner{background:linear-gradient(135deg,var(--accent-light) 0%,var(--green-bg) 100%);border:1px solid var(--accent-border);border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.parse-banner p{font-size:13px;color:var(--text2);flex:1;min-width:160px;line-height:1.5}
+.btn-parse{padding:8px 18px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 2px 8px rgba(13,122,154,.2);transition:opacity .15s}
+.btn-parse:hover{opacity:.88}
+.parse-modal{background:var(--surface);border-radius:var(--radius);padding:1.5rem;width:560px;max-width:96vw;box-shadow:0 8px 40px rgba(13,122,154,.22);border:1px solid var(--border)}
+.parse-modal h3{font-size:14px;font-weight:700;margin-bottom:.5rem;color:var(--text)}
+.parse-modal p{font-size:12px;color:var(--text3);margin-bottom:.9rem;line-height:1.5}
+.parse-modal textarea{font-family:var(--mono);font-size:12px;min-height:220px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);width:100%;color:var(--text);background:var(--bg);line-height:1.7}
+.parse-modal textarea:focus{border-color:var(--accent);outline:none}
+.parse-err{font-size:12px;color:#c0392b;background:#fdf0ef;border:1px solid #f5b7b1;border-radius:var(--radius-sm);padding:7px 10px;margin-top:8px;display:none}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
 .leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
@@ -234,6 +245,26 @@ textarea{resize:vertical}
   </div>
 </header>
 <main>
+
+<!-- Parse PRN banner -->
+<div class="parse-banner">
+  <p>Already have a PRN file? Paste it to auto-fill all settings, then use the layout editor to tweak and regenerate.</p>
+  <button class="btn-parse" onclick="openParseModal()">⬆ Import existing PRN</button>
+</div>
+
+<!-- Parse PRN modal -->
+<div class="overlay" id="parseOverlay" style="display:none" onclick="if(event.target===this)closeParseModal()">
+  <div class="parse-modal">
+    <h3>Paste your PRN code</h3>
+    <p>Paste the full PRN — FK/FS blocks, variable declarations, A/B commands, and the #foreach loop. The parser will fill in traceability, roll type, field layout, X/Y positions, prefixes, wrap settings, and hardcoded text automatically.</p>
+    <textarea id="prnPasteArea" placeholder="FK&quot;1&quot;&#10;FS&quot;1&quot;&#10;V00,30,N,&quot;&quot;&#10;..."></textarea>
+    <div class="parse-err" id="parseErr"></div>
+    <div class="picker-foot" style="margin-top:1rem">
+      <button class="btn-cancel" onclick="closeParseModal()">Cancel</button>
+      <button class="btn-ok" onclick="parsePRN()">Parse &amp; Load</button>
+    </div>
+  </div>
+</div>
 
 <!-- S1 Config -->
 <div class="card">
@@ -1041,16 +1072,23 @@ function drawPreview(){
         }
       });
     } else if(row.kind==='hard'){
-      // hard row: use xl for left copy, xr for right copy in double layer
       const hx=isDbl()?(S.pl===2?(row.xr!=null?row.xr:row.x+405):(row.xl!=null?row.xl:row.x)):(row.x||15);
       const lines=(row.text||'').split('\n');
       let hy=y;
-      lines.forEach(ln=>{
-        if(!ln.trim()){hy+=row.step;return;}
-        const e=le(ln,6+row.size,'400','#555',row.rot);
-        pl(e,hx,hy);
-        // Note: mirror is handled in PRN output only, not shown in single-copy preview
-        hy+=row.step;
+      const isRotated=row.rot===1||row.rot===3;
+      lines.forEach((ln,li)=>{
+        if(!ln.trim()){if(!isRotated)hy+=row.step;return;}
+        const e=le(ln,6+row.size,'400','#555',0); // apply rotation via CSS transform below
+        if(isRotated){
+          // rotated text: place at fixed x,y and rotate. Stack horizontally not vertically.
+          e.style.transform=`rotate(${row.rot===1?90:-90}deg)`;
+          e.style.transformOrigin='top left';
+          // each line offset along the rotation axis
+          pl(e, hx-(li*10), y-(li*8));
+        } else {
+          pl(e,hx,hy);
+          hy+=row.step;
+        }
       });
     } else if(row.kind==='bc'&&row.v){
       const bx=isDbl()?(S.pl===1?(row.xl||70):(row.xr||483)):(row.x||15);
@@ -1092,8 +1130,8 @@ function buildPRN(){
   });
   const bcRows=S.rows.filter(r=>r.kind==='bc'&&r.v);
 
-  // var slots: wrap fields take 2 slots each
-  const wrapBonus=isDbl()?0:allCells.filter(({c})=>c.wrap>0).length;
+  // var slots: wrap fields always take 2 slots (line1 + line2) in both single and double layer
+  const wrapBonus=allCells.filter(({c})=>c.wrap>0).length;
   const varSlots=allCells.length+wrapBonus;
   const bcSlots=bcRows.length;
   const vpc=varSlots+bcSlots;
@@ -1111,18 +1149,14 @@ function buildPRN(){
           const pfx=cell.prefix?`"${cell.prefix}"`:'' ;
           const bold=cell.bold||1;
           const xp=xPos[ci];
-          if(isDbl()){
-            lines.push(`A${xp},${y},0,2,1,${bold},N,${pfx}${vn(vi)}`);
-            vi++;
+          if(cell.wrap>0){
+            // wrap always uses 2 variable slots regardless of layer type
+            lines.push(`A${xp},${y},0,${isDbl()?2:1},1,${bold},N,${pfx}${vn(vi)}`);
+            lines.push(`A${xp},${y+15},0,${isDbl()?2:1},1,${bold},N,${vn(vi+1)}`);
+            vi+=2;
           } else {
-            if(cell.wrap>0){
-              lines.push(`A${xp},${y},0,1,1,${bold},N,${pfx}${vn(vi)}`);
-              lines.push(`A${xp},${y+15},0,1,1,${bold},N,${vn(vi+1)}`);
-              vi+=2;
-            } else {
-              lines.push(`A${xp},${y},0,1,1,${bold},N,${pfx}${vn(vi)}`);
-              vi++;
-            }
+            lines.push(`A${xp},${y},0,${isDbl()?2:1},1,${bold},N,${pfx}${vn(vi)}`);
+            vi++;
           }
         });
       } else if(row.kind==='hard'){
@@ -1151,7 +1185,7 @@ function buildPRN(){
   /* Foreach value lines */
   function foreachVals(){
     allCells.forEach(({c})=>{
-      if(!isDbl()&&c.wrap>0){
+      if(c.wrap>0){
         out.push(`#set($shortName = ${gcv(c.v)})`);
         out.push(`#if($shortName.length() > ${c.wrap})`);
         out.push(`$shortName.substring(0,${c.wrap})`);
@@ -1197,7 +1231,235 @@ function buildPRN(){
   return out.join('\n');
 }
 
-/* ════════ OUTPUT ════════ */
+/* ════════ PRN PARSER ════════ */
+function openParseModal(){
+  document.getElementById('parseOverlay').style.display='flex';
+  document.getElementById('prnPasteArea').value='';
+  document.getElementById('parseErr').style.display='none';
+  setTimeout(()=>document.getElementById('prnPasteArea').focus(),80);
+}
+function closeParseModal(){document.getElementById('parseOverlay').style.display='none';}
+function showParseErr(msg){const el=document.getElementById('parseErr');el.textContent=msg;el.style.display='block';}
+
+function parsePRN(){
+  const raw=document.getElementById('prnPasteArea').value.trim();
+  if(!raw){showParseErr('Please paste a PRN code first.');return;}
+  try{
+    const result=doParse(raw);
+    // Apply parsed result to state
+    S.trace=result.trace;
+    S.roll=result.roll;
+    S.checked=result.checked;
+    S.rows=result.rows;
+    S.pl=1;
+    // Update config selects first
+    document.getElementById('trace').value=S.trace;
+    document.getElementById('roll').value=S.roll;
+    // Now render everything
+    renderVarGrid();   // re-ticks checkboxes based on S.checked
+    refresh();         // builds seq, preview, shows/hides sections
+    closeParseModal();
+    window.scrollTo({top:0,behavior:'smooth'});
+  } catch(e){
+    showParseErr('Parse error: '+e.message);
+    console.error(e);
+  }
+}
+
+function doParse(raw){
+  const lines=raw.split('\n').map(l=>l.trim());
+
+  /* ── 1. Roll type ── */
+  const roll=lines.some(l=>l==='FK"2"')?'double':'single';
+
+  /* ── 2. FK"1" block: from FS"1" to first PA1,1 ── */
+  const fs1=lines.findIndex(l=>l==='FS"1"');
+  const pa1=lines.findIndex(l=>l.startsWith('PA1,1'));
+  if(fs1<0||pa1<0) throw new Error('Cannot find FS"1" or PA1,1.');
+  const fk1=lines.slice(fs1+1,pa1);
+
+  /* ── 3. Variable declarations ── */
+  const varDecls=fk1.filter(l=>/^V\d+,\d+,N,"/.test(l));
+  const totalVars=varDecls.length;
+
+  /* ── 4. A and B commands from FK"1" ── */
+  const aLines=fk1.filter(l=>/^A\d+,/.test(l));
+  const bLines=fk1.filter(l=>/^B\d+,/.test(l));
+
+  /* ── 5. Parse foreach loop ──
+     Build an ordered list of {name, wrap} entries.
+     Wrap field takes 2 variable slots; others take 1.
+     So varSlots[i] = the slot index that variable i starts at. ── */
+  let lastFe=-1;
+  lines.forEach((l,i)=>{if(l==='FE')lastFe=i;});
+  const afterFe=lines.slice(lastFe+1);
+
+  // Detect traceability
+  const hasItem=afterFe.some(l=>/^\$item\./.test(l));
+  const trace=hasItem?'item':'sku';
+
+  // Parse variable entries in order
+  const varEntries=[]; // [{name, wrap}]
+  let inWrap=false,wrapVar='',wrapLen=0,wrapPushed=false;
+  afterFe.forEach(l=>{
+    if(!l||l.startsWith('#foreach')||l.startsWith('FR"')||l==='?'||l==='#{end}') return;
+    // Wrap start: #set($x = $row.getColumnValue('Name'))
+    const wSet=l.match(/^#set\(\$\w+\s*=\s*(?:\$row\.getColumnValue\('([^']+)'\)|\$item\.(\S+))\s*\)/);
+    if(wSet){inWrap=true;wrapVar=wSet[1]||wSet[2];wrapPushed=false;return;}
+    // Wrap length line: #if($x.length() > 31)
+    const wLen=l.match(/^#if\(\$\w+\.length\(\)\s*>\s*(\d+)\)/);
+    if(wLen&&inWrap){wrapLen=+wLen[1];return;}
+    // Wrap substring line — marks that this is indeed a wrap var
+    if(inWrap&&l.match(/^\$\w+\.substring\(0,\d+\)$/)&&!wrapPushed){
+      varEntries.push({name:wrapVar,wrap:wrapLen});
+      wrapPushed=true;return;
+    }
+    // End of wrap block
+    if(inWrap&&(l==='#end'||l==='#{end}')){inWrap=false;wrapVar='';wrapLen=0;return;}
+    if(inWrap) return; // skip other wrap block lines
+    // Direct getColumnValue
+    const gcv=l.match(/^\$row\.getColumnValue\('([^']+)'\)$/);
+    if(gcv){varEntries.push({name:gcv[1],wrap:0});return;}
+    // Direct $item.X
+    const itm=l.match(/^\$item\.(\S+)$/);
+    if(itm){varEntries.push({name:itm[1],wrap:0});return;}
+  });
+
+  /* ── 6. Build varMap: Vxx key → {name, wrap} ──
+     Wrap fields occupy 2 consecutive slots (line1 + line2).
+     Slot index advances by 2 for wrap, 1 for normal. ── */
+  const varMap={}; // 'V00' → {name, wrap}
+  let slot=0;
+  const vpc=roll==='double'?Math.round(totalVars/2):totalVars;
+  varEntries.forEach(entry=>{
+    if(slot>=vpc) return; // only left-copy slots
+    const key='V'+String(slot).padStart(2,'0');
+    varMap[key]=entry;
+    if(entry.wrap>0){
+      // second slot = continuation line (no name needed, same var)
+      varMap['V'+String(slot+1).padStart(2,'0')]={name:entry.name+'__line2',wrap:0,isLine2:true};
+      slot+=2;
+    } else {
+      slot+=1;
+    }
+  });
+
+  /* ── 7. For double layer: build right-copy X map ── */
+  const rightXMap={}; // left-key → rightX
+  if(roll==='double'){
+    const rightA=aLines.filter(l=>{const m=l.match(/^A(\d+),/);return m&&+m[1]>=400;});
+    const rightB=bLines.filter(l=>{const m=l.match(/^B(\d+),/);return m&&+m[1]>=400;});
+    rightA.forEach(l=>{
+      const m=l.match(/^A(\d+),(\d+),\d+,\d+,\d+,\d+,N,(.+)$/);if(!m)return;
+      const vRef=m[3].match(/(V\d+)$/);if(!vRef)return;
+      const rightIdx=parseInt(vRef[1].replace('V',''));
+      const leftKey='V'+String(rightIdx-vpc).padStart(2,'0');
+      rightXMap[leftKey]=+m[1];
+    });
+    rightB.forEach(l=>{
+      const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);if(!m)return;
+      const rightIdx=parseInt(m[3].replace('V',''));
+      const leftKey='V'+String(rightIdx-vpc).padStart(2,'0');
+      rightXMap[leftKey]={bx:+m[1],by:+m[2]};
+    });
+  }
+
+  /* ── 8. Split A/B lines into left copy ── */
+  const leftA=roll==='double'?aLines.filter(l=>{const m=l.match(/^A(\d+),/);return m&&+m[1]<400;}):aLines;
+  const leftB=roll==='double'?bLines.filter(l=>{const m=l.match(/^B(\d+),/);return m&&+m[1]<400;}):bLines;
+
+  /* ── 10. Parse A lines into structured items ── */
+  const parsed=leftA.map(l=>{
+    const m=l.match(/^A(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),N,(.+)$/);
+    if(!m)return null;
+    const content=m[7];
+    const vRef=content.match(/(V\d+)$/);
+    const vKey=vRef?vRef[1]:null;
+    const prefixM=content.match(/^"([^"]+)"(V\d+)$/);
+    const prefix=prefixM?prefixM[1]:'';
+    const isHard=!vKey;
+    const hardText=isHard?content.replace(/^"|"$/g,''):'';
+    return{x:+m[1],y:+m[2],rot:+m[3],wm:+m[6],vKey,prefix,isHard,hardText};
+  }).filter(Boolean);
+
+  /* ── 11. Build var rows ── */
+  const rows=[];
+  const checked=new Set();
+
+  const varByY={};
+  parsed.filter(p=>!p.isHard&&p.vKey&&!varMap[p.vKey]?.isLine2).forEach(p=>{
+    if(!varByY[p.y])varByY[p.y]=[];
+    varByY[p.y].push(p);
+  });
+  Object.keys(varByY).map(Number).sort((a,b)=>a-b).forEach(yi=>{
+    const group=varByY[yi].sort((a,b)=>a.x-b.x);
+    const cells=[];
+    const firstX=group[0].x;
+    group.forEach((p,gi)=>{
+      const info=varMap[p.vKey];if(!info||info.isLine2)return;
+      checked.add(info.name);
+      const cell={v:info.name,prefix:p.prefix,wrap:info.wrap||0,bold:p.wm||1,cxL:null,cxR:null};
+      if(gi>0){cell.cxL=p.x;cell.cxR=rightXMap[p.vKey]||null;}
+      cells.push(cell);
+    });
+    if(cells.length){
+      const xrVal=roll==='double'?(rightXMap[group[0].vKey]||firstX+405):undefined;
+      rows.push({kind:'var',x:firstX,y:yi,
+        xl:roll==='double'?firstX:undefined,
+        xr:roll==='double'?xrVal:undefined,cells});
+    }
+  });
+
+  /* ── 12. Merge consecutive hard lines into blocks ── */
+  // Sort all hard lines by Y then X
+  const hardParsed=parsed.filter(p=>p.isHard).sort((a,b)=>a.y-b.y||a.x-b.x);
+  const hardUsed=new Set();
+
+  hardParsed.forEach(p=>{
+    const uid=`${p.x}_${p.y}_${p.rot}`;
+    if(hardUsed.has(uid))return;
+    hardUsed.add(uid);
+    const blockLines=[{y:p.y,text:p.hardText}];
+    let lastY=p.y;
+
+    // Greedily pull in subsequent lines with same x and rot within 50 units
+    for(let iter=0;iter<50;iter++){
+      const next=hardParsed.find(q=>{
+        const qid=`${q.x}_${q.y}_${q.rot}`;
+        return !hardUsed.has(qid)&&q.x===p.x&&q.rot===p.rot&&q.y>lastY&&(q.y-lastY)<=50;
+      });
+      if(!next)break;
+      hardUsed.add(`${next.x}_${next.y}_${next.rot}`);
+      blockLines.push({y:next.y,text:next.hardText});
+      lastY=next.y;
+    }
+
+    const step=blockLines.length>1?blockLines[1].y-blockLines[0].y:20;
+    rows.push({kind:'hard',x:p.x,y:p.y,
+      text:blockLines.map(l=>l.text).join('\n'),
+      step:step||20,rot:p.rot,size:p.wm||1,mirror:roll==='double'});
+  });
+
+  /* ── 13. Add barcode rows ── */
+  leftB.forEach(l=>{
+    const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);if(!m)return;
+    const vKey=m[3];const info=varMap[vKey];if(!info||info.isLine2)return;
+    checked.add(info.name);
+    const rightBc=rightXMap[vKey];
+    rows.push({kind:'bc',v:info.name,y:+m[2],x:+m[1],xl:+m[1],
+      xr:roll==='double'?(rightBc&&rightBc.bx?rightBc.bx:+m[1]+405):undefined});
+  });
+
+  // Sort all rows by Y and populate checked
+  rows.sort((a,b)=>a.y-b.y);
+  rows.forEach(r=>{
+    if(r.kind==='var')r.cells.forEach(c=>{if(c.v)checked.add(c.v);});
+    if(r.kind==='bc'&&r.v)checked.add(r.v);
+  });
+
+  return{trace,roll,checked,rows};
+}
+
 function genPRN(){
   document.getElementById('pout').textContent=buildPRN();
   document.getElementById('s4').style.display='';
