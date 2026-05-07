@@ -1241,7 +1241,6 @@ function showParseErr(msg){const el=document.getElementById('parseErr');el.textC
 function parsePRN(){
   const raw=document.getElementById('prnPasteArea').value.trim();
   if(!raw){showParseErr('Please paste a PRN code first.');return;}
-
   try{
     const result=doParse(raw);
     // Apply parsed result to state
@@ -1250,235 +1249,271 @@ function parsePRN(){
     S.checked=result.checked;
     S.rows=result.rows;
     S.pl=1;
-
-    // Update UI selects
+    // Update config selects first
     document.getElementById('trace').value=S.trace;
     document.getElementById('roll').value=S.roll;
-    onCfg(); // triggers renderVarGrid etc.
-    // tick the right checkboxes
-    renderVarGrid();
-    // override bc pickers
-    renderBcPickers();
-
+    // Now render everything
+    renderVarGrid();   // re-ticks checkboxes based on S.checked
+    refresh();         // builds seq, preview, shows/hides sections
     closeParseModal();
-    // scroll to top
     window.scrollTo({top:0,behavior:'smooth'});
   } catch(e){
     showParseErr('Parse error: '+e.message);
+    console.error(e);
   }
 }
 
 function doParse(raw){
   const lines=raw.split('\n').map(l=>l.trim());
 
-  /* ── 1. Detect roll type ── */
-  const fk2Idx=lines.findIndex(l=>l==='FK"2"');
-  const roll=fk2Idx>-1?'double':'single';
+  /* ── 1. Roll type ── */
+  const roll=lines.some(l=>l==='FK"2"')?'double':'single';
 
-  /* ── 2. Work with FK"1" block only for layout ── */
-  // Find the range of FK"1" content (between FS"1" and PA1,1)
-  const fs1Idx=lines.findIndex(l=>l==='FS"1"');
-  const pa1Idx=lines.findIndex(l=>l.startsWith('PA1,1'));
-  if(fs1Idx<0||pa1Idx<0) throw new Error('Could not find FS"1" or PA1,1 in PRN.');
-  const fk1Lines=lines.slice(fs1Idx+1,pa1Idx);
+  /* ── 2. FK"1" block: from FS"1" to first PA1,1 ── */
+  const fs1=lines.findIndex(l=>l==='FS"1"');
+  const pa1=lines.findIndex(l=>l.startsWith('PA1,1'));
+  if(fs1<0||pa1<0) throw new Error('Cannot find FS"1" or PA1,1.');
+  const fk1=lines.slice(fs1+1,pa1);
 
-  /* ── 3. Count variables declared in FK"1" ── */
-  const varDecls=fk1Lines.filter(l=>/^V\d+,\d+,N,"/.test(l));
-  const totalVars=varDecls.length; // e.g. 12 for double 6-var label
+  /* ── 3. Variable declarations ── */
+  const varDecls=fk1.filter(l=>/^V\d+,\d+,N,"/.test(l));
+  const totalVars=varDecls.length;
 
-  /* ── 4. Parse A and B commands from FK"1" ── */
-  // A x,y,rot,font,hm,wm,N,content
-  // B x,y,rot,type,hw,vw,h,B,Vxx
-  const aLines=fk1Lines.filter(l=>/^A\d+,/.test(l));
-  const bLines=fk1Lines.filter(l=>/^B\d+,/.test(l));
+  /* ── 4. A and B commands from FK"1" ── */
+  const aLines=fk1.filter(l=>/^A\d+,/.test(l));
+  const bLines=fk1.filter(l=>/^B\d+,/.test(l));
 
-  /* ── 5. Parse foreach loop to get variable name order ── */
-  const feIdx=lines.findIndex(l=>l==='FE');
-  // Last FE in file — the foreach follows it
+  /* ── 5. Parse foreach loop ──
+     Build an ordered list of {name, wrap} entries.
+     Wrap field takes 2 variable slots; others take 1.
+     So varSlots[i] = the slot index that variable i starts at. ── */
   let lastFe=-1;
   lines.forEach((l,i)=>{if(l==='FE')lastFe=i;});
   const afterFe=lines.slice(lastFe+1);
 
-  // Extract variable names from getColumnValue or $item.X
-  const varNames=[]; // ordered list matching V00,V01... in FK"1"
-  let inWrap=false;let wrapLen=0;let wrapVar='';
-  afterFe.forEach(l=>{
-    // wrap pattern: #set($shortName = $row.getColumnValue('X'))
-    const wrapSet=l.match(/^#set\(\$\w+\s*=\s*(?:\$row\.getColumnValue\('([^']+)'\)|\$item\.(\S+))\)/);
-    if(wrapSet){inWrap=true;wrapVar=wrapSet[1]||wrapSet[2];return;}
-    // wrap length: #if($shortName.length() > N)
-    const wrapLen2=l.match(/^#if\(\$\w+\.length\(\)\s*>\s*(\d+)\)/);
-    if(wrapLen2&&inWrap){wrapLen=+wrapLen2[1];return;}
-    // end of wrap block — push with wrap
-    if(inWrap&&(l==='#{end}'||l.startsWith('$shortName')||l==='-'||l==='#else'||l==='#end')){
-      if(l.startsWith('$shortName')&&!varNames.find(v=>v.name===wrapVar)){
-        varNames.push({name:wrapVar,wrap:wrapLen});inWrap=false;wrapLen=0;wrapVar='';
-      }
-      return;
-    }
-    // direct getColumnValue
-    const gcvM=l.match(/^\$row\.getColumnValue\('([^']+)'\)$/);
-    if(gcvM){varNames.push({name:gcvM[1],wrap:0});return;}
-    // direct $item.X
-    const itemM=l.match(/^\$item\.(\S+)$/);
-    if(itemM){varNames.push({name:itemM[1],wrap:0});return;}
-  });
-
-  /* ── 6. Detect traceability ── */
-  // item trace uses $item.X; sku/none uses $row.getColumnValue
+  // Detect traceability
   const hasItem=afterFe.some(l=>/^\$item\./.test(l));
-  const trace=hasItem?'item':'sku'; // default none→sku (same template)
+  const trace=hasItem?'item':'sku';
 
-  // Vars per copy for double layer = totalVars/2; single = totalVars
+  // Parse variable entries in order
+  const varEntries=[]; // [{name, wrap}]
+  let inWrap=false,wrapVar='',wrapLen=0,wrapPushed=false;
+  afterFe.forEach(l=>{
+    if(!l||l.startsWith('#foreach')||l.startsWith('FR"')||l==='?'||l==='#{end}') return;
+    // Wrap start: #set($x = $row.getColumnValue('Name'))
+    const wSet=l.match(/^#set\(\$\w+\s*=\s*(?:\$row\.getColumnValue\('([^']+)'\)|\$item\.(\S+))\s*\)/);
+    if(wSet){inWrap=true;wrapVar=wSet[1]||wSet[2];wrapPushed=false;return;}
+    // Wrap length line: #if($x.length() > 31)
+    const wLen=l.match(/^#if\(\$\w+\.length\(\)\s*>\s*(\d+)\)/);
+    if(wLen&&inWrap){wrapLen=+wLen[1];return;}
+    // Wrap substring line — marks that this is indeed a wrap var
+    if(inWrap&&l.match(/^\$\w+\.substring\(0,\d+\)$/)&&!wrapPushed){
+      varEntries.push({name:wrapVar,wrap:wrapLen});
+      wrapPushed=true;return;
+    }
+    // End of wrap block
+    if(inWrap&&(l==='#end'||l==='#{end}')){inWrap=false;wrapVar='';wrapLen=0;return;}
+    if(inWrap) return; // skip other wrap block lines
+    // Direct getColumnValue
+    const gcv=l.match(/^\$row\.getColumnValue\('([^']+)'\)$/);
+    if(gcv){varEntries.push({name:gcv[1],wrap:0});return;}
+    // Direct $item.X
+    const itm=l.match(/^\$item\.(\S+)$/);
+    if(itm){varEntries.push({name:itm[1],wrap:0});return;}
+  });
+
+  /* ── 6. Build varMap: Vxx key → {name, wrap} ──
+     Wrap fields occupy 2 consecutive slots (line1 + line2).
+     Slot index advances by 2 for wrap, 1 for normal. ── */
+  const varMap={}; // 'V00' → {name, wrap}
+  let slot=0;
   const vpc=roll==='double'?Math.round(totalVars/2):totalVars;
-  // varNames array: first vpc entries are the data vars, last entries are barcodes
-  // We'll figure out which are barcodes from B lines
-
-  /* ── 7. Map Vxx → variable name ── */
-  // In FK"1" left copy, V00..V(vpc-1) map to varNames[0..vpc-1]
-  const varMap={}; // Vxx → {name, wrap}
-  varNames.forEach((v,i)=>{
-    if(i<vpc) varMap[`V${String(i).padStart(2,'0')}`]=v;
+  varEntries.forEach(entry=>{
+    if(slot>=vpc) return; // only left-copy slots
+    const key='V'+String(slot).padStart(2,'0');
+    varMap[key]=entry;
+    if(entry.wrap>0){
+      // second slot = continuation line (no name needed, same var)
+      varMap['V'+String(slot+1).padStart(2,'0')]={name:entry.name+'__line2',wrap:0,isLine2:true};
+      slot+=2;
+    } else {
+      slot+=1;
+    }
   });
 
-  /* ── 8. Figure out which Vxx are barcodes ── */
-  const bcVarKeys=new Set(bLines.map(l=>{
-    const m=l.match(/,B,(V\d+)$/);return m?m[1]:null;
-  }).filter(Boolean));
-  // only left copy barcodes (V00..V(vpc-1))
-  const bcVarsOrdered=[...bcVarKeys].filter(k=>{
-    const idx=parseInt(k.replace('V',''));return idx<vpc;
-  });
-
-  /* ── 9. Build rows from left-copy A/B lines only ── */
-  // For double layer, left copy A lines use x < 405 (approx)
-  // For single layer, use all A lines
-  const leftA=roll==='double'?aLines.filter(l=>{
-    const m=l.match(/^A(\d+),/);return m&&+m[1]<400;
-  }):aLines;
-  const leftB=roll==='double'?bLines.filter(l=>{
-    const m=l.match(/^B(\d+),/);return m&&+m[1]<400;
-  }):bLines;
-
-  // Right copy A lines (for double layer xl/xr)
-  const rightA=roll==='double'?aLines.filter(l=>{
-    const m=l.match(/^A(\d+),/);return m&&+m[1]>=400;
-  }):[];
-  const rightB=roll==='double'?bLines.filter(l=>{
-    const m=l.match(/^B(\d+),/);return m&&+m[1]>=400;
-  }):[];
-
-  // Build a map of Vxx → right-copy X for double layer
-  const rightXMap={};
+  /* ── 7. For double layer: build right-copy X map ── */
+  const rightXMap={}; // left-key → rightX
   if(roll==='double'){
+    const rightA=aLines.filter(l=>{const m=l.match(/^A(\d+),/);return m&&+m[1]>=400;});
+    const rightB=bLines.filter(l=>{const m=l.match(/^B(\d+),/);return m&&+m[1]>=400;});
     rightA.forEach(l=>{
-      // A x,y,rot,font,hm,wm,N,content — content may be "prefix"Vxx or just Vxx or "hardtext"
-      const m=l.match(/^A(\d+),(\d+),\d+,\d+,\d+,\d+,N,(.+)$/);
-      if(!m)return;
-      const content=m[3];
-      const vRef=content.match(/V(\d+)$/);
-      if(vRef){
-        const vKey='V'+String(+vRef[1]-vpc).padStart(2,'0'); // map back to left-copy key
-        rightXMap[vKey]=+m[1];
-      }
+      const m=l.match(/^A(\d+),(\d+),\d+,\d+,\d+,\d+,N,(.+)$/);if(!m)return;
+      const vRef=m[3].match(/(V\d+)$/);if(!vRef)return;
+      const rightIdx=parseInt(vRef[1].replace('V',''));
+      const leftKey='V'+String(rightIdx-vpc).padStart(2,'0');
+      rightXMap[leftKey]=+m[1];
     });
     rightB.forEach(l=>{
-      const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);
-      if(!m)return;
-      const origIdx=+m[3].replace('V','')-vpc;
-      rightXMap['V'+String(origIdx).padStart(2,'0')]={x:+m[1],y:+m[2]};
+      const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);if(!m)return;
+      const rightIdx=parseInt(m[3].replace('V',''));
+      const leftKey='V'+String(rightIdx-vpc).padStart(2,'0');
+      rightXMap[leftKey]={bx:+m[1],by:+m[2]};
     });
   }
 
-  /* ── 10. Parse each left-copy A line into row candidates ── */
-  // Group A lines by Y to detect same-line fields
-  const yCandidates={};
-  leftA.forEach(l=>{
+  /* ── 8. Split A/B lines into left copy ── */
+  const leftA=roll==='double'?aLines.filter(l=>{const m=l.match(/^A(\d+),/);return m&&+m[1]<400;}):aLines;
+  const leftB=roll==='double'?bLines.filter(l=>{const m=l.match(/^B(\d+),/);return m&&+m[1]<400;}):bLines;
+
+  /* ── 9. Parse A lines into structured entries ── */
+  const parsed=leftA.map(l=>{
     const m=l.match(/^A(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),N,(.+)$/);
-    if(!m)return;
-    const[,x,y,rot,font,hm,wm,content]=[...m];
-    const xi=+x,yi=+y,roti=+rot,wmi=+wm;
+    if(!m)return null;
+    const content=m[7];
     const vRef=content.match(/(V\d+)$/);
     const vKey=vRef?vRef[1]:null;
-    const prefixMatch=content.match(/^"([^"]+)"(V\d+)$/);
-    const hardOnly=!vKey;
-    const prefix=prefixMatch?prefixMatch[1]:'';
+    const prefixM=content.match(/^"([^"]+)"(V\d+)$/);
+    const prefix=prefixM?prefixM[1]:'';
+    const isHard=!vKey;
+    const hardText=isHard?content.replace(/^"|"$/g,''):'';
+    return{x:+m[1],y:+m[2],rot:+m[3],font:+m[4],hm:+m[5],wm:+m[6],
+           vKey,prefix,isHard,hardText};
+  }).filter(Boolean);
 
-    if(!yCandidates[yi])yCandidates[yi]=[];
-    yCandidates[yi].push({x:xi,y:yi,rot:roti,wm:wmi,vKey,prefix,hardOnly,content});
-  });
+  /* ── 10. Group by Y and build rows ── */
+  // Strategy:
+  //   • Lines with vKey and !isLine2 → var cells, grouped by Y
+  //   • Pure hardcoded lines → merged into hard blocks by proximity (same x, rot, consecutive Y)
+  //   • isLine2 (wrap continuation) → skip, handled by wrap setting on parent
+  //   • Rotated hard lines (rot≠0) → own hard block
 
-  /* ── 11. Build rows ── */
   const rows=[];
   const checked=new Set();
 
-  // Sort by Y
-  const sortedYs=Object.keys(yCandidates).map(Number).sort((a,b)=>a-b);
+  // Group parsed by Y
+  const byY={};
+  parsed.forEach(p=>{
+    if(!byY[p.y])byY[p.y]=[];
+    byY[p.y].push(p);
+  });
+
+  const sortedYs=Object.keys(byY).map(Number).sort((a,b)=>a-b);
+
+  // Track which Y values are already consumed
+  const consumed=new Set();
 
   sortedYs.forEach(yi=>{
-    const group=yCandidates[yi].sort((a,b)=>a.x-b.x);
-    const allHard=group.every(g=>g.hardOnly);
+    if(consumed.has(yi))return;
+    const group=byY[yi].sort((a,b)=>a.x-b.x);
 
-    if(allHard){
-      // Hardcoded row — collect all text lines at consecutive Ys
-      const text=group.map(g=>{
-        const m=g.content.match(/^"([^"]+)"$/);
-        return m?m[1]:g.content.replace(/^"|"$/g,'');
-      }).join('\n');
-      // check if it's multi-line by looking at similar x/rot at nearby Ys
-      rows.push({kind:'hard',x:group[0].x,y:yi,text,step:20,rot:group[0].rot,size:group[0].wm||1,mirror:roll==='double'});
-    } else {
-      // Variable row (may have multiple cells on same Y)
+    // Separate var cells from hard text in this Y group
+    const varCells=group.filter(p=>!p.isHard&&p.vKey&&!varMap[p.vKey]?.isLine2);
+    const hardCells=group.filter(p=>p.isHard);
+    const line2Cells=group.filter(p=>!p.isHard&&p.vKey&&varMap[p.vKey]?.isLine2);
+    // line2 cells are wrap continuation lines — skip as separate rows
+
+    // Handle var cells
+    if(varCells.length>0){
       const cells=[];
-      let rowX=group[0].x;
-      group.forEach((g,gi)=>{
-        if(!g.vKey)return;
-        const varInfo=varMap[g.vKey];
-        if(!varInfo)return;
-        checked.add(varInfo.name);
-        const cell={v:varInfo.name,prefix:g.prefix,wrap:varInfo.wrap||0,bold:g.wm||1,cxL:null,cxR:null};
-        if(gi>0){
-          cell.cxL=g.x;
-          // find right copy X
-          if(rightXMap[g.vKey])cell.cxR=rightXMap[g.vKey];
+      const firstX=varCells[0].x;
+      let xl=roll==='double'?firstX:undefined;
+      let xr=roll==='double'?(rightXMap[varCells[0].vKey]||firstX+405):undefined;
+
+      varCells.forEach((p,ci)=>{
+        const info=varMap[p.vKey];
+        if(!info)return;
+        checked.add(info.name);
+        const cell={v:info.name,prefix:p.prefix,wrap:info.wrap||0,bold:p.wm||1,cxL:null,cxR:null};
+        if(ci>0){
+          cell.cxL=p.x;
+          cell.cxR=rightXMap[p.vKey]||null;
         }
         cells.push(cell);
       });
-      if(cells.length>0){
-        const xrVal=roll==='double'&&rightXMap[group[0].vKey]?rightXMap[group[0].vKey]:null;
-        rows.push({
-          kind:'var',
-          x:rowX,
-          y:yi,
-          xl:roll==='double'?rowX:undefined,
-          xr:roll==='double'?(xrVal||rowX+405):undefined,
-          cells
-        });
-      }
+      if(cells.length)
+        rows.push({kind:'var',x:firstX,y:yi,xl,xr,cells});
     }
+
+    // Handle hard cells — try to merge consecutive same-x, same-rot lines into one block
+    if(hardCells.length>0){
+      // Group by x+rot signature
+      const hardGroups={};
+      hardCells.forEach(p=>{
+        const sig=`${p.x}_${p.rot}`;
+        if(!hardGroups[sig])hardGroups[sig]=[];
+        hardGroups[sig].push(p);
+      });
+      Object.values(hardGroups).forEach(hg=>{
+        const texts=[hg[0].hardText];
+        let step=20;
+        // look for continuation lines at subsequent Ys with same x+rot
+        let nextY=yi+step;
+        for(let attempt=0;attempt<20;attempt++){
+          // try to find a matching hard line at nextY
+          const candidates=(byY[nextY]||[]).filter(p=>p.isHard&&p.x===hg[0].x&&p.rot===hg[0].rot);
+          if(candidates.length){
+            step=nextY-yi-(texts.length-1)*step; // recalc step
+            step=nextY-yi; // simplify
+            consumed.add(nextY);
+            texts.push(candidates[0].hardText);
+            // find actual step from first to second
+            if(texts.length===2) step=nextY-yi;
+            nextY+=step;
+          } else {
+            // try nearby Ys (±5 units)
+            let found=false;
+            for(let dy=1;dy<=25;dy++){
+              const c2=(byY[yi+step*texts.length-dy]||[]).concat(byY[yi+step*texts.length+dy]||[])
+                .filter(p=>p.isHard&&p.x===hg[0].x&&p.rot===hg[0].rot);
+              if(c2.length){
+                const actualY=c2[0].y;consumed.add(actualY);texts.push(c2[0].hardText);
+                if(texts.length===2) step=actualY-yi;
+                nextY=actualY+step;found=true;break;
+              }
+            }
+            if(!found)break;
+          }
+        }
+        rows.push({
+          kind:'hard',
+          x:hg[0].x,
+          y:yi,
+          text:texts.join('\n'),
+          step:step||20,
+          rot:hg[0].rot,
+          size:hg[0].wm||1,
+          mirror:roll==='double'
+        });
+      });
+    }
+
+    consumed.add(yi);
   });
 
   // Add barcode rows from left B lines
   leftB.forEach(l=>{
-    const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);
-    if(!m)return;
+    const m=l.match(/^B(\d+),(\d+),.*,B,(V\d+)$/);if(!m)return;
     const vKey=m[3];
-    const varInfo=varMap[vKey];
-    if(!varInfo)return;
-    checked.add(varInfo.name);
-    const rightBcData=rightXMap[vKey];
+    const info=varMap[vKey];if(!info||info.isLine2)return;
+    checked.add(info.name);
+    const rightBc=rightXMap[vKey];
     rows.push({
-      kind:'bc',
-      v:varInfo.name,
+      kind:'bc',v:info.name,
       y:+m[2],
+      x:+m[1],
       xl:+m[1],
-      xr:roll==='double'?(typeof rightBcData==='object'?rightBcData.x:+m[1]+405):undefined,
-      x:+m[1]
+      xr:roll==='double'?(rightBc&&rightBc.bx?rightBc.bx:+m[1]+405):undefined
     });
   });
 
-  // Sort rows by Y
+  // Final sort by Y
   rows.sort((a,b)=>a.y-b.y);
+
+  // Add all found var names to checked (in case some were missed)
+  rows.forEach(r=>{
+    if(r.kind==='var') r.cells.forEach(c=>{if(c.v)checked.add(c.v);});
+    if(r.kind==='bc'&&r.v) checked.add(r.v);
+  });
 
   return{trace,roll,checked,rows};
 }
